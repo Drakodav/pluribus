@@ -54,3 +54,27 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 ### Future Work / Next Steps
 - Verify that a fresh conversation correctly loads workspace-scoped instructions.
 - Create the first project inside the `projects/` directory.
+
+---
+
+## 2026-07-09 Session: git-history-cv-extractor Initialization & Git Hooks
+* **Agent**: Antigravity
+
+### What Was Accomplished
+- Created project directory [projects/git-history-cv-extractor/](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/).
+- Created [pyproject.toml](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/pyproject.toml) to define the package properties and set up `ruff` formatting and linting rules. Added `gitpython>=3.1.50` to project dependencies.
+- Set up local [Justfile](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/Justfile) with targets `setup`, `run`, `format`, `lint`, and `clean`.
+- Configured local [.gitignore](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/.gitignore) to keep virtual environments (`.venv/`), caches, and execution outputs (`output/`) excluded from source control.
+- Created starter [main.py](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/main.py) utilizing `gitpython` to iterate commits and dump structured JSON history to `output/summary.json`.
+- Created a pre-commit shell script in [tools/git-hooks/pre-commit](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/tools/git-hooks/pre-commit) that automatically runs Ruff's linting and formatting on staged Python files and re-stages them.
+- Updated the root [justfile](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/justfile) with an `install-hooks` recipe to dynamically locate the Git hooks folder (supporting both normal checkouts and Git worktrees) and deploy the script.
+- Verified hooks installation, lint checks, formatting auto-corrections, and execution outputs successfully.
+
+### Architectural Decisions & Changes
+- Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `Justfile`.
+- Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
+
+### Future Work / Next Steps
+- Implement richer git parsing features in `main.py` (e.g. retrieving commit diff details, files modified, commit messages, and formatting summaries for AI ingestion).
+- Define final structured schema for CV-extraction outputs.
+

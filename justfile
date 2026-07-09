@@ -16,3 +16,13 @@ clean:
     @echo "Cleaning up temp files and caches..."
     rm -rf tmp/ temp/ logs/
     @echo "Cleanup complete."
+
+# Install repository-wide git pre-commit hooks
+install-hooks:
+    @echo "Installing pre-commit hooks..."
+    @HOOKS_DIR=$(git rev-parse --git-path hooks); \
+    mkdir -p "$HOOKS_DIR"; \
+    cp tools/git-hooks/pre-commit "$HOOKS_DIR/pre-commit"; \
+    chmod +x "$HOOKS_DIR/pre-commit"; \
+    echo "Pre-commit hooks installed successfully at $HOOKS_DIR/pre-commit"
+
