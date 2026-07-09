@@ -20,3 +20,7 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 ## 4. Code & Safety Conventions
 - **No Side Effects**: Do not make network requests or execute untrusted code without explicit user awareness.
 - **Linting & Formatting**: Follow formatting rules defined within each project folder. Maintain code styles and preserve unrelated comments or docstrings.
+
+## 5. Git & Commit Guidelines
+- **No Auto-Committing**: Do not run `git commit` automatically. Always present the proposed files and commit message to the user, and ask for explicit approval before running any commit command.
+

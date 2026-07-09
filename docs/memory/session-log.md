@@ -39,3 +39,18 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 ### Architectural Decisions & Changes
 - Decided to generalize the applications namespace to `projects/` to reflect that the repository houses diverse types of projects (libraries, packages, CLI tools, web apps).
 
+---
+
+## 2026-07-09 Session: Agent Rules and Readiness Check
+* **Agent**: Antigravity
+
+### What Was Accomplished
+- Appended a Git commit rule to `.agents/AGENTS.md` to prevent auto-commits without explicit user permission.
+- Verified that all workspace-scoped settings, documentation, and directories are properly configured to support starting a fresh conversation seamlessly.
+
+### Architectural Decisions & Changes
+- Added Section 5 (Git & Commit Guidelines) to [.agents/AGENTS.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/.agents/AGENTS.md).
+
+### Future Work / Next Steps
+- Verify that a fresh conversation correctly loads workspace-scoped instructions.
+- Create the first project inside the `projects/` directory.
