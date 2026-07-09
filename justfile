@@ -66,4 +66,40 @@ pre-commit:
     done; \
     echo "All pre-commit hooks completed successfully."
 
+# Ensure all .sh files are executable and print a change summary
+script-permissions:
+    #!/usr/bin/env sh
+    set -eu
+    echo "[script_permissions] Scanning for .sh files under $(pwd)..."
+    tmp_list="$(mktemp)"
+    find . \
+        \( -type d \( -name "node_modules" -o -name "vendor" \) -prune \) -o \
+        \( -type f -name "*.sh" -print \) | sort > "$tmp_list"
+    total="$(wc -l < "$tmp_list" | tr -d ' ')"
+    changed=0
+    tmp_changed="$(mktemp)"
+    trap 'rm -f "$tmp_list" "$tmp_changed"' EXIT
+
+    while IFS= read -r file; do
+        if [ -x "$file" ]; then
+            echo "[skip]    already executable: $file"
+        else
+            chmod +x "$file"
+            changed=$((changed + 1))
+            printf '%s\n' "$file" >> "$tmp_changed"
+            echo "[update]  added +x: $file"
+        fi
+    done < "$tmp_list"
+
+    already_executable=$((total - changed))
+    printf '\n[script_permissions] Summary\n  total .sh files found: %s\n  already executable:    %s\n  newly updated (+x):    %s\n' "$total" "$already_executable" "$changed"
+
+    if [ "$changed" -eq 0 ]; then
+        echo "  no permission changes were needed"
+    else
+        echo "  files updated:"
+        sed 's/^/    - /' "$tmp_changed"
+    fi
+
+
 

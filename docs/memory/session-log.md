@@ -77,6 +77,8 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Updated root `justfile` to dynamically write the 3-line pre-commit hook wrapper directly to the resolved Git hooks folder, and implement a parallel task scanner/runner that runs subproject pre-commits and auto-stages modified files.
 - Simplified `projects/git-history-cv-extractor/justfile` pre-commit target to only run linting, formatting, and typechecking commands.
 
+- Added a shebang recipe `script-permissions` to the root `justfile` that automates verifying and setting execute permissions on all shell scripts (`*.sh`) in the repository.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -88,6 +90,7 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 ### Future Work / Next Steps
 - Implement richer git parsing features in `main.py` (e.g. retrieving commit diff details, files modified, commit messages, and formatting summaries for AI ingestion).
 - Define final structured schema for CV-extraction outputs.
+
 
 
 
