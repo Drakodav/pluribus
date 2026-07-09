@@ -11,7 +11,7 @@ The repository is organized to maximize readability and contextual clarity for b
 - **`.agents/`** — Agent control plane: holds workspace-scoped rules, skills, and configuration.
   - **`skills/`** — Custom domain-specific skills for agents.
   - **`AGENTS.md`** — Workspace rules and instructions for agents.
-- **`apps/`** — Independent, deployable/runnable applications (e.g., frontends, API servers).
+- **`projects/`** — Independent projects and applications (e.g., frontends, APIs, libraries).
 - **`tools/`** — Command-line utilities, background scripts, and automation tools.
 - **`docs/`** — Knowledge base and repository documentation.
   - **`architecture/`** — Architectural Decision Records (ADRs).

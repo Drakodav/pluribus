@@ -22,4 +22,20 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 
 ### Future Work / Next Steps
 - Research and prototype an active agent memory database/knowledge graph system (see research plan in `implementation_plan.md`).
-- Initialize applications or tools in `apps/` or `tools/`.
+- Initialize applications or tools in `projects/` or `tools/`.
+
+---
+
+## 2026-07-09 Session: Renaming apps to projects
+* **Agent**: Antigravity
+
+### What Was Accomplished
+- Renamed the directory `apps/` to `projects/` using Git commands.
+- Updated all references from `apps/` to `projects/` in the codebase configuration and documentation:
+  - [readme.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/readme.md)
+  - [.agents/AGENTS.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/.agents/AGENTS.md)
+  - [docs/architecture/adr-001-monorepo-structure.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/docs/architecture/adr-001-monorepo-structure.md)
+
+### Architectural Decisions & Changes
+- Decided to generalize the applications namespace to `projects/` to reflect that the repository houses diverse types of projects (libraries, packages, CLI tools, web apps).
+

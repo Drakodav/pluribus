@@ -4,7 +4,7 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 
 ## 1. Directory Ownership & Decoupling
 - **Root Minimalist Policy**: Do not create top-level directories or workspace-wide package/project configuration files (e.g., `package.json`, `pyproject.toml` in the root). 
-- **Folder Scoping**: Keep project dependencies and runtime configurations isolated inside their respective subfolders under `apps/` and `tools/`.
+- **Folder Scoping**: Keep project dependencies and runtime configurations isolated inside their respective subfolders under `projects/` and `tools/`.
 - **Scratch Space**: Always use the `scratch/` directory for temporary files, log dumps, or test scripts. Never commit files directly under `scratch/` to Git.
 
 ## 2. Command Orchestration
