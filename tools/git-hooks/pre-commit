@@ -19,6 +19,9 @@ if [ -n "$STAGED_PY_FILES" ]; then
         uv run ruff check --fix .
         # Run Ruff format
         uv run ruff format .
+        # Run Typecheck with ty
+        echo "Running type safety checks with ty..."
+        uv run ty check .
         
         # Stage any modifications made by Ruff to the files that were already staged
         cd "$ROOT_DIR"

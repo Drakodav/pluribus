@@ -71,15 +71,21 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Verified hooks installation, lint checks, formatting auto-corrections, and execution outputs successfully.
 - Reverted local [.vscode/settings.json](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.vscode/settings.json) to its clean state.
 - Created [pluribus.code-workspace](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/pluribus.code-workspace) to configure VS Code as a Multi-Root Workspace, isolating interpreters and packages for subprojects natively.
+- Renamed the local sub-project task runner to all lowercase `justfile` and added a static typecheck task running Astral `ty`.
+- Updated [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md) with naming convention guidelines specifying lowercase kebab-case files/directories and lowercase `justfile` task runners.
+- Updated [pre-commit hook](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/tools/git-hooks/pre-commit) to enforce typecheck validation (`ty check`) on staged Python files.
 
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `Justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
 - Adopted the VS Code Multi-Root Workspace standard by introducing `pluribus.code-workspace` in the root folder, allowing VS Code to natively isolate interpreters and analysis configurations per subproject.
+- Enforced a directory and file naming rule: all folders and files must be lowercase and separated by dashes (kebab-case), and local task runners must be named `justfile` (all lowercase).
+- Added Astral's Rust-based `ty` type checker as the standard static typing verification tool.
 
 ### Future Work / Next Steps
 - Implement richer git parsing features in `main.py` (e.g. retrieving commit diff details, files modified, commit messages, and formatting summaries for AI ingestion).
 - Define final structured schema for CV-extraction outputs.
+
 
 
 

@@ -24,3 +24,7 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 ## 5. Git & Commit Guidelines
 - **No Auto-Committing**: Do not run `git commit` automatically. Always present the proposed files and commit message to the user, and ask for explicit approval before running any commit command.
 
+## 6. Naming Conventions
+- **Folder and File Names**: All directory and file names should be strictly lowercase and separated by a dash (kebab-case), for example: `git-history-cv-extractor` or `session-log.md`.
+- **Task Runner Names**: Local directory task runner files must be named `justfile` in all lowercase (never capitalized as `Justfile`).
+

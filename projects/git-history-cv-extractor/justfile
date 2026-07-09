@@ -22,6 +22,10 @@ format:
 lint:
     uv run ruff check .
 
+# Run static type checking with ty
+typecheck:
+    uv run ty check .
+
 # Clean temporary files, virtualenv, and output folder
 clean:
     rm -rf .venv/ output/
