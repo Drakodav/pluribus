@@ -22,7 +22,48 @@ install-hooks:
     @echo "Installing pre-commit hooks..."
     @HOOKS_DIR=$(git rev-parse --git-path hooks); \
     mkdir -p "$HOOKS_DIR"; \
-    cp tools/git-hooks/pre-commit "$HOOKS_DIR/pre-commit"; \
+    echo '#!/bin/sh' > "$HOOKS_DIR/pre-commit"; \
+    echo 'set -e' >> "$HOOKS_DIR/pre-commit"; \
+    echo 'exec just pre-commit' >> "$HOOKS_DIR/pre-commit"; \
     chmod +x "$HOOKS_DIR/pre-commit"; \
     echo "Pre-commit hooks installed successfully at $HOOKS_DIR/pre-commit"
+
+# Run pre-commit hooks for all projects containing staged changes
+pre-commit:
+    @echo "Checking staged files for pre-commit hooks..."
+    @STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM); \
+    if [ -z "$STAGED_FILES" ]; then \
+        echo "No staged files found. Skipping pre-commit checks."; \
+        exit 0; \
+    fi; \
+    DIRS_TO_RUN=""; \
+    for file in $STAGED_FILES; do \
+        dir=$(echo "$file" | cut -d'/' -f1-2); \
+        if [ -d "$dir" ] && [ -f "$dir/justfile" ] && grep -q "^pre-commit:" "$dir/justfile"; then \
+            if ! echo "$DIRS_TO_RUN" | grep -q "\<$dir\>"; then \
+                DIRS_TO_RUN="$DIRS_TO_RUN $dir"; \
+            fi; \
+        fi; \
+    done; \
+    if [ -z "$DIRS_TO_RUN" ]; then \
+        echo "No subprojects with staged files require pre-commit checks."; \
+        exit 0; \
+    fi; \
+    echo "Running pre-commit hooks for:$DIRS_TO_RUN"; \
+    pids=""; \
+    for dir in $DIRS_TO_RUN; do \
+        (cd "$dir" && just pre-commit) & \
+        pids="$pids $!"; \
+    done; \
+    for pid in $pids; do \
+        wait $pid || exit 1; \
+    done; \
+    for file in $STAGED_FILES; do \
+        if git diff --name-only | grep -q "^$file$"; then \
+            echo "Re-staging auto-formatted/fixed file: $file"; \
+            git add "$file"; \
+        fi; \
+    done; \
+    echo "All pre-commit hooks completed successfully."
+
 

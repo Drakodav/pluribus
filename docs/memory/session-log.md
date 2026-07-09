@@ -73,18 +73,22 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Created [pluribus.code-workspace](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/pluribus.code-workspace) to configure VS Code as a Multi-Root Workspace, isolating interpreters and packages for subprojects natively.
 - Renamed the local sub-project task runner to all lowercase `justfile` and added a static typecheck task running Astral `ty`.
 - Updated [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md) with naming convention guidelines specifying lowercase kebab-case files/directories and lowercase `justfile` task runners.
-- Updated [pre-commit hook](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/tools/git-hooks/pre-commit) to enforce typecheck validation (`ty check`) on staged Python files.
+- Deleted `tools/git-hooks/pre-commit` from source tree.
+- Updated root `justfile` to dynamically write the 3-line pre-commit hook wrapper directly to the resolved Git hooks folder, and implement a parallel task scanner/runner that runs subproject pre-commits and auto-stages modified files.
+- Simplified `projects/git-history-cv-extractor/justfile` pre-commit target to only run linting, formatting, and typechecking commands.
 
 ### Architectural Decisions & Changes
-- Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `Justfile`.
+- Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
 - Adopted the VS Code Multi-Root Workspace standard by introducing `pluribus.code-workspace` in the root folder, allowing VS Code to natively isolate interpreters and analysis configurations per subproject.
 - Enforced a directory and file naming rule: all folders and files must be lowercase and separated by dashes (kebab-case), and local task runners must be named `justfile` (all lowercase).
 - Added Astral's Rust-based `ty` type checker as the standard static typing verification tool.
+- Refactored the pre-commit hook architecture: the Git hook wrapper is generated inline during installation, while the root `justfile` dynamically orchestrates parallel subproject pre-commits and handles auto-staging, ensuring subproject recipes stay fully decoupled.
 
 ### Future Work / Next Steps
 - Implement richer git parsing features in `main.py` (e.g. retrieving commit diff details, files modified, commit messages, and formatting summaries for AI ingestion).
 - Define final structured schema for CV-extraction outputs.
+
 
 
 
