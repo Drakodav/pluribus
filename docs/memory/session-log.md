@@ -69,12 +69,17 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Created a pre-commit shell script in [tools/git-hooks/pre-commit](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/tools/git-hooks/pre-commit) that automatically runs Ruff's linting and formatting on staged Python files and re-stages them.
 - Updated the root [justfile](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/justfile) with an `install-hooks` recipe to dynamically locate the Git hooks folder (supporting both normal checkouts and Git worktrees) and deploy the script.
 - Verified hooks installation, lint checks, formatting auto-corrections, and execution outputs successfully.
+- Reverted local [.vscode/settings.json](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.vscode/settings.json) to its clean state.
+- Created [pluribus.code-workspace](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/pluribus.code-workspace) to configure VS Code as a Multi-Root Workspace, isolating interpreters and packages for subprojects natively.
 
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `Justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
+- Adopted the VS Code Multi-Root Workspace standard by introducing `pluribus.code-workspace` in the root folder, allowing VS Code to natively isolate interpreters and analysis configurations per subproject.
 
 ### Future Work / Next Steps
 - Implement richer git parsing features in `main.py` (e.g. retrieving commit diff details, files modified, commit messages, and formatting summaries for AI ingestion).
 - Define final structured schema for CV-extraction outputs.
+
+
 

@@ -1,0 +1,24 @@
+{
+    "folders": [
+        {
+            "name": "Pluribus (Root)",
+            "path": "."
+        },
+        {
+            "name": "Project: Git History CV Extractor",
+            "path": "projects/git-history-cv-extractor"
+        }
+    ],
+    "settings": {
+        "python.experiments.enabled": false,
+        "[python]": {
+            "editor.defaultFormatter": "charliermarsh.ruff",
+            "editor.formatOnSave": true,
+            "editor.codeActionsOnSave": {
+                "source.fixAll.ruff": "always",
+                "source.organizeImports.ruff": "always"
+            }
+        },
+        "python.terminal.activateEnvInCurrentTerminal": true
+    }
+}
