@@ -85,6 +85,12 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Implemented **Issue 001: Database Setup and Helpers** using SQLModel ORM to manage SQLite tables and calculate contribution metrics.
 - Added dependency declarations for `sqlmodel` and `questionary` in `projects/git-history-cv-extractor/pyproject.toml`.
 
+- Updated root `.gitignore` to globally ignore `**/.agents/temp/`.
+- Created universal Python standards under [.agents/rules/python.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/rules/python.md).
+- Updated Workspace Rules [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md) to restrict agent scopes to project-level `.agents/` and ignore project `.agents/temp/` directories.
+- Moved issues folder to `projects/git-history-cv-extractor/.agents/issues/`.
+- Removed root test script `scratch/test_database.py`.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -96,11 +102,13 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Selected **`sqlmodel`** (Pydantic + SQLAlchemy) as the standard database ORM framework to enforce strict static type checking.
 - Selected **`questionary`** to power the interactive arrow-key prompt wizard CLI.
 - Demanded **GitHub CLI (`gh`)** as the host auth dependency to retrieve OAuth tokens securely.
+- Codified monorepo project boundaries: agents must stay scoped to project-level `.agents/` folders, keep temporary code inside `.agents/temp/` (globally ignored), and reference shared rules inside root `.agents/rules/`.
 
 ### Future Work / Next Steps
 - Implement Issue 002: GitHub credentials auto-detection using `gh auth token`.
 - Implement Issue 003: GitPython cloning, fetching, and diff analysis logic.
 - Implement Issue 004: Console wizard loop, database summaries, and markdown report generator.
+
 
 
 

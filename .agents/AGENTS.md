@@ -4,8 +4,12 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 
 ## 1. Directory Ownership & Decoupling
 - **Root Minimalist Policy**: Do not create top-level directories or workspace-wide package/project configuration files (e.g., `package.json`, `pyproject.toml` in the root). 
-- **Folder Scoping**: Keep project dependencies and runtime configurations isolated inside their respective subfolders under `projects/` and `tools/`.
-- **Scratch Space**: Always use the `scratch/` directory for temporary files, log dumps, or test scripts. Never commit files directly under `scratch/` to Git.
+- **Folder Scoping**: Keep project dependencies, database paths, and runtime configurations isolated inside their respective subfolders under `projects/` and `tools/`.
+- **Project Agent Folders**: Every project must maintain a local `.agents/` folder for agent checklist tracking (`.agents/task.md`), issue PRDs (`.agents/issues/`), and temporary execution/scratch files (`.agents/temp/`).
+- **Scratch and Temp Space**:
+  - The root `scratch/` directory is only for workspace-wide temporary logs or notes.
+  - Subproject-specific temporary run files, manual testing scripts, or database test logs must be written inside `projects/<project-name>/.agents/temp/`. This folder is globally gitignored.
+- **Language Standards**: Subprojects must adhere to standardized language configurations defined inside `.agents/rules/` (e.g., `.agents/rules/python.md` for Python).
 
 ## 2. Command Orchestration
 - **Command Runner**: The repository uses `just` as the uniform interface for executing tasks.

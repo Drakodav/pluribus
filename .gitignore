@@ -63,3 +63,6 @@ MANIFEST
 logs/
 tmp/
 temp/
+
+# Project-specific AI agent temp files
+**/.agents/temp/
