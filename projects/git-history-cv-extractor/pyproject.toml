@@ -7,13 +7,12 @@ requires-python = ">=3.10"
 dependencies = [
     # Standard library tools will be used initially; external packages can be added as needed.
     "gitpython>=3.1.50",
+    "questionary>=2.1.1",
+    "sqlmodel>=0.0.39",
 ]
 
 [dependency-groups]
-dev = [
-    "ruff>=0.3.0",
-    "ty>=0.0.57",
-]
+dev = ["ruff>=0.3.0", "ty>=0.0.57"]
 
 [tool.ruff]
 line-length = 88

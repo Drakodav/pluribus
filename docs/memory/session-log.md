@@ -79,6 +79,9 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 
 - Added a shebang recipe `script-permissions` to the root `justfile` that automates verifying and setting execute permissions on all shell scripts (`*.sh`) in the repository.
 
+- Initialized [projects/git-history-cv-extractor/issues/](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/) directory.
+- Created issue specs [001-database-setup.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/001-database-setup.md), [002-github-authentication.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/002-github-authentication.md), [003-git-extractor-engine.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/003-git-extractor-engine.md), and [004-interactive-wizard-cli.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/004-interactive-wizard-cli.md) to serve as PRDs for the database wrapper, Device Flow login, extraction engine, and console wizard interface.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -86,10 +89,14 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Enforced a directory and file naming rule: all folders and files must be lowercase and separated by dashes (kebab-case), and local task runners must be named `justfile` (all lowercase).
 - Added Astral's Rust-based `ty` type checker as the standard static typing verification tool.
 - Refactored the pre-commit hook architecture: the Git hook wrapper is generated inline during installation, while the root `justfile` dynamically orchestrates parallel subproject pre-commits and handles auto-staging, ensuring subproject recipes stay fully decoupled.
+- Established an issue-based development process inside subprojects by defining requirements in modular local issue specs before implementing them.
 
 ### Future Work / Next Steps
-- Implement richer git parsing features in `main.py` (e.g. retrieving commit diff details, files modified, commit messages, and formatting summaries for AI ingestion).
-- Define final structured schema for CV-extraction outputs.
+- Implement Issue 001: SQLite schemas and python DatabaseHelper wrapper.
+- Implement Issue 002: GitHub credentials auto-detection and OAuth Device Authorization Flow.
+- Implement Issue 003: GitPython cloning, fetching, and diff analysis logic.
+- Implement Issue 004: Console wizard loop, database summaries, and markdown report generator.
+
 
 
 
