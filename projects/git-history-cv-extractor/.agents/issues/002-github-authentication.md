@@ -1,5 +1,8 @@
 # Issue 002: GitHub Authentication (gh CLI integration)
 
+* **Status**: Pending
+
+
 ## Overview
 To clone and pull private repositories, the tool needs a valid GitHub Access Token. We will leverage the official GitHub CLI (`gh`) to handle authentication, ensuring a secure and lightweight setup.
 

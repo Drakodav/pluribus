@@ -1,5 +1,8 @@
 # Issue 004: Interactive Wizard CLI & Markdown Exporter
 
+* **Status**: Pending
+
+
 ## Overview
 We need an interactive, wizard-based console interface to guide the user through authentication, ingesting repositories, checking database statistics, and exporting contribution summaries for AI ingestion.
 

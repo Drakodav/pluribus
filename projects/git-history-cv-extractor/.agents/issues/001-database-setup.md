@@ -1,5 +1,9 @@
 # Issue 001: Database Setup and Helpers
 
+* **Status**: Completed
+* **Implementation Commit**: `e72a5a9`
+
+
 ## Overview
 We need a local persistent data store to cache repository metadata, commit logs, and file changes. This allows us to run fast incremental updates, avoid re-parsing old commits, and run SQL queries to generate reports.
 

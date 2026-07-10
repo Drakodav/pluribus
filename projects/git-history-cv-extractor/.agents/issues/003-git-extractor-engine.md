@@ -1,5 +1,8 @@
 # Issue 003: Git Extraction Engine
 
+* **Status**: Pending
+
+
 ## Overview
 We need an extraction engine that clones remote repositories, performs incremental fetching, parses commits and file diff statistics, and stores them in the SQLite database.
 
