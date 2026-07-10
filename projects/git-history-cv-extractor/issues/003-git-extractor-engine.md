@@ -5,10 +5,14 @@ We need an extraction engine that clones remote repositories, performs increment
 
 We will use the **GitPython** library to perform repository operations and walk commit history.
 
+To support mode separation:
+- **Test Mode**: Cloned repositories are saved to `output/test/repos/<repo-name>/`.
+- **Real Mode**: Cloned repositories are saved to `output/real/repos/<repo-name>/`.
+
 ## Requirements
 
 ### 1. Repository Life-cycle & Path Mapping
-* Save all clones permanently inside `output/repos/<repo-name>/`.
+* Save all clones inside `<mode_dir>/repos/<repo-name>/`.
 * If a repository has not been cloned yet:
   - Form the authenticated clone URL using the retrieved access token:
     `https://<token>@github.com/<owner>/<repo>.git` (or use the SSH path directly if the URL specifies SSH).

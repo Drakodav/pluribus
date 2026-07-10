@@ -3,7 +3,11 @@
 ## Overview
 We need a local persistent data store to cache repository metadata, commit logs, and file changes. This allows us to run fast incremental updates, avoid re-parsing old commits, and run SQL queries to generate reports.
 
-We will use **`sqlmodel`** (built on top of SQLAlchemy and Pydantic) for type safety and database table mappings. The database file will be stored at `output/extractor.db`.
+We will use **`sqlmodel`** (built on top of SQLAlchemy and Pydantic) for type safety and database table mappings.
+
+To isolate test runs from actual data ingestion, the database file will be stored dynamically:
+- **Test Mode**: `output/test/test_extractor.db`
+- **Real Mode**: `output/real/extractor.db`
 
 ## Requirements
 

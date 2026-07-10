@@ -82,6 +82,9 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Initialized [projects/git-history-cv-extractor/issues/](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/) directory.
 - Created issue specs [001-database-setup.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/001-database-setup.md), [002-github-authentication.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/002-github-authentication.md), [003-git-extractor-engine.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/003-git-extractor-engine.md), and [004-interactive-wizard-cli.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/004-interactive-wizard-cli.md) to serve as PRDs for the database wrapper, Device Flow login, extraction engine, and console wizard interface.
 
+- Implemented **Issue 001: Database Setup and Helpers** using SQLModel ORM to manage SQLite tables and calculate contribution metrics.
+- Added dependency declarations for `sqlmodel` and `questionary` in `projects/git-history-cv-extractor/pyproject.toml`.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -90,12 +93,15 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Added Astral's Rust-based `ty` type checker as the standard static typing verification tool.
 - Refactored the pre-commit hook architecture: the Git hook wrapper is generated inline during installation, while the root `justfile` dynamically orchestrates parallel subproject pre-commits and handles auto-staging, ensuring subproject recipes stay fully decoupled.
 - Established an issue-based development process inside subprojects by defining requirements in modular local issue specs before implementing them.
+- Selected **`sqlmodel`** (Pydantic + SQLAlchemy) as the standard database ORM framework to enforce strict static type checking.
+- Selected **`questionary`** to power the interactive arrow-key prompt wizard CLI.
+- Demanded **GitHub CLI (`gh`)** as the host auth dependency to retrieve OAuth tokens securely.
 
 ### Future Work / Next Steps
-- Implement Issue 001: SQLite schemas and python DatabaseHelper wrapper.
-- Implement Issue 002: GitHub credentials auto-detection and OAuth Device Authorization Flow.
+- Implement Issue 002: GitHub credentials auto-detection using `gh auth token`.
 - Implement Issue 003: GitPython cloning, fetching, and diff analysis logic.
 - Implement Issue 004: Console wizard loop, database summaries, and markdown report generator.
+
 
 
 

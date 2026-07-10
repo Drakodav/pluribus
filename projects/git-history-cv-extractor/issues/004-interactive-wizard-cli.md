@@ -7,20 +7,27 @@ We will use the **`questionary`** library to implement a premium console menu wi
 
 ## Requirements
 
-### 1. The Interactive Console Loop (using Questionary)
+### 1. Startup Mode Prompt
+Upon starting the tool, the CLI must prompt the user to select their running mode:
+* **Test Mode**: Uses the database and workspace paths under `output/test/`.
+* **Real Mode**: Uses the database and workspace paths under `output/real/`.
+
+This choice sets the active subdirectory path for all operations.
+
+### 2. The Interactive Console Loop (using Questionary)
 Design a text menu loop showing:
-* **Current Status Banner**: Display the login status (e.g. `Logged in as: <username>`) and the number of ingested repositories.
+* **Current Status Banner**: Display the active mode (e.g. `[Test Mode]` or `[Real Mode]`), the login status (e.g. `Logged in as: <username>`), and the number of ingested repositories in that mode.
 * **Menu Options**:
   1. **Authenticate with GitHub**: Runs the `gh CLI` check and caches the token.
-  2. **Add / Sync a Repository**: Prompts the user for a Git URL, performs the clone/fetch scan, and updates the SQLite database.
-  3. **Show Database Stats**: Prints a summarized dashboard of all ingested repositories (total commits, lines of code changed, language breakdown by file extensions).
-  4. **Generate Markdown Summary**: Prompts for a target file path and generates a formatted Markdown file summarizing commits, files worked on, and description details.
+  2. **Add / Sync a Repository**: Prompts the user for a Git URL, performs the clone/fetch scan, and updates the active mode database.
+  3. **Show Database Stats**: Prints a summarized dashboard of all ingested repositories in the active mode (total commits, lines of code changed, language breakdown by file extensions).
+  4. **Generate Markdown Summary**: Generates a formatted Markdown file summarizing commits, files worked on, and description details, saved to `<mode_dir>/reports/contributions_summary.md`.
   5. **Exit**: Exits the program.
 
-### 2. Markdown Exporter Details (Repository Grouped)
+### 3. Markdown Exporter Details (Repository Grouped)
 Implement a report generation utility that groups your achievements by repository:
-* Retrieve all commits and file change metrics for the author from the SQLite database.
-* Group commits by repository and write a structured Markdown file (e.g. `output/contributions_summary.md`).
+* Retrieve all commits and file change metrics for the author from the active SQLite database.
+* Group commits by repository and write a structured Markdown file.
 * For each repository, format the following details:
   - **Repository Name and Remote URL**
   - **Auto-detected Tech Stack**: Inferred from the file extensions modified by the author in this repository (e.g., `Python, Shell, Markdown`).
@@ -34,6 +41,6 @@ Implement a report generation utility that groups your achievements by repositor
 ## Definition of Done
 - Console script complies with Ruff formatting/linting and `ty` type checking.
 - Verification steps:
-  - Launching the tool starts the interactive menu.
+  - Launching the tool prompts for Test vs. Real Mode.
   - Selecting "Show Database Stats" prints a correctly aligned summary.
   - Selecting "Generate Markdown Summary" successfully creates a readable Markdown file detailing contributions.
