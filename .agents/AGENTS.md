@@ -39,3 +39,7 @@ Using default triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `r
 ### Domain docs
 
 Multi-context layout configured. See `docs/agents/domain.md`.
+
+### Git workflows
+
+Branching, commit conventions, PR structure, and worktrees. See `docs/agents/git-workflows.md`.

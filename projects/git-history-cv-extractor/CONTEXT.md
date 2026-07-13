@@ -1,3 +1,10 @@
+---
+name: git-history-cv-extractor
+alias: git-cv
+description: CLI utility that scans Git repositories, stores commit/file changes in SQLite, and generates structured Markdown summaries for CV consumption.
+stack: python cli
+---
+
 # Git History CV Extractor
 
 A CLI utility that scans local or remote Git repositories to parse commit history, authors, diff statistics, and file change metrics, storing them in a local SQLite cache. It aggregates this data to generate structured Markdown summaries that can be consumed by downstream AI systems to construct or update a CV/resume.

@@ -4,12 +4,12 @@ Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all op
 
 ## Conventions
 
-For monorepo projects, issue titles must be prefixed with `[project-name]` and carry a label matching the `project-name` directory to allow clean filtering (e.g. `--label git-history-cv-extractor`).
+For subproject issues, if the project has an `alias` defined in its `CONTEXT.md` metadata header, the issue title MUST be prefixed with `[<project-alias>]` and carry a label matching `<project-alias>` (e.g. `--label git-cv`). If no alias is defined, fall back to the project folder name.
 
-- **Create a project issue**: `gh issue create --title "[<project-name>] <title>" --body "..." --label "<project-name>"`
+- **Create a project issue**: `gh issue create --title "[<project-alias>] <title>" --body "..." --label "<project-alias>"` (Ensure the label exists; create it using `gh label create <project-alias>` if missing).
 - **Create a general issue**: `gh issue create --title "..." --body "..."`
 - **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
-- **List project issues**: `gh issue list --label "<project-name>" --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
+- **List project issues**: `gh issue list --label "<project-alias>" --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> --comment "..."`

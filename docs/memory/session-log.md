@@ -18,7 +18,7 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Created `docs/memory/README.md` and initialized this session log to record project milestones.
 
 ### Architectural Decisions & Changes
-- Resolved to use a Decoupled, Justfile-Driven Monorepo instead of TS/Python workspace configurations at the root level (see [ADR 001](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/docs/architecture/adr-001-monorepo-structure.md)).
+- Resolved to use a Decoupled, Justfile-Driven Monorepo instead of TS/Python workspace configurations at the root level (see [ADR 001](../architecture/adr-001-monorepo-structure.md)).
 
 ### Future Work / Next Steps
 - Research and prototype an active agent memory database/knowledge graph system (see research plan in `implementation_plan.md`).
@@ -32,9 +32,9 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 ### What Was Accomplished
 - Renamed the directory `apps/` to `projects/` using Git commands.
 - Updated all references from `apps/` to `projects/` in the codebase configuration and documentation:
-  - [readme.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/readme.md)
-  - [.agents/AGENTS.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/.agents/AGENTS.md)
-  - [docs/architecture/adr-001-monorepo-structure.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/docs/architecture/adr-001-monorepo-structure.md)
+  - [readme.md](../../readme.md)
+  - [.agents/AGENTS.md](../../.agents/AGENTS.md)
+  - [docs/architecture/adr-001-monorepo-structure.md](../architecture/adr-001-monorepo-structure.md)
 
 ### Architectural Decisions & Changes
 - Decided to generalize the applications namespace to `projects/` to reflect that the repository houses diverse types of projects (libraries, packages, CLI tools, web apps).
@@ -49,7 +49,7 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Verified that all workspace-scoped settings, documentation, and directories are properly configured to support starting a fresh conversation seamlessly.
 
 ### Architectural Decisions & Changes
-- Added Section 5 (Git & Commit Guidelines) to [.agents/AGENTS.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/.agents/AGENTS.md).
+- Added Section 5 (Git & Commit Guidelines) to [.agents/AGENTS.md](../../.agents/AGENTS.md).
 
 ### Future Work / Next Steps
 - Verify that a fresh conversation correctly loads workspace-scoped instructions.
@@ -61,33 +61,33 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 * **Agent**: Antigravity
 
 ### What Was Accomplished
-- Created project directory [projects/git-history-cv-extractor/](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/).
-- Created [pyproject.toml](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/pyproject.toml) to define the package properties and set up `ruff` formatting and linting rules. Added `gitpython>=3.1.50` to project dependencies.
-- Set up local [Justfile](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/Justfile) with targets `setup`, `run`, `format`, `lint`, and `clean`.
-- Configured local [.gitignore](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/.gitignore) to keep virtual environments (`.venv/`), caches, and execution outputs (`output/`) excluded from source control.
-- Created starter [main.py](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/main.py) utilizing `gitpython` to iterate commits and dump structured JSON history to `output/summary.json`.
-- Created a pre-commit shell script in [tools/git-hooks/pre-commit](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/tools/git-hooks/pre-commit) that automatically runs Ruff's linting and formatting on staged Python files and re-stages them.
-- Updated the root [justfile](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/justfile) with an `install-hooks` recipe to dynamically locate the Git hooks folder (supporting both normal checkouts and Git worktrees) and deploy the script.
+- Created project directory [projects/git-history-cv-extractor/](../../projects/git-history-cv-extractor/).
+- Created [pyproject.toml](../../projects/git-history-cv-extractor/pyproject.toml) to define the package properties and set up `ruff` formatting and linting rules. Added `gitpython>=3.1.50` to project dependencies.
+- Set up local [justfile](../../projects/git-history-cv-extractor/justfile) with targets `setup`, `run`, `format`, `lint`, and `clean`.
+- Configured local [.gitignore](../../projects/git-history-cv-extractor/.gitignore) to keep virtual environments (`.venv/`), caches, and execution outputs (`output/`) excluded from source control.
+- Created starter [main.py](../../projects/git-history-cv-extractor/main.py) utilizing `gitpython` to iterate commits and dump structured JSON history to `output/summary.json`.
+- Created a pre-commit shell script in [tools/git-hooks/pre-commit](../../tools/git-hooks/pre-commit) that automatically runs Ruff's linting and formatting on staged Python files and re-stages them.
+- Updated the root [justfile](../../justfile) with an `install-hooks` recipe to dynamically locate the Git hooks folder (supporting both normal checkouts and Git worktrees) and deploy the script.
 - Verified hooks installation, lint checks, formatting auto-corrections, and execution outputs successfully.
-- Reverted local [.vscode/settings.json](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.vscode/settings.json) to its clean state.
-- Created [pluribus.code-workspace](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/pluribus.code-workspace) to configure VS Code as a Multi-Root Workspace, isolating interpreters and packages for subprojects natively.
+- Reverted local [.vscode/settings.json](../../.vscode/settings.json) to its clean state.
+- Created [pluribus.code-workspace](../../pluribus.code-workspace) to configure VS Code as a Multi-Root Workspace, isolating interpreters and packages for subprojects natively.
 - Renamed the local sub-project task runner to all lowercase `justfile` and added a static typecheck task running Astral `ty`.
-- Updated [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md) with naming convention guidelines specifying lowercase kebab-case files/directories and lowercase `justfile` task runners.
+- Updated [.agents/AGENTS.md](../../.agents/AGENTS.md) with naming convention guidelines specifying lowercase kebab-case files/directories and lowercase `justfile` task runners.
 - Deleted `tools/git-hooks/pre-commit` from source tree.
 - Updated root `justfile` to dynamically write the 3-line pre-commit hook wrapper directly to the resolved Git hooks folder, and implement a parallel task scanner/runner that runs subproject pre-commits and auto-stages modified files.
 - Simplified `projects/git-history-cv-extractor/justfile` pre-commit target to only run linting, formatting, and typechecking commands.
 
 - Added a shebang recipe `script-permissions` to the root `justfile` that automates verifying and setting execute permissions on all shell scripts (`*.sh`) in the repository.
 
-- Initialized [projects/git-history-cv-extractor/issues/](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/) directory.
-- Created issue specs [001-database-setup.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/001-database-setup.md), [002-github-authentication.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/002-github-authentication.md), [003-git-extractor-engine.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/003-git-extractor-engine.md), and [004-interactive-wizard-cli.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/projects/git-history-cv-extractor/issues/004-interactive-wizard-cli.md) to serve as PRDs for the database wrapper, Device Flow login, extraction engine, and console wizard interface.
+- Initialized [projects/git-history-cv-extractor/issues/](../../projects/git-history-cv-extractor/issues/) directory.
+- Created issue specs [001-database-setup.md](../../projects/git-history-cv-extractor/issues/001-database-setup.md), [002-github-authentication.md](../../projects/git-history-cv-extractor/issues/002-github-authentication.md), [003-git-extractor-engine.md](../../projects/git-history-cv-extractor/issues/003-git-extractor-engine.md), and [004-interactive-wizard-cli.md](../../projects/git-history-cv-extractor/issues/004-interactive-wizard-cli.md) to serve as PRDs for the database wrapper, Device Flow login, extraction engine, and console wizard interface.
 
 - Implemented **Issue 001: Database Setup and Helpers** using SQLModel ORM to manage SQLite tables and calculate contribution metrics.
 - Added dependency declarations for `sqlmodel` and `questionary` in `projects/git-history-cv-extractor/pyproject.toml`.
 
 - Updated root `.gitignore` to globally ignore `**/.agents/temp/`.
-- Created universal Python standards under [.agents/rules/python.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/rules/python.md).
-- Updated Workspace Rules [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md) to restrict agent scopes to project-level `.agents/` and ignore project `.agents/temp/` directories.
+- Created universal Python standards under [.agents/rules/python.md](../../.agents/rules/python.md).
+- Updated Workspace Rules [.agents/AGENTS.md](../../.agents/AGENTS.md) to restrict agent scopes to project-level `.agents/` and ignore project `.agents/temp/` directories.
 - Moved issues folder to `projects/git-history-cv-extractor/.agents/issues/`.
 - Removed root test script `scratch/test_database.py`.
 
@@ -125,11 +125,11 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 
 ### What Was Accomplished
 - Executed the `/setup-matt-pocock-skills` initialization flow.
-- Added agent configuration details to [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md).
+- Added agent configuration details to [.agents/AGENTS.md](../../.agents/AGENTS.md).
 - Created `docs/agents/` configurations:
-  - [issue-tracker.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/docs/agents/issue-tracker.md) to integrate the `gh` CLI for tracking issues on GitHub.
-  - [triage-labels.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/docs/agents/triage-labels.md) mapping triage roles to canonical label strings.
-  - [domain.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/docs/agents/domain.md) outlining multi-context rules for consuming domain glossaries and ADRs.
+  - [issue-tracker.md](../agents/issue-tracker.md) to integrate the `gh` CLI for tracking issues on GitHub.
+  - [triage-labels.md](../agents/triage-labels.md) mapping triage roles to canonical label strings.
+  - [domain.md](../agents/domain.md) outlining multi-context rules for consuming domain glossaries and ADRs.
 
 ### Architectural Decisions & Changes
 - Selected GitHub issues as the repository work-tracking system.
@@ -144,13 +144,13 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 * **Agent**: Antigravity
 
 ### What Was Accomplished
-- Created a root [LICENSE](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/LICENSE) file implementing a custom MIT-style license with an explicit Non-AI training restriction.
-- Overhauled the root [readme.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/readme.md):
+- Created a root [LICENSE](../../LICENSE) file implementing a custom MIT-style license with an explicit Non-AI training restriction.
+- Overhauled the root [readme.md](../../readme.md):
   - Added the **Story & Philosophy** of Pluribus, documenting its naming origin (Latin/Monkey 47) and mission to solve context and setup fatigue by serving as a unified home for personal projects.
   - Defined the **AI-Native** design of the repository for developer-agent collaboration.
   - Documented a reflection on the modern Python ecosystem (10 years later) highlighting tools like `uv`, `ruff`, `ty`, `sqlmodel`, and `just` as a highly polished DX.
   - Added information on VS Code Multi-Root Workspace setups, pre-commit hook installation, and the custom license file.
-- Overhauled the project README at [projects/git-history-cv-extractor/README.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/projects/git-history-cv-extractor/README.md):
+- Overhauled the project README at [projects/git-history-cv-extractor/README.md](../../projects/git-history-cv-extractor/README.md):
   - Expanded the **Features** list to describe the Interactive Console Wizard, Dual-Mode operation (Test/Real), SQLite caching database, extraction engine, author resolution, and Markdown report exporter.
   - Added **GitHub CLI (gh)** as a system prerequisite for Real Mode authentication.
   - Updated the **Command Reference** with the new `just typecheck` and `just pre-commit` recipes.

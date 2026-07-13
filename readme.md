@@ -57,4 +57,4 @@ just install-hooks
 
 ## License
 
-This repository is licensed under a custom **MIT License with Non-AI Restriction**. You are free to download, study, and use the code for personal development, but usage of this codebase (or any portion thereof) for the purpose of training machine learning models or artificial intelligence systems is strictly prohibited. See [LICENSE](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/LICENSE) for details.
+This repository is licensed under a custom **MIT License with Non-AI Restriction**. You are free to download, study, and use the code for personal development, but usage of this codebase (or any portion thereof) for the purpose of training machine learning models or artificial intelligence systems is strictly prohibited. See [LICENSE](LICENSE) for details.
