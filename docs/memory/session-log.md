@@ -95,6 +95,8 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 
 - Implemented **Issue 003: Git Extraction Engine**: created the `GitExtractor` class, which handles cloning/fetching, dynamic author matching via callbacks, and commit log parsing with line additions/deletions statistics via GitPython.
 
+- Implemented **Issue 004: Interactive Wizard CLI & Markdown Exporter**: added startup mode selector, interactive questionary menu choices, aligned stats dashboard, and repository-grouped Markdown exporter compiling contribution summaries.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -109,7 +111,9 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Codified monorepo project boundaries: agents must stay scoped to project-level `.agents/` folders, keep temporary code inside `.agents/temp/` (globally ignored), and reference shared rules inside root `.agents/rules/`.
 
 ### Future Work / Next Steps
-- Implement Issue 004: Console wizard loop, database summaries, and markdown report generator.
+- Verify the tool in production with real repository contribution logs.
+- Explore parsing commit diff lines more granularly to isolate key phrases or achievements for the CV.
+
 
 
 
