@@ -70,11 +70,19 @@ class GitExtractor:
         self.db_helper.set_config("author_emails", json.dumps(emails))
 
     def scan_repository(
-        self, url: str, email_prompt_callback: Callable[[str, str], bool]
+        self,
+        url: str,
+        email_prompt_callback: Callable[[str, str], bool],
+        is_local: bool = False,
     ) -> dict:
         """Syncs the repository locally and parses all un-scanned commits."""
-        repo, local_path = self.clone_or_update(url)
-        repo_name = self.get_repo_name(url)
+        if is_local:
+            local_path = Path(url)
+            repo = git.Repo(local_path)
+            repo_name = local_path.name
+        else:
+            repo, local_path = self.clone_or_update(url)
+            repo_name = self.get_repo_name(url)
 
         # Register repository in database
         repo_id = self.db_helper.add_repository(

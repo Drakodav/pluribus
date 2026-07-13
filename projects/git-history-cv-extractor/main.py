@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import git
 import questionary
 from sqlmodel import Session, select
 
@@ -145,22 +146,55 @@ def main():
     # Initialize helpers
     db_helper = DatabaseHelper(db_path)
     auth_helper = GitHubAuth(db_helper)
+    workspace_root = project_dir.parent.parent
 
-    if not auth_helper.check_gh_cli():
-        print("\033[1;31m[Error] GitHub CLI (gh) is not installed.\033[0m")
-        print("Please install it from https://cli.github.com/ and login first.")
-        sys.exit(1)
+    # Mode-based initialization
+    if is_test:
+        try:
+            repo = git.Repo(workspace_root)
+            gh_user = str(
+                repo.config_reader().get_value("user", "name") or "local-user"
+            )
+        except Exception:
+            gh_user = "local-user"
+        token = None
+        extractor = GitExtractor(db_helper, repos_dir, token)
 
-    # Resolve token credentials
-    token: str | None = None
-    try:
-        token = auth_helper.authenticate()
-    except RuntimeError as e:
-        print(f"\033[1;31m[Auth Error] {e}\033[0m")
-        sys.exit(1)
+        # Auto-ingest local workspace read-only on startup
+        print(
+            f"\n[Test Mode] Automatically scanning local repository: "
+            f"'{workspace_root.name}'..."
+        )
+        try:
 
-    gh_user = get_gh_username()
-    extractor = GitExtractor(db_helper, repos_dir, token)
+            def prompt_email(name: str, email: str) -> bool:
+                prompt_msg = (
+                    f"[Test Mode] Found commits by '{name} <{email}>'. Is this you?"
+                )
+                res = questionary.confirm(prompt_msg, default=True).ask()
+                return bool(res)
+
+            extractor.scan_repository(str(workspace_root), prompt_email, is_local=True)
+            print(
+                "\033[1;32m[Success] Automatically Ingested Local Workspace "
+                "History!\033[0m"
+            )
+        except Exception as e:
+            print(f"\033[1;31m[Test Mode Setup Error] {e}\033[0m")
+    else:
+        if not auth_helper.check_gh_cli():
+            print("\033[1;31m[Error] GitHub CLI (gh) is not installed.\033[0m")
+            print("Please install it from https://cli.github.com/ and login first.")
+            sys.exit(1)
+
+        try:
+            token = auth_helper.authenticate()
+        except RuntimeError as e:
+            print(f"\033[1;31m[Auth Error] {e}\033[0m")
+            sys.exit(1)
+
+        gh_user = get_gh_username()
+        extractor = GitExtractor(db_helper, repos_dir, token)
 
     # Console Wizard loop
     while True:
@@ -187,6 +221,12 @@ def main():
         ).ask()
 
         if choice == "Authenticate & Check Token Status":
+            if is_test:
+                print(
+                    "\033[1;33m[Test Mode] Authentication is bypassed. "
+                    "No active token cached.\033[0m"
+                )
+                continue
             try:
                 auth_helper.clear_cached_token()
                 fresh_token = auth_helper.authenticate()
