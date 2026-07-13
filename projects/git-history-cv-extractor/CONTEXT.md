@@ -31,3 +31,12 @@ _Avoid_: production mode
 **Test Mode**:
 An isolated execution setting where repository clones and database caches are targeted under separate testing directory structures.
 _Avoid_: mock mode, sandbox
+
+
+# git-history-cv-extractor Checklist
+
+- [x] Issue 001: Database Setup and Helpers
+- [x] Issue 002: GitHub Authentication (gh CLI integration)
+- [x] Issue 003: Git Extraction Engine (GitPython scanning & author matching)
+- [x] Issue 004: Interactive Wizard CLI (Questionary & Markdown report)
+- [ ] Issue 005: Unit Testing & Mock Verifications (pytest implementation)
