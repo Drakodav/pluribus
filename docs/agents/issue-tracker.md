@@ -4,9 +4,12 @@ Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all op
 
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
+For monorepo projects, issue titles must be prefixed with `[project-name]` and carry a label matching the `project-name` directory to allow clean filtering (e.g. `--label git-history-cv-extractor`).
+
+- **Create a project issue**: `gh issue create --title "[<project-name>] <title>" --body "..." --label "<project-name>"`
+- **Create a general issue**: `gh issue create --title "..." --body "..."`
 - **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
-- **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
+- **List project issues**: `gh issue list --label "<project-name>" --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> --comment "..."`
