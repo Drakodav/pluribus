@@ -25,6 +25,9 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 - **Folder and File Names**: All directory and file names should be strictly lowercase and separated by a dash (kebab-case), for example: `git-history-cv-extractor` or `session-log.md`.
 - **Task Runner Names**: Local directory task runner files must be named `justfile` in all lowercase (never capitalized as `Justfile`).
 
+## 6. Interactive Questions
+- **UI Prompts**: When a task or skill requires asking the user a question, clarifying requirements, or obtaining decisions/feedback, you MUST use the built-in `ask_question` tool instead of asking inside your textual response. This halts execution and prompts the user via the interactive UI dialog, allowing for a structured response.
+
 
 ## Agent skills
 
