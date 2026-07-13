@@ -96,6 +96,8 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Implemented **Issue 003: Git Extraction Engine**: created the `GitExtractor` class, which handles cloning/fetching, dynamic author matching via callbacks, and commit log parsing with line additions/deletions statistics via GitPython.
 
 - Implemented **Issue 004: Interactive Wizard CLI & Markdown Exporter**: added startup mode selector, interactive questionary menu choices, aligned stats dashboard, and repository-grouped Markdown exporter compiling contribution summaries.
+- Optimized **Test Mode & Local Workspace Scanning**: bypassed GitHub CLI validation checks in Test Mode and added in-place read-only scanning of the monorepo workspace repository on startup.
+- Resolved **Prompt Repetitiveness Bug**: implemented a persistent `ignored_emails` configuration cache in SQLite to guarantee that once you select `No` for an email address, you are never prompted about it again.
 
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
@@ -112,15 +114,29 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 
 ### Future Work / Next Steps
 - Verify the tool in production with real repository contribution logs.
+- Implement Issue 005: Unit Testing & Mock Verifications (pytest implementation).
 - Explore parsing commit diff lines more granularly to isolate key phrases or achievements for the CV.
 
 
+---
 
+## 2026-07-13 Session: Skill Setup (/setup-matt-pocock-skills)
+* **Agent**: Antigravity
 
+### What Was Accomplished
+- Executed the `/setup-matt-pocock-skills` initialization flow.
+- Added agent configuration details to [.agents/AGENTS.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/.agents/AGENTS.md).
+- Created `docs/agents/` configurations:
+  - [issue-tracker.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/docs/agents/issue-tracker.md) to integrate the `gh` CLI for tracking issues on GitHub.
+  - [triage-labels.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/docs/agents/triage-labels.md) mapping triage roles to canonical label strings.
+  - [domain.md](file:///Users/znglyvlad/.gemini/antigravity/worktrees/pluribus/init-git-history-extractor/docs/agents/domain.md) outlining multi-context rules for consuming domain glossaries and ADRs.
 
+### Architectural Decisions & Changes
+- Selected GitHub issues as the repository work-tracking system.
+- Confirmed a multi-context domain documentation layout (`CONTEXT-MAP.md` at root pointing to per-context `CONTEXT.md` files) to align with the monorepo structure.
 
-
-
+### Future Work / Next Steps
+- Implement `CONTEXT-MAP.md` at root and context-specific domain glossaries/docs as needed for the monorepo projects.
 
 
 
