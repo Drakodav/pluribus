@@ -1,11 +1,11 @@
 {
     "folders": [
         {
-            "name": "Pluribus (Root)",
+            "name": "🏠 pluribus",
             "path": "."
         },
         {
-            "name": "Project: Git History CV Extractor",
+            "name": "└ git-history-cv-extractor",
             "path": "projects/git-history-cv-extractor"
         }
     ],
