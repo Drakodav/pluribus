@@ -69,6 +69,22 @@ class GitExtractor:
         """Caches approved author emails list in the database config table."""
         self.db_helper.set_config("author_emails", json.dumps(emails))
 
+    def get_ignored_emails(self) -> list[str]:
+        """Retrieves user-ignored author emails cached in the database."""
+        emails_str = self.db_helper.get_config("ignored_emails")
+        if emails_str:
+            try:
+                emails = json.loads(emails_str)
+                if isinstance(emails, list):
+                    return [str(e) for e in emails]
+            except json.JSONDecodeError:
+                pass
+        return []
+
+    def save_ignored_emails(self, emails: list[str]):
+        """Caches ignored author emails list in the database config table."""
+        self.db_helper.set_config("ignored_emails", json.dumps(emails))
+
     def scan_repository(
         self,
         url: str,
@@ -112,6 +128,7 @@ class GitExtractor:
 
         # Initialize email mappings
         author_emails = self.get_author_emails()
+        ignored_emails = self.get_ignored_emails()
         if not author_emails:
             try:
                 config_email = repo.config_reader().get_value("user", "email")
@@ -125,6 +142,9 @@ class GitExtractor:
             email = str(commit.author.email or "unknown@email.com")
             name = str(commit.author.name or "Unknown Author")
 
+            if email in ignored_emails:
+                continue
+
             # Check dynamic email mappings
             if email not in author_emails:
                 is_me = email_prompt_callback(name, email)
@@ -132,6 +152,8 @@ class GitExtractor:
                     author_emails.append(email)
                     self.save_author_emails(author_emails)
                 else:
+                    ignored_emails.append(email)
+                    self.save_ignored_emails(ignored_emails)
                     # Skip commit if not written by the user
                     continue
 

@@ -4,3 +4,5 @@
 - [x] Issue 002: GitHub Authentication (gh CLI integration)
 - [x] Issue 003: Git Extraction Engine (GitPython scanning & author matching)
 - [x] Issue 004: Interactive Wizard CLI (Questionary & Markdown report)
+- [ ] Issue 005: Unit Testing & Mock Verifications (pytest implementation)
+
