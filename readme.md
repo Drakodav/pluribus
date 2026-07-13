@@ -18,6 +18,13 @@ The repository is organized to maximize readability and contextual clarity for b
   - **`memory/`** — Persistent agent session summaries.
 - **`scratch/`** — A gitignored local playground for experiments, drafting, and testing.
 
+## Workspace Tooling
+
+To ensure a seamless development experience across multiple projects, Pluribus includes the following workspace setups:
+
+- **VS Code Multi-Root Workspace**: Open `pluribus.code-workspace` in VS Code. This configuration isolates virtual environments, interpreters, and linting settings for each project natively, preventing dependency bleed.
+- **Git Hooks**: Ensure project quality by installing pre-commit hooks that run static analysis and formatting locally before commits are finalized.
+
 ## Getting Started
 
 This repository uses [just](https://github.com/casey/just) as its primary command runner. 
@@ -30,4 +37,9 @@ just
 To check environment prerequisites, run:
 ```bash
 just doctor
+```
+
+To install repository-wide Git pre-commit hooks, run:
+```bash
+just install-hooks
 ```
