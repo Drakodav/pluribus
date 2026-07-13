@@ -93,6 +93,8 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 
 - Implemented **Issue 002: GitHub Authentication (gh CLI integration)**: added token checking, querying `gh auth token`, caching in SQLite, and cache-clearing functions.
 
+- Implemented **Issue 003: Git Extraction Engine**: created the `GitExtractor` class, which handles cloning/fetching, dynamic author matching via callbacks, and commit log parsing with line additions/deletions statistics via GitPython.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -107,8 +109,8 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Codified monorepo project boundaries: agents must stay scoped to project-level `.agents/` folders, keep temporary code inside `.agents/temp/` (globally ignored), and reference shared rules inside root `.agents/rules/`.
 
 ### Future Work / Next Steps
-- Implement Issue 003: GitPython cloning, fetching, and diff analysis logic.
 - Implement Issue 004: Console wizard loop, database summaries, and markdown report generator.
+
 
 
 
