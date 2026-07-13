@@ -91,6 +91,8 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Moved issues folder to `projects/git-history-cv-extractor/.agents/issues/`.
 - Removed root test script `scratch/test_database.py`.
 
+- Implemented **Issue 002: GitHub Authentication (gh CLI integration)**: added token checking, querying `gh auth token`, caching in SQLite, and cache-clearing functions.
+
 ### Architectural Decisions & Changes
 - Standardized Python micro-projects to use Astral `uv` for dependency management and `ruff` for code styling/quality, while routing actions through a local `justfile`.
 - Implemented client-side Git hooks managed via `just install-hooks` that target the dynamically-resolved git directory rather than assuming a hardcoded `.git/hooks/` folder, ensuring worktree compatibility.
@@ -105,9 +107,9 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 - Codified monorepo project boundaries: agents must stay scoped to project-level `.agents/` folders, keep temporary code inside `.agents/temp/` (globally ignored), and reference shared rules inside root `.agents/rules/`.
 
 ### Future Work / Next Steps
-- Implement Issue 002: GitHub credentials auto-detection using `gh auth token`.
 - Implement Issue 003: GitPython cloning, fetching, and diff analysis logic.
 - Implement Issue 004: Console wizard loop, database summaries, and markdown report generator.
+
 
 
 
