@@ -138,6 +138,20 @@ This file lists the historical logs of tasks completed by AI agents in this repo
 ### Future Work / Next Steps
 - Implement `CONTEXT-MAP.md` at root and context-specific domain glossaries/docs as needed for the monorepo projects.
 
+---
 
+## 2026-07-13 Session: README Updates & Workspace Document Alignment
+* **Agent**: Antigravity
 
+### What Was Accomplished
+- Reviewed and updated the root [readme.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/readme.md):
+  - Added details about the VS Code Multi-Root Workspace (`pluribus.code-workspace`) which isolates interpreters and environments per project natively.
+  - Added instructions for Git Pre-Commit Hooks and command reference for `just install-hooks`.
+- Overhauled the project README at [projects/git-history-cv-extractor/README.md](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/projects/git-history-cv-extractor/README.md):
+  - Expanded the **Features** list to describe the Interactive Console Wizard, Dual-Mode operation (Test/Real), SQLite caching database, extraction engine, author resolution, and Markdown report exporter.
+  - Added **GitHub CLI (gh)** as a system prerequisite for Real Mode authentication.
+  - Updated the **Command Reference** with the new `just typecheck` and `just pre-commit` recipes.
 
+### Future Work / Next Steps
+- Verify the tool's behavior in production and test scenarios.
+- Complete the remaining tasks for `git-history-cv-extractor` (e.g. Issue 005 for testing).
