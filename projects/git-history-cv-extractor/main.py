@@ -12,6 +12,7 @@ from src.database import RepositoryStore
 from src.extractor import GitExtractor
 from src.reports.filter import ChangeFilter
 from src.reports.manager import ReportManager
+from src.reports.pdf_exporter import export_reports_to_pdf
 from src.sync import RepositorySync
 
 
@@ -405,6 +406,7 @@ def main():
                 "Show Database Statistics",
                 "Generate Contribution Reports...",
                 "Run AI Analysis on Reports...",
+                "Export Reports to PDF...",
                 "Exit",
             ],
         ).ask()
@@ -485,6 +487,27 @@ def main():
 
         elif choice == "Run AI Analysis on Reports...":
             run_ai_analysis_wizard(store, reports_dir, project_dir)
+
+        elif choice == "Export Reports to PDF...":
+            md_files = list(reports_dir.rglob("*.md"))
+            if not md_files:
+                print(
+                    "\033[1;31mNo markdown reports found. "
+                    "Generate reports first.\033[0m"
+                )
+                continue
+            print("\n\033[1;36mExporting reports to PDF...\033[0m")
+            try:
+                created = export_reports_to_pdf(reports_dir)
+                for p in created:
+                    rel = p.relative_to(project_dir)
+                    print(f"  \033[1;32m[Created] {rel}\033[0m")
+                print(
+                    f"\n\033[1;32mDone! {len(created)} PDF(s) exported to "
+                    f"{reports_dir.relative_to(project_dir) / 'pdf'}/\033[0m"
+                )
+            except Exception as e:
+                print(f"\033[1;31m[Error exporting PDFs] {e}\033[0m")
 
         elif choice == "Exit" or choice is None:
             print("\nGoodbye!")
