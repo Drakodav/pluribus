@@ -38,6 +38,23 @@ Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
         └── docs/adr/
 ```
 
+## Project Metadata
+
+In multi-context repositories, each project's `CONTEXT.md` file MUST begin with a YAML frontmatter block. This block defines essential project information, including a shortened alias for cleaner workspace naming (Git branches, commits, PRs, worktrees, issue prefixes, and issue labels).
+
+### Metadata Schema
+
+```yaml
+---
+name: <project-folder-name>
+alias: <short-kebab-case-alias>
+description: <brief-one-line-description>
+stack: <primary-technologies-used>
+---
+```
+
+Agents MUST parse this block before executing any tasks for a subproject and leverage the project's `alias` according to the git and issue tracking conventions.
+
 ## Use the glossary's vocabulary
 
 When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.

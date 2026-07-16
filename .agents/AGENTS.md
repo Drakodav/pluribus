@@ -20,10 +20,14 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 
 ## 4. Git & Commit Guidelines
 - **No Auto-Committing**: Do not run `git commit` automatically. Always present the proposed files and commit message to the user, and ask for explicit approval before running any commit command.
+- **Preserve Git History**: Always use `git mv` instead of standard file-system move (`mv` or recreating files) when moving or renaming tracked files in the repository to guarantee history retention.
 
 ## 5. Naming Conventions
 - **Folder and File Names**: All directory and file names should be strictly lowercase and separated by a dash (kebab-case), for example: `git-history-cv-extractor` or `session-log.md`.
 - **Task Runner Names**: Local directory task runner files must be named `justfile` in all lowercase (never capitalized as `Justfile`).
+
+## 6. Interactive Questions
+- **UI Prompts**: When a task or skill requires asking the user a question, clarifying requirements, or obtaining decisions/feedback, you MUST use the built-in `ask_question` tool instead of asking inside your textual response. This halts execution and prompts the user via the interactive UI dialog, allowing for a structured response.
 
 
 ## Agent skills
@@ -39,3 +43,7 @@ Using default triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `r
 ### Domain docs
 
 Multi-context layout configured. See `docs/agents/domain.md`.
+
+### Git workflows
+
+Branching, commit conventions, PR structure, and worktrees. See `docs/agents/git-workflows.md`.

@@ -1,15 +1,19 @@
+import os
 import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import git
 import questionary
-from sqlmodel import Session, select
+from dotenv import load_dotenv
 
-from auth import GitHubAuth
-from database import Commit, DatabaseHelper, FileChange, Repository
-from extractor import GitExtractor
+from src.auth import GitHubAuth
+from src.database import RepositoryStore
+from src.extractor import GitExtractor
+from src.reports.filter import ChangeFilter
+from src.reports.manager import ReportManager
+from src.reports.pdf_exporter import export_reports_to_pdf
+from src.sync import RepositorySync
 
 
 def get_gh_username() -> str:
@@ -26,93 +30,275 @@ def get_gh_username() -> str:
         return "unknown-user"
 
 
-def generate_markdown_report(
-    db_helper: DatabaseHelper, output_file: Path, project_path: Path
-):
-    """Compiles all stored commits and metrics into a formatted Markdown file."""
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with Session(db_helper.engine) as session:
-        repos = session.exec(select(Repository)).all()
-        if not repos:
+def run_reports_wizard(
+    store: RepositoryStore, reports_dir: Path, project_path: Path
+) -> None:
+    """Prompts the user to configure and generate modular contribution reports."""
+    repos = store.get_all_repositories()
+    if not repos:
+        print(
+            "\n\033[1;31m[Error] No repositories found in the database. "
+            "Ingest some first!\033[0m"
+        )
+        return
+
+    # 1. Select Report Types
+    choices = [
+        questionary.Choice("Chronological Summary", "summary", checked=True),
+        questionary.Choice("Technology Stack Profile", "tech_stack", checked=True),
+        questionary.Choice(
+            "Achievement & Contribution Highlights", "achievements", checked=True
+        ),
+    ]
+    selected_reports = questionary.checkbox(
+        "Select reports to generate:", choices=choices
+    ).ask()
+
+    if not selected_reports:
+        print("\033[1;33m[Cancelled] No report types selected.\033[0m")
+        return
+
+    # 2. Select Filter Rules
+    filter_mode = questionary.select(
+        "Select file change exclusions/filters:",
+        choices=[
+            "Use Default Exclusions (ignores vendors, lockfiles, caches, assets)",
+            "Add Custom Exclusions",
+            "Disable Exclusions (includes all file changes in reports)",
+        ],
+    ).ask()
+
+    if not filter_mode:
+        print("\033[1;33m[Cancelled] Exclusions configuration aborted.\033[0m")
+        return
+
+    # Build ChangeFilter
+    custom_patterns = None
+    if "Add Custom Exclusions" in filter_mode:
+        custom_input = questionary.text(
+            "Enter custom glob patterns (comma-separated, e.g. *.json, *tests/*):"
+        ).ask()
+        if custom_input:
+            custom_patterns = [p.strip() for p in custom_input.split(",") if p.strip()]
+
+    # If disabled exclusions, pass a filter that includes everything
+    if "Disable Exclusions" in filter_mode:
+
+        class NoFilter(ChangeFilter):
+            def should_include(self, file_path: str) -> bool:
+                return True
+
+        change_filter = NoFilter()
+    else:
+        change_filter = ChangeFilter(custom_patterns)
+
+    # 3. Generate Reports
+    repo_ids = [r.id for r in repos if r.id is not None]
+    manager = ReportManager()
+
+    try:
+        paths = manager.generate_reports(
+            store, repo_ids, reports_dir, selected_reports, change_filter
+        )
+        print("\n\033[1;32m[Success] Reports generated successfully!\033[0m")
+        for r_type, path in paths.items():
+            rel_path = path.relative_to(project_path)
             print(
-                "\n\033[1;31m[Error] No repositories found in the database. "
-                "Ingest some first!\033[0m"
+                f"  - {r_type.replace('_', ' ').title()}: \033[1;36m{rel_path}\033[0m"
             )
+    except Exception as e:
+        print(f"\033[1;31m[Error during report generation] {e}\033[0m")
+
+
+def run_ai_analysis_wizard(
+    store: RepositoryStore, reports_dir: Path, project_path: Path
+) -> None:
+    """Checks for existing reports and runs the AI Analysis Agent."""
+    engine = questionary.select(
+        "Select the AI execution engine:",
+        choices=[
+            "Antigravity CLI (uses system OAuth, recommended)",
+            "Antigravity SDK (requires GEMINI_API_KEY in .env)",
+        ],
+    ).ask()
+
+    if not engine:
+        return
+
+    use_cli = "CLI" in engine
+
+    if not use_cli:
+        # Ensure GEMINI_API_KEY is available for SDK
+        load_dotenv()
+        if not os.environ.get("GEMINI_API_KEY"):
+            print(
+                "\n\033[1;33m[Notice] A Gemini API key is required for AI "
+                "analysis.\033[0m"
+            )
+            print(
+                "You can get a free API key from Google AI Studio: "
+                "https://aistudio.google.com/app/api-keys"
+            )
+            api_key = questionary.password(
+                "Enter your Gemini API key (will be saved locally to .env):"
+            ).ask()
+            if not api_key:
+                print(
+                    "\033[1;31m[Error] Gemini API key is required. "
+                    "Aborting AI analysis.\033[0m"
+                )
+                return
+            env_path = project_path / ".env"
+            # Append API key to .env
+            with open(env_path, "a", encoding="utf-8") as f:
+                f.write(f"\nGEMINI_API_KEY={api_key}\n")
+            os.environ["GEMINI_API_KEY"] = api_key
+            print("\033[1;32m[Success] Saved API key to .env\033[0m")
+
+    required_files = [
+        "contributions_summary.md",
+        "technology_profile.md",
+        "achievements_highlights.md",
+    ]
+    existing_reports = [f for f in required_files if (reports_dir / f).exists()]
+
+    if not existing_reports:
+        print("\n\033[1;33m[Notice] No generated report files were found.\033[0m")
+        gen_choice = questionary.confirm(
+            "Would you like to run the report generation wizard first?"
+        ).ask()
+        if gen_choice:
+            run_reports_wizard(store, reports_dir, project_path)
+            existing_reports = [f for f in required_files if (reports_dir / f).exists()]
+            if not existing_reports:
+                print(
+                    "\033[1;31m[Error] Still no reports found. "
+                    "Aborting AI analysis.\033[0m"
+                )
+                return
+        else:
+            print("\033[1;33m[Cancelled] AI analysis requires reports.\033[0m")
             return
 
-        markdown_content = []
-        markdown_content.append("# Monorepo Contribution Summary\n")
-        markdown_content.append(
-            f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-        )
+    choices = [
+        questionary.Choice(
+            "STAR Accomplishments (auto-named ai/star_accomplishments.md)",
+            "star",
+            checked=True,
+        ),
+        questionary.Choice(
+            "Technology Profile Summary (auto-named ai/technology_profile_analysis.md)",
+            "tech",
+            checked=True,
+        ),
+        questionary.Choice(
+            "Knowledge Condenser (auto-named ai/knowledge_condensation.md)",
+            "knowledge",
+            checked=True,
+        ),
+        questionary.Choice(
+            "Custom Prompt (enters prompt query + custom output name)",
+            "custom",
+            checked=False,
+        ),
+    ]
+    selected_prompts = questionary.checkbox(
+        "Select AI analysis tasks to run:", choices=choices
+    ).ask()
 
-        for repo in repos:
-            repo_id = repo.id
-            if repo_id is None:
+    if not selected_prompts:
+        print("\033[1;33m[Cancelled] No analysis tasks selected.\033[0m")
+        return
+
+    ai_dir = reports_dir / "ai"
+    ai_dir.mkdir(parents=True, exist_ok=True)
+
+    preset_prompts = {
+        "star": (
+            "Summarize the developer's accomplishments as high-impact resume "
+            "bullet points using the STAR method (Situation, Task, Action, Result). "
+            "Focus on tangible technical outcomes and architectural contributions."
+        ),
+        "tech": (
+            "Profile the developer's technical strengths, core programming "
+            "languages, and structural activity based on their edits and files "
+            "modified. Highlight their language proficiencies and focus areas."
+        ),
+        "knowledge": (
+            "Analyze and condense the structural developer knowledge. List main "
+            "refactoring decisions, architectural enhancements, testing habits, "
+            "and other core engineering contributions."
+        ),
+    }
+
+    tasks = []
+    for p_type in selected_prompts:
+        if p_type == "custom":
+            custom_prompt_text = questionary.text(
+                "Enter your custom query/instruction for the AI agent:"
+            ).ask()
+            if not custom_prompt_text:
+                print("\033[1;33m[Skipped] Empty custom prompt.\033[0m")
                 continue
+            custom_name = questionary.text(
+                "Enter output filename (e.g. custom_audit.md):",
+                default="custom_analysis.md",
+            ).ask()
+            if not custom_name:
+                custom_name = "custom_analysis.md"
+            if not custom_name.endswith(".md"):
+                custom_name += ".md"
+            tasks.append((custom_prompt_text, ai_dir / custom_name, "Custom Query"))
+        else:
+            prompt_text = preset_prompts[p_type]
+            if p_type == "star":
+                out_path = ai_dir / "star_accomplishments.md"
+                label = "STAR Accomplishments"
+            elif p_type == "tech":
+                out_path = ai_dir / "technology_profile_analysis.md"
+                label = "Technology Profile"
+            else:
+                out_path = ai_dir / "knowledge_condensation.md"
+                label = "Knowledge Condenser"
+            tasks.append((prompt_text, out_path, label))
 
-            commits = session.exec(
-                select(Commit)
-                .where(Commit.repo_id == repo_id)
-                .order_by(Commit.commit_date)
-            ).all()
+    print("\n\033[1;36mStarting AI CLI Report Analysis...\033[0m")
 
-            if not commits:
-                continue
+    for prompt_text, out_path, label in tasks:
+        print(f"Running AI analysis: {label}...")
+        try:
+            if use_cli:
+                cmd = [
+                    "agy",
+                    "--add-dir",
+                    str(reports_dir),
+                    "--dangerously-skip-permissions",
+                    "--print",
+                    prompt_text,
+                ]
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                out_path.write_text(result.stdout, encoding="utf-8")
+            else:
+                cmd = [
+                    sys.executable,
+                    "-m",
+                    "src.reports.ai_agent",
+                    "--prompt",
+                    prompt_text,
+                    "--reports-dir",
+                    str(reports_dir),
+                    "--output",
+                    str(out_path),
+                ]
+                subprocess.run(cmd, capture_output=True, text=True, check=True)
+            rel_out = out_path.relative_to(project_path)
+            print(f"  \033[1;32m[Success] Saved to: {rel_out}\033[0m")
+        except subprocess.CalledProcessError as e:
+            print(f"  \033[1;31m[Error running {label}]: {e.stderr.strip()}\033[0m")
+        except Exception as e:
+            print(f"  \033[1;31m[Error running {label}]: {e}\033[0m")
 
-            stats = db_helper.get_repo_stats(repo_id)
-
-            commit_ids = [c.id for c in commits if c.id is not None]
-            file_changes = session.exec(
-                select(FileChange).where(FileChange.commit_id.in_(commit_ids))  # type: ignore
-            ).all()
-
-            # Dynamic tech stack detection based on extensions modified
-            extensions = set()
-            for fc in file_changes:
-                if fc.file_extension != "no-ext":
-                    ext = fc.file_extension.replace(".", "").upper()
-                    extensions.add(ext)
-
-            tech_stack = ", ".join(sorted(extensions)) if extensions else "Unknown"
-            activity_start = commits[0].commit_date
-            activity_end = commits[-1].commit_date
-
-            markdown_content.append(f"## Repository: {repo.name}")
-            markdown_content.append(f"- **URL**: {repo.url}")
-            markdown_content.append(f"- **Tech Stack**: {tech_stack}")
-            markdown_content.append(
-                f"- **Activity Period**: {activity_start} to {activity_end}"
-            )
-            markdown_content.append(
-                f"- **Summary**: {stats['total_commits']} commits, "
-                f"{stats['files_changed']} files changed, "
-                f"+{stats['total_additions']} / -{stats['total_deletions']} lines\n"
-            )
-
-            markdown_content.append("### Commits Log")
-            for commit in commits:
-                markdown_content.append(
-                    f"#### Commit `{commit.hash[:7]}` on {commit.commit_date}"
-                )
-                markdown_content.append(f"**Message**: {commit.message.strip()}\n")
-
-                c_changes = [fc for fc in file_changes if fc.commit_id == commit.id]
-                if c_changes:
-                    markdown_content.append("**Files Touched**:")
-                    for fc in c_changes:
-                        markdown_content.append(
-                            f"- `{fc.file_path}` (+{fc.additions}, -{fc.deletions})"
-                        )
-                markdown_content.append("")  # Spacer
-
-            markdown_content.append("---\n")
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write("\n".join(markdown_content))
-
-        rel_path = output_file.relative_to(project_path)
-        print(f"\n\033[1;32m[Success] Report generated at: {rel_path}\033[0m")
+    print("\n\033[1;32mAI Analysis finished successfully!\033[0m")
 
 
 def main():
@@ -144,8 +330,8 @@ def main():
     reports_dir = mode_dir / "reports"
 
     # Initialize helpers
-    db_helper = DatabaseHelper(db_path)
-    auth_helper = GitHubAuth(db_helper)
+    store = RepositoryStore(db_path)
+    auth_helper = GitHubAuth(store)
     workspace_root = project_dir.parent.parent
 
     # Mode-based initialization
@@ -158,7 +344,8 @@ def main():
         except Exception:
             gh_user = "local-user"
         token = None
-        extractor = GitExtractor(db_helper, repos_dir, token)
+        extractor = GitExtractor(repos_dir, token)
+        sync_helper = RepositorySync(store, extractor)
 
         # Auto-ingest local workspace read-only on startup
         print(
@@ -174,7 +361,9 @@ def main():
                 res = questionary.confirm(prompt_msg, default=True).ask()
                 return bool(res)
 
-            extractor.scan_repository(str(workspace_root), prompt_email, is_local=True)
+            sync_helper.sync_repository(
+                str(workspace_root), prompt_email, is_local=True
+            )
             print(
                 "\033[1;32m[Success] Automatically Ingested Local Workspace "
                 "History!\033[0m"
@@ -194,12 +383,12 @@ def main():
             sys.exit(1)
 
         gh_user = get_gh_username()
-        extractor = GitExtractor(db_helper, repos_dir, token)
+        extractor = GitExtractor(repos_dir, token)
+        sync_helper = RepositorySync(store, extractor)
 
     # Console Wizard loop
     while True:
-        with Session(db_helper.engine) as session:
-            repo_count = len(session.exec(select(Repository)).all())
+        repo_count = store.get_repository_count()
 
         print("\n\033[1;33m----------------------------------------------------\033[0m")
         print(
@@ -215,7 +404,9 @@ def main():
                 "Authenticate & Check Token Status",
                 "Add / Sync a Git Repository",
                 "Show Database Statistics",
-                "Generate Markdown Contribution Summary",
+                "Generate Contribution Reports...",
+                "Run AI Analysis on Reports...",
+                "Export Reports to PDF...",
                 "Exit",
             ],
         ).ask()
@@ -254,7 +445,7 @@ def main():
                     res = questionary.confirm(prompt_msg, default=True).ask()
                     return bool(res)
 
-                stats = extractor.scan_repository(url, prompt_email)
+                stats = sync_helper.sync_repository(url, prompt_email)
                 print(
                     f"\033[1;32m[Success] Ingested '{repo_name}' successfully!\033[0m"
                 )
@@ -266,8 +457,7 @@ def main():
                 print(f"\033[1;31m[Error during sync] {e}\033[0m")
 
         elif choice == "Show Database Statistics":
-            with Session(db_helper.engine) as session:
-                repos = session.exec(select(Repository)).all()
+            repos = store.get_all_repositories()
             if not repos:
                 print("\033[1;31mNo repositories found in database.\033[0m")
                 continue
@@ -282,7 +472,7 @@ def main():
                 repo_id = r.id
                 if repo_id is None:
                     continue
-                stats = db_helper.get_repo_stats(repo_id)
+                stats = store.get_repo_stats(repo_id)
                 print(
                     "{:<20} | {:<8} | {:<12} | {:<12}".format(
                         r.name[:20],
@@ -292,9 +482,32 @@ def main():
                     )
                 )
 
-        elif choice == "Generate Markdown Contribution Summary":
-            report_file = reports_dir / "contributions_summary.md"
-            generate_markdown_report(db_helper, report_file, project_dir)
+        elif choice == "Generate Contribution Reports...":
+            run_reports_wizard(store, reports_dir, project_dir)
+
+        elif choice == "Run AI Analysis on Reports...":
+            run_ai_analysis_wizard(store, reports_dir, project_dir)
+
+        elif choice == "Export Reports to PDF...":
+            md_files = list(reports_dir.rglob("*.md"))
+            if not md_files:
+                print(
+                    "\033[1;31mNo markdown reports found. "
+                    "Generate reports first.\033[0m"
+                )
+                continue
+            print("\n\033[1;36mExporting reports to PDF...\033[0m")
+            try:
+                created = export_reports_to_pdf(reports_dir)
+                for p in created:
+                    rel = p.relative_to(project_dir)
+                    print(f"  \033[1;32m[Created] {rel}\033[0m")
+                print(
+                    f"\n\033[1;32mDone! {len(created)} PDF(s) exported to "
+                    f"{reports_dir.relative_to(project_dir) / 'pdf'}/\033[0m"
+                )
+            except Exception as e:
+                print(f"\033[1;31m[Error exporting PDFs] {e}\033[0m")
 
         elif choice == "Exit" or choice is None:
             print("\nGoodbye!")

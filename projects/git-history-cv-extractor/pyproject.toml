@@ -7,12 +7,18 @@ requires-python = ">=3.10"
 dependencies = [
     # Standard library tools will be used initially; external packages can be added as needed.
     "gitpython>=3.1.50",
+    "google-antigravity>=0.1.6",
+    "markdown-pdf>=1.13.2",
     "questionary>=2.1.1",
     "sqlmodel>=0.0.39",
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.3.0", "ty>=0.0.57"]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.3.0",
+    "ty>=0.0.57",
+]
 
 [tool.ruff]
 line-length = 88
@@ -20,3 +26,7 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "RUF"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
