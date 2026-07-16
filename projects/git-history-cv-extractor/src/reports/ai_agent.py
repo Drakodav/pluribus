@@ -2,10 +2,12 @@ import argparse
 import asyncio
 from pathlib import Path
 
+from dotenv import load_dotenv
 from google.antigravity import Agent, LocalAgentConfig
 
 
 async def main() -> None:
+    load_dotenv()
     parser = argparse.ArgumentParser(
         description="Run AI analysis on contribution reports."
     )

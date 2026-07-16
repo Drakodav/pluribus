@@ -1,9 +1,11 @@
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 import git
 import questionary
+from dotenv import load_dotenv
 
 from src.auth import GitHubAuth
 from src.database import RepositoryStore
@@ -111,6 +113,32 @@ def run_ai_analysis_wizard(
     store: RepositoryStore, reports_dir: Path, project_path: Path
 ) -> None:
     """Checks for existing reports and runs the AI Analysis Agent."""
+    # Ensure GEMINI_API_KEY is available
+    load_dotenv()
+    if not os.environ.get("GEMINI_API_KEY"):
+        print(
+            "\n\033[1;33m[Notice] A Gemini API key is required for AI analysis.\033[0m"
+        )
+        print(
+            "You can get a free API key from Google AI Studio: "
+            "https://aistudio.google.com/app/api-keys"
+        )
+        api_key = questionary.password(
+            "Enter your Gemini API key (will be saved locally to .env):"
+        ).ask()
+        if not api_key:
+            print(
+                "\033[1;31m[Error] Gemini API key is required. "
+                "Aborting AI analysis.\033[0m"
+            )
+            return
+        env_path = project_path / ".env"
+        # Append API key to .env
+        with open(env_path, "a", encoding="utf-8") as f:
+            f.write(f"\nGEMINI_API_KEY={api_key}\n")
+        os.environ["GEMINI_API_KEY"] = api_key
+        print("\033[1;32m[Success] Saved API key to .env\033[0m")
+
     required_files = [
         "contributions_summary.md",
         "technology_profile.md",
