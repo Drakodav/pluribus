@@ -88,13 +88,7 @@ class TechStackReport(BaseReport):
 
                 # Directory grouping
                 p = Path(fc.file_path)
-                parts = p.parts
-                if len(parts) > 1:
-                    dir_prefix = "/".join(parts[:2])
-                elif len(parts) == 1:
-                    dir_prefix = "(root)"
-                else:
-                    dir_prefix = "unknown"
+                dir_prefix = p.parent.as_posix() if len(p.parts) > 1 else "(root)"
 
                 dir_stats[dir_prefix].add += fc.additions
                 dir_stats[dir_prefix].deletions += fc.deletions
@@ -134,8 +128,12 @@ class TechStackReport(BaseReport):
                 "Lines Added | Lines Deleted |"
             )
             markdown_content.append("|---|---|---|---|")
-            for dir_name in sorted(dir_stats.keys()):
-                stats = dir_stats[dir_name]
+            sorted_dirs = sorted(
+                dir_stats.items(),
+                key=lambda item: item[1].edits,
+                reverse=True,
+            )
+            for dir_name, stats in sorted_dirs:
                 edits = stats.edits
                 add = stats.add
                 dels = stats.deletions
