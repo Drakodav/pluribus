@@ -107,6 +107,144 @@ def run_reports_wizard(
         print(f"\033[1;31m[Error during report generation] {e}\033[0m")
 
 
+def run_ai_analysis_wizard(
+    store: RepositoryStore, reports_dir: Path, project_path: Path
+) -> None:
+    """Checks for existing reports and runs the AI Analysis Agent."""
+    required_files = [
+        "contributions_summary.md",
+        "technology_profile.md",
+        "achievements_highlights.md",
+    ]
+    existing_reports = [f for f in required_files if (reports_dir / f).exists()]
+
+    if not existing_reports:
+        print("\n\033[1;33m[Notice] No generated report files were found.\033[0m")
+        gen_choice = questionary.confirm(
+            "Would you like to run the report generation wizard first?"
+        ).ask()
+        if gen_choice:
+            run_reports_wizard(store, reports_dir, project_path)
+            existing_reports = [f for f in required_files if (reports_dir / f).exists()]
+            if not existing_reports:
+                print(
+                    "\033[1;31m[Error] Still no reports found. "
+                    "Aborting AI analysis.\033[0m"
+                )
+                return
+        else:
+            print("\033[1;33m[Cancelled] AI analysis requires reports.\033[0m")
+            return
+
+    choices = [
+        questionary.Choice(
+            "STAR Accomplishments (auto-named ai/star_accomplishments.md)",
+            "star",
+            checked=True,
+        ),
+        questionary.Choice(
+            "Technology Profile Summary (auto-named ai/technology_profile_analysis.md)",
+            "tech",
+            checked=True,
+        ),
+        questionary.Choice(
+            "Knowledge Condenser (auto-named ai/knowledge_condensation.md)",
+            "knowledge",
+            checked=True,
+        ),
+        questionary.Choice(
+            "Custom Prompt (enters prompt query + custom output name)",
+            "custom",
+            checked=False,
+        ),
+    ]
+    selected_prompts = questionary.checkbox(
+        "Select AI analysis tasks to run:", choices=choices
+    ).ask()
+
+    if not selected_prompts:
+        print("\033[1;33m[Cancelled] No analysis tasks selected.\033[0m")
+        return
+
+    ai_dir = reports_dir / "ai"
+    ai_dir.mkdir(parents=True, exist_ok=True)
+
+    preset_prompts = {
+        "star": (
+            "Summarize the developer's accomplishments as high-impact resume "
+            "bullet points using the STAR method (Situation, Task, Action, Result). "
+            "Focus on tangible technical outcomes and architectural contributions."
+        ),
+        "tech": (
+            "Profile the developer's technical strengths, core programming "
+            "languages, and structural activity based on their edits and files "
+            "modified. Highlight their language proficiencies and focus areas."
+        ),
+        "knowledge": (
+            "Analyze and condense the structural developer knowledge. List main "
+            "refactoring decisions, architectural enhancements, testing habits, "
+            "and other core engineering contributions."
+        ),
+    }
+
+    tasks = []
+    for p_type in selected_prompts:
+        if p_type == "custom":
+            custom_prompt_text = questionary.text(
+                "Enter your custom query/instruction for the AI agent:"
+            ).ask()
+            if not custom_prompt_text:
+                print("\033[1;33m[Skipped] Empty custom prompt.\033[0m")
+                continue
+            custom_name = questionary.text(
+                "Enter output filename (e.g. custom_audit.md):",
+                default="custom_analysis.md",
+            ).ask()
+            if not custom_name:
+                custom_name = "custom_analysis.md"
+            if not custom_name.endswith(".md"):
+                custom_name += ".md"
+            tasks.append((custom_prompt_text, ai_dir / custom_name, "Custom Query"))
+        else:
+            prompt_text = preset_prompts[p_type]
+            if p_type == "star":
+                out_path = ai_dir / "star_accomplishments.md"
+                label = "STAR Accomplishments"
+            elif p_type == "tech":
+                out_path = ai_dir / "technology_profile_analysis.md"
+                label = "Technology Profile"
+            else:
+                out_path = ai_dir / "knowledge_condensation.md"
+                label = "Knowledge Condenser"
+            tasks.append((prompt_text, out_path, label))
+
+    print("\n\033[1;36mStarting AI CLI Report Analysis...\033[0m")
+
+    for prompt_text, out_path, label in tasks:
+        print(f"Running AI analysis: {label}...")
+        try:
+            cmd = [
+                sys.executable,
+                "-m",
+                "src.reports.ai_agent",
+                "--prompt",
+                prompt_text,
+                "--reports-dir",
+                str(reports_dir),
+                "--output",
+                str(out_path),
+            ]
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
+            rel_out = out_path.relative_to(project_path)
+            print(f"  \033[1;32m[Success] Saved to: {rel_out}\033[0m")
+        except subprocess.CalledProcessError as e:
+            print(f"  \033[1;31m[Error running {label}]: {e.stderr.strip()}\033[0m")
+        except Exception as e:
+            print(f"  \033[1;31m[Error running {label}]: {e}\033[0m")
+
+    print("\n\033[1;32mAI Analysis finished successfully!\033[0m")
+
+
 def main():
     print("\033[1;36m====================================================\033[0m")
     print("\033[1;36m       Git History CV Extractor Console Wizard      \033[0m")
@@ -211,6 +349,7 @@ def main():
                 "Add / Sync a Git Repository",
                 "Show Database Statistics",
                 "Generate Contribution Reports...",
+                "Run AI Analysis on Reports...",
                 "Exit",
             ],
         ).ask()
@@ -288,6 +427,9 @@ def main():
 
         elif choice == "Generate Contribution Reports...":
             run_reports_wizard(store, reports_dir, project_dir)
+
+        elif choice == "Run AI Analysis on Reports...":
+            run_ai_analysis_wizard(store, reports_dir, project_dir)
 
         elif choice == "Exit" or choice is None:
             print("\nGoodbye!")
