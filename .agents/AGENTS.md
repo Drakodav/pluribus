@@ -20,6 +20,7 @@ Welcome to the Pluribus workspace. As an agent operating in this repository, you
 
 ## 4. Git & Commit Guidelines
 - **No Auto-Committing**: Do not run `git commit` automatically. Always present the proposed files and commit message to the user, and ask for explicit approval before running any commit command.
+- **Preserve Git History**: Always use `git mv` instead of standard file-system move (`mv` or recreating files) when moving or renaming tracked files in the repository to guarantee history retention.
 
 ## 5. Naming Conventions
 - **Folder and File Names**: All directory and file names should be strictly lowercase and separated by a dash (kebab-case), for example: `git-history-cv-extractor` or `session-log.md`.
