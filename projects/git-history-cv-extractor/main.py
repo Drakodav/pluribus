@@ -113,31 +113,46 @@ def run_ai_analysis_wizard(
     store: RepositoryStore, reports_dir: Path, project_path: Path
 ) -> None:
     """Checks for existing reports and runs the AI Analysis Agent."""
-    # Ensure GEMINI_API_KEY is available
-    load_dotenv()
-    if not os.environ.get("GEMINI_API_KEY"):
-        print(
-            "\n\033[1;33m[Notice] A Gemini API key is required for AI analysis.\033[0m"
-        )
-        print(
-            "You can get a free API key from Google AI Studio: "
-            "https://aistudio.google.com/app/api-keys"
-        )
-        api_key = questionary.password(
-            "Enter your Gemini API key (will be saved locally to .env):"
-        ).ask()
-        if not api_key:
+    engine = questionary.select(
+        "Select the AI execution engine:",
+        choices=[
+            "Antigravity CLI (uses system OAuth, recommended)",
+            "Antigravity SDK (requires GEMINI_API_KEY in .env)",
+        ],
+    ).ask()
+
+    if not engine:
+        return
+
+    use_cli = "CLI" in engine
+
+    if not use_cli:
+        # Ensure GEMINI_API_KEY is available for SDK
+        load_dotenv()
+        if not os.environ.get("GEMINI_API_KEY"):
             print(
-                "\033[1;31m[Error] Gemini API key is required. "
-                "Aborting AI analysis.\033[0m"
+                "\n\033[1;33m[Notice] A Gemini API key is required for AI "
+                "analysis.\033[0m"
             )
-            return
-        env_path = project_path / ".env"
-        # Append API key to .env
-        with open(env_path, "a", encoding="utf-8") as f:
-            f.write(f"\nGEMINI_API_KEY={api_key}\n")
-        os.environ["GEMINI_API_KEY"] = api_key
-        print("\033[1;32m[Success] Saved API key to .env\033[0m")
+            print(
+                "You can get a free API key from Google AI Studio: "
+                "https://aistudio.google.com/app/api-keys"
+            )
+            api_key = questionary.password(
+                "Enter your Gemini API key (will be saved locally to .env):"
+            ).ask()
+            if not api_key:
+                print(
+                    "\033[1;31m[Error] Gemini API key is required. "
+                    "Aborting AI analysis.\033[0m"
+                )
+                return
+            env_path = project_path / ".env"
+            # Append API key to .env
+            with open(env_path, "a", encoding="utf-8") as f:
+                f.write(f"\nGEMINI_API_KEY={api_key}\n")
+            os.environ["GEMINI_API_KEY"] = api_key
+            print("\033[1;32m[Success] Saved API key to .env\033[0m")
 
     required_files = [
         "contributions_summary.md",
@@ -251,18 +266,30 @@ def run_ai_analysis_wizard(
     for prompt_text, out_path, label in tasks:
         print(f"Running AI analysis: {label}...")
         try:
-            cmd = [
-                sys.executable,
-                "-m",
-                "src.reports.ai_agent",
-                "--prompt",
-                prompt_text,
-                "--reports-dir",
-                str(reports_dir),
-                "--output",
-                str(out_path),
-            ]
-            subprocess.run(cmd, capture_output=True, text=True, check=True)
+            if use_cli:
+                cmd = [
+                    "agy",
+                    "--add-dir",
+                    str(reports_dir),
+                    "--dangerously-skip-permissions",
+                    "--print",
+                    prompt_text,
+                ]
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                out_path.write_text(result.stdout, encoding="utf-8")
+            else:
+                cmd = [
+                    sys.executable,
+                    "-m",
+                    "src.reports.ai_agent",
+                    "--prompt",
+                    prompt_text,
+                    "--reports-dir",
+                    str(reports_dir),
+                    "--output",
+                    str(out_path),
+                ]
+                subprocess.run(cmd, capture_output=True, text=True, check=True)
             rel_out = out_path.relative_to(project_path)
             print(f"  \033[1;32m[Success] Saved to: {rel_out}\033[0m")
         except subprocess.CalledProcessError as e:
