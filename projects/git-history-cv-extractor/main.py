@@ -1,6 +1,5 @@
 import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import git
@@ -9,6 +8,8 @@ import questionary
 from src.auth import GitHubAuth
 from src.database import RepositoryStore
 from src.extractor import GitExtractor
+from src.reports.filter import ChangeFilter
+from src.reports.manager import ReportManager
 from src.sync import RepositorySync
 
 
@@ -26,11 +27,10 @@ def get_gh_username() -> str:
         return "unknown-user"
 
 
-def generate_markdown_report(
-    store: RepositoryStore, output_file: Path, project_path: Path
-):
-    """Compiles all stored commits and metrics into a formatted Markdown file."""
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+def run_reports_wizard(
+    store: RepositoryStore, reports_dir: Path, project_path: Path
+) -> None:
+    """Prompts the user to configure and generate modular contribution reports."""
     repos = store.get_all_repositories()
     if not repos:
         print(
@@ -39,73 +39,72 @@ def generate_markdown_report(
         )
         return
 
-    markdown_content = []
-    markdown_content.append("# Monorepo Contribution Summary\n")
-    markdown_content.append(
-        f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-    )
+    # 1. Select Report Types
+    choices = [
+        questionary.Choice("Chronological Summary", "summary", checked=True),
+        questionary.Choice("Technology Stack Profile", "tech_stack", checked=True),
+        questionary.Choice(
+            "Achievement & Contribution Highlights", "achievements", checked=True
+        ),
+    ]
+    selected_reports = questionary.checkbox(
+        "Select reports to generate:", choices=choices
+    ).ask()
 
-    for repo in repos:
-        repo_id = repo.id
-        if repo_id is None:
-            continue
+    if not selected_reports:
+        print("\033[1;33m[Cancelled] No report types selected.\033[0m")
+        return
 
-        commits = store.get_repository_commits(repo_id)
+    # 2. Select Filter Rules
+    filter_mode = questionary.select(
+        "Select file change exclusions/filters:",
+        choices=[
+            "Use Default Exclusions (ignores vendors, lockfiles, caches, assets)",
+            "Add Custom Exclusions",
+            "Disable Exclusions (includes all file changes in reports)",
+        ],
+    ).ask()
 
-        if not commits:
-            continue
+    if not filter_mode:
+        print("\033[1;33m[Cancelled] Exclusions configuration aborted.\033[0m")
+        return
 
-        stats = store.get_repo_stats(repo_id)
+    # Build ChangeFilter
+    custom_patterns = None
+    if "Add Custom Exclusions" in filter_mode:
+        custom_input = questionary.text(
+            "Enter custom glob patterns (comma-separated, e.g. *.json, *tests/*):"
+        ).ask()
+        if custom_input:
+            custom_patterns = [p.strip() for p in custom_input.split(",") if p.strip()]
 
-        commit_ids = [c.id for c in commits if c.id is not None]
-        file_changes = store.get_commits_file_changes(commit_ids)
+    # If disabled exclusions, pass a filter that includes everything
+    if "Disable Exclusions" in filter_mode:
 
-        # Dynamic tech stack detection based on extensions modified
-        extensions = set()
-        for fc in file_changes:
-            if fc.file_extension != "no-ext":
-                ext = fc.file_extension.replace(".", "").upper()
-                extensions.add(ext)
+        class NoFilter(ChangeFilter):
+            def should_include(self, file_path: str) -> bool:
+                return True
 
-        tech_stack = ", ".join(sorted(extensions)) if extensions else "Unknown"
-        activity_start = commits[0].commit_date
-        activity_end = commits[-1].commit_date
+        change_filter = NoFilter()
+    else:
+        change_filter = ChangeFilter(custom_patterns)
 
-        markdown_content.append(f"## Repository: {repo.name}")
-        markdown_content.append(f"- **URL**: {repo.url}")
-        markdown_content.append(f"- **Tech Stack**: {tech_stack}")
-        markdown_content.append(
-            f"- **Activity Period**: {activity_start} to {activity_end}"
+    # 3. Generate Reports
+    repo_ids = [r.id for r in repos if r.id is not None]
+    manager = ReportManager()
+
+    try:
+        paths = manager.generate_reports(
+            store, repo_ids, reports_dir, selected_reports, change_filter
         )
-        markdown_content.append(
-            f"- **Summary**: {stats['total_commits']} commits, "
-            f"{stats['files_changed']} files changed, "
-            f"+{stats['total_additions']} / -{stats['total_deletions']} lines\n"
-        )
-
-        markdown_content.append("### Commits Log")
-        for commit in commits:
-            markdown_content.append(
-                f"#### Commit `{commit.hash[:7]}` on {commit.commit_date}"
+        print("\n\033[1;32m[Success] Reports generated successfully!\033[0m")
+        for r_type, path in paths.items():
+            rel_path = path.relative_to(project_path)
+            print(
+                f"  - {r_type.replace('_', ' ').title()}: \033[1;36m{rel_path}\033[0m"
             )
-            markdown_content.append(f"**Message**: {commit.message.strip()}\n")
-
-            c_changes = [fc for fc in file_changes if fc.commit_id == commit.id]
-            if c_changes:
-                markdown_content.append("**Files Touched**:")
-                for fc in c_changes:
-                    markdown_content.append(
-                        f"- `{fc.file_path}` (+{fc.additions}, -{fc.deletions})"
-                    )
-            markdown_content.append("")  # Spacer
-
-        markdown_content.append("---\n")
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write("\n".join(markdown_content))
-
-    rel_path = output_file.relative_to(project_path)
-    print(f"\n\033[1;32m[Success] Report generated at: {rel_path}\033[0m")
+    except Exception as e:
+        print(f"\033[1;31m[Error during report generation] {e}\033[0m")
 
 
 def main():
@@ -211,7 +210,7 @@ def main():
                 "Authenticate & Check Token Status",
                 "Add / Sync a Git Repository",
                 "Show Database Statistics",
-                "Generate Markdown Contribution Summary",
+                "Generate Contribution Reports...",
                 "Exit",
             ],
         ).ask()
@@ -287,9 +286,8 @@ def main():
                     )
                 )
 
-        elif choice == "Generate Markdown Contribution Summary":
-            report_file = reports_dir / "contributions_summary.md"
-            generate_markdown_report(store, report_file, project_dir)
+        elif choice == "Generate Contribution Reports...":
+            run_reports_wizard(store, reports_dir, project_dir)
 
         elif choice == "Exit" or choice is None:
             print("\nGoodbye!")
