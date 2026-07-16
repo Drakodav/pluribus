@@ -26,13 +26,19 @@ lint:
 typecheck:
     uv run ty check .
 
+# Run unit tests
+test:
+    uv run pytest
+
 # Run subproject pre-commit checks
 pre-commit:
-    @echo "Running git-history-cv-extractor checks (Ruff, ty)..."
+    @echo "Running git-history-cv-extractor checks (Ruff, pytest, ty)..."
     uv run ruff check --fix .
     uv run ruff format .
+    uv run pytest
     uv run ty check .
 
 # Clean temporary files, virtualenv, and output folder
 clean:
     rm -rf .venv/ output/
+

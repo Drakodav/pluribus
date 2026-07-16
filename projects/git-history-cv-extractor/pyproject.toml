@@ -12,7 +12,11 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.3.0", "ty>=0.0.57"]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.3.0",
+    "ty>=0.0.57",
+]
 
 [tool.ruff]
 line-length = 88
@@ -20,3 +24,7 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "RUF"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+

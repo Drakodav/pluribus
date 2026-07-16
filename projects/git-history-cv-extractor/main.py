@@ -5,11 +5,11 @@ from pathlib import Path
 
 import git
 import questionary
-from sqlmodel import Session, select
 
-from auth import GitHubAuth
-from database import Commit, DatabaseHelper, FileChange, Repository
-from extractor import GitExtractor
+from src.auth import GitHubAuth
+from src.database import RepositoryStore
+from src.extractor import GitExtractor
+from src.sync import RepositorySync
 
 
 def get_gh_username() -> str:
@@ -27,92 +27,85 @@ def get_gh_username() -> str:
 
 
 def generate_markdown_report(
-    db_helper: DatabaseHelper, output_file: Path, project_path: Path
+    store: RepositoryStore, output_file: Path, project_path: Path
 ):
     """Compiles all stored commits and metrics into a formatted Markdown file."""
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    with Session(db_helper.engine) as session:
-        repos = session.exec(select(Repository)).all()
-        if not repos:
-            print(
-                "\n\033[1;31m[Error] No repositories found in the database. "
-                "Ingest some first!\033[0m"
-            )
-            return
+    repos = store.get_all_repositories()
+    if not repos:
+        print(
+            "\n\033[1;31m[Error] No repositories found in the database. "
+            "Ingest some first!\033[0m"
+        )
+        return
 
-        markdown_content = []
-        markdown_content.append("# Monorepo Contribution Summary\n")
+    markdown_content = []
+    markdown_content.append("# Monorepo Contribution Summary\n")
+    markdown_content.append(
+        f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+    )
+
+    for repo in repos:
+        repo_id = repo.id
+        if repo_id is None:
+            continue
+
+        commits = store.get_repository_commits(repo_id)
+
+        if not commits:
+            continue
+
+        stats = store.get_repo_stats(repo_id)
+
+        commit_ids = [c.id for c in commits if c.id is not None]
+        file_changes = store.get_commits_file_changes(commit_ids)
+
+        # Dynamic tech stack detection based on extensions modified
+        extensions = set()
+        for fc in file_changes:
+            if fc.file_extension != "no-ext":
+                ext = fc.file_extension.replace(".", "").upper()
+                extensions.add(ext)
+
+        tech_stack = ", ".join(sorted(extensions)) if extensions else "Unknown"
+        activity_start = commits[0].commit_date
+        activity_end = commits[-1].commit_date
+
+        markdown_content.append(f"## Repository: {repo.name}")
+        markdown_content.append(f"- **URL**: {repo.url}")
+        markdown_content.append(f"- **Tech Stack**: {tech_stack}")
         markdown_content.append(
-            f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"- **Activity Period**: {activity_start} to {activity_end}"
+        )
+        markdown_content.append(
+            f"- **Summary**: {stats['total_commits']} commits, "
+            f"{stats['files_changed']} files changed, "
+            f"+{stats['total_additions']} / -{stats['total_deletions']} lines\n"
         )
 
-        for repo in repos:
-            repo_id = repo.id
-            if repo_id is None:
-                continue
-
-            commits = session.exec(
-                select(Commit)
-                .where(Commit.repo_id == repo_id)
-                .order_by(Commit.commit_date)
-            ).all()
-
-            if not commits:
-                continue
-
-            stats = db_helper.get_repo_stats(repo_id)
-
-            commit_ids = [c.id for c in commits if c.id is not None]
-            file_changes = session.exec(
-                select(FileChange).where(FileChange.commit_id.in_(commit_ids))  # type: ignore
-            ).all()
-
-            # Dynamic tech stack detection based on extensions modified
-            extensions = set()
-            for fc in file_changes:
-                if fc.file_extension != "no-ext":
-                    ext = fc.file_extension.replace(".", "").upper()
-                    extensions.add(ext)
-
-            tech_stack = ", ".join(sorted(extensions)) if extensions else "Unknown"
-            activity_start = commits[0].commit_date
-            activity_end = commits[-1].commit_date
-
-            markdown_content.append(f"## Repository: {repo.name}")
-            markdown_content.append(f"- **URL**: {repo.url}")
-            markdown_content.append(f"- **Tech Stack**: {tech_stack}")
+        markdown_content.append("### Commits Log")
+        for commit in commits:
             markdown_content.append(
-                f"- **Activity Period**: {activity_start} to {activity_end}"
+                f"#### Commit `{commit.hash[:7]}` on {commit.commit_date}"
             )
-            markdown_content.append(
-                f"- **Summary**: {stats['total_commits']} commits, "
-                f"{stats['files_changed']} files changed, "
-                f"+{stats['total_additions']} / -{stats['total_deletions']} lines\n"
-            )
+            markdown_content.append(f"**Message**: {commit.message.strip()}\n")
 
-            markdown_content.append("### Commits Log")
-            for commit in commits:
-                markdown_content.append(
-                    f"#### Commit `{commit.hash[:7]}` on {commit.commit_date}"
-                )
-                markdown_content.append(f"**Message**: {commit.message.strip()}\n")
+            c_changes = [fc for fc in file_changes if fc.commit_id == commit.id]
+            if c_changes:
+                markdown_content.append("**Files Touched**:")
+                for fc in c_changes:
+                    markdown_content.append(
+                        f"- `{fc.file_path}` (+{fc.additions}, -{fc.deletions})"
+                    )
+            markdown_content.append("")  # Spacer
 
-                c_changes = [fc for fc in file_changes if fc.commit_id == commit.id]
-                if c_changes:
-                    markdown_content.append("**Files Touched**:")
-                    for fc in c_changes:
-                        markdown_content.append(
-                            f"- `{fc.file_path}` (+{fc.additions}, -{fc.deletions})"
-                        )
-                markdown_content.append("")  # Spacer
+        markdown_content.append("---\n")
 
-            markdown_content.append("---\n")
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write("\n".join(markdown_content))
 
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write("\n".join(markdown_content))
-
-        rel_path = output_file.relative_to(project_path)
-        print(f"\n\033[1;32m[Success] Report generated at: {rel_path}\033[0m")
+    rel_path = output_file.relative_to(project_path)
+    print(f"\n\033[1;32m[Success] Report generated at: {rel_path}\033[0m")
 
 
 def main():
@@ -144,8 +137,8 @@ def main():
     reports_dir = mode_dir / "reports"
 
     # Initialize helpers
-    db_helper = DatabaseHelper(db_path)
-    auth_helper = GitHubAuth(db_helper)
+    store = RepositoryStore(db_path)
+    auth_helper = GitHubAuth(store)
     workspace_root = project_dir.parent.parent
 
     # Mode-based initialization
@@ -158,7 +151,8 @@ def main():
         except Exception:
             gh_user = "local-user"
         token = None
-        extractor = GitExtractor(db_helper, repos_dir, token)
+        extractor = GitExtractor(repos_dir, token)
+        sync_helper = RepositorySync(store, extractor)
 
         # Auto-ingest local workspace read-only on startup
         print(
@@ -174,7 +168,9 @@ def main():
                 res = questionary.confirm(prompt_msg, default=True).ask()
                 return bool(res)
 
-            extractor.scan_repository(str(workspace_root), prompt_email, is_local=True)
+            sync_helper.sync_repository(
+                str(workspace_root), prompt_email, is_local=True
+            )
             print(
                 "\033[1;32m[Success] Automatically Ingested Local Workspace "
                 "History!\033[0m"
@@ -194,12 +190,12 @@ def main():
             sys.exit(1)
 
         gh_user = get_gh_username()
-        extractor = GitExtractor(db_helper, repos_dir, token)
+        extractor = GitExtractor(repos_dir, token)
+        sync_helper = RepositorySync(store, extractor)
 
     # Console Wizard loop
     while True:
-        with Session(db_helper.engine) as session:
-            repo_count = len(session.exec(select(Repository)).all())
+        repo_count = store.get_repository_count()
 
         print("\n\033[1;33m----------------------------------------------------\033[0m")
         print(
@@ -254,7 +250,7 @@ def main():
                     res = questionary.confirm(prompt_msg, default=True).ask()
                     return bool(res)
 
-                stats = extractor.scan_repository(url, prompt_email)
+                stats = sync_helper.sync_repository(url, prompt_email)
                 print(
                     f"\033[1;32m[Success] Ingested '{repo_name}' successfully!\033[0m"
                 )
@@ -266,8 +262,7 @@ def main():
                 print(f"\033[1;31m[Error during sync] {e}\033[0m")
 
         elif choice == "Show Database Statistics":
-            with Session(db_helper.engine) as session:
-                repos = session.exec(select(Repository)).all()
+            repos = store.get_all_repositories()
             if not repos:
                 print("\033[1;31mNo repositories found in database.\033[0m")
                 continue
@@ -282,7 +277,7 @@ def main():
                 repo_id = r.id
                 if repo_id is None:
                     continue
-                stats = db_helper.get_repo_stats(repo_id)
+                stats = store.get_repo_stats(repo_id)
                 print(
                     "{:<20} | {:<8} | {:<12} | {:<12}".format(
                         r.name[:20],
@@ -294,7 +289,7 @@ def main():
 
         elif choice == "Generate Markdown Contribution Summary":
             report_file = reports_dir / "contributions_summary.md"
-            generate_markdown_report(db_helper, report_file, project_dir)
+            generate_markdown_report(store, report_file, project_dir)
 
         elif choice == "Exit" or choice is None:
             print("\nGoodbye!")

@@ -1,11 +1,11 @@
 import shutil
 import subprocess
 
-from database import DatabaseHelper
+from src.database import RepositoryStore
 
 
 class GitHubAuth:
-    def __init__(self, db_helper: DatabaseHelper):
+    def __init__(self, db_helper: RepositoryStore):
         self.db_helper = db_helper
 
     def check_gh_cli(self) -> bool:

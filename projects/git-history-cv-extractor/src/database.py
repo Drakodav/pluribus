@@ -43,7 +43,7 @@ class FileChange(SQLModel, table=True):
     deletions: int
 
 
-class DatabaseHelper:
+class RepositoryStore:
     def __init__(self, db_path: Path):
         db_path.parent.mkdir(parents=True, exist_ok=True)
         self.engine = create_engine(f"sqlite:///{db_path}")
@@ -177,3 +177,35 @@ class DatabaseHelper:
                 "total_additions": int(total_additions),
                 "total_deletions": int(total_deletions),
             }
+
+    def get_all_repositories(self) -> list[Repository]:
+        with Session(self.engine) as session:
+            return list(session.exec(select(Repository)).all())
+
+    def get_repository_commits(self, repo_id: int) -> list[Commit]:
+        with Session(self.engine) as session:
+            return list(
+                session.exec(
+                    select(Commit)
+                    .where(Commit.repo_id == repo_id)
+                    .order_by(Commit.commit_date)
+                ).all()
+            )
+
+    def get_commits_file_changes(self, commit_ids: list[int]) -> list[FileChange]:
+        if not commit_ids:
+            return []
+        with Session(self.engine) as session:
+            return list(
+                session.exec(
+                    select(FileChange).where(FileChange.commit_id.in_(commit_ids))  # type: ignore
+                ).all()
+            )
+
+    def get_repository_count(self) -> int:
+        with Session(self.engine) as session:
+            return len(session.exec(select(Repository)).all())
+
+    def get_repository(self, repo_id: int) -> Repository | None:
+        with Session(self.engine) as session:
+            return session.get(Repository, repo_id)

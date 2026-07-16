@@ -1,22 +1,33 @@
-import json
 import re
-from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 import git
-from sqlmodel import Session
 
-from database import DatabaseHelper, Repository
+
+@dataclass
+class GitFileChange:
+    file_path: str
+    additions: int
+    deletions: int
+
+
+@dataclass
+class GitCommit:
+    hexsha: str
+    author_name: str
+    author_email: str
+    commit_date: str  # ISO 8601 string: YYYY-MM-DD HH:MM:SS
+    message: str
+    file_changes: list[GitFileChange]
 
 
 class GitExtractor:
     def __init__(
         self,
-        db_helper: DatabaseHelper,
         repos_dir: Path,
         token: str | None = None,
     ):
-        self.db_helper = db_helper
         self.repos_dir = repos_dir
         self.token = token
         self.repos_dir.mkdir(parents=True, exist_ok=True)
@@ -53,110 +64,44 @@ class GitExtractor:
 
         return repo, local_path
 
-    def get_author_emails(self) -> list[str]:
-        """Retrieves known author emails cached in the database."""
-        emails_str = self.db_helper.get_config("author_emails")
-        if emails_str:
-            try:
-                emails = json.loads(emails_str)
-                if isinstance(emails, list):
-                    return [str(e) for e in emails]
-            except json.JSONDecodeError:
-                pass
-        return []
-
-    def save_author_emails(self, emails: list[str]):
-        """Caches approved author emails list in the database config table."""
-        self.db_helper.set_config("author_emails", json.dumps(emails))
-
-    def get_ignored_emails(self) -> list[str]:
-        """Retrieves user-ignored author emails cached in the database."""
-        emails_str = self.db_helper.get_config("ignored_emails")
-        if emails_str:
-            try:
-                emails = json.loads(emails_str)
-                if isinstance(emails, list):
-                    return [str(e) for e in emails]
-            except json.JSONDecodeError:
-                pass
-        return []
-
-    def save_ignored_emails(self, emails: list[str]):
-        """Caches ignored author emails list in the database config table."""
-        self.db_helper.set_config("ignored_emails", json.dumps(emails))
-
     def scan_repository(
         self,
         url: str,
-        email_prompt_callback: Callable[[str, str], bool],
+        since_commit: str | None = None,
         is_local: bool = False,
-    ) -> dict:
-        """Syncs the repository locally and parses all un-scanned commits."""
+    ) -> tuple[list[GitCommit], str, Path]:
+        """Syncs the repository locally and parses all un-scanned commits.
+
+        Returns:
+            tuple[list[GitCommit], str, Path]: A tuple containing the parsed
+            commits, the latest commit hash (head.commit.hexsha), and the local path.
+        """
         if is_local:
             local_path = Path(url)
             repo = git.Repo(local_path)
-            repo_name = local_path.name
         else:
             repo, local_path = self.clone_or_update(url)
-            repo_name = self.get_repo_name(url)
-
-        # Register repository in database
-        repo_id = self.db_helper.add_repository(
-            name=repo_name, url=url, local_path=str(local_path)
-        )
-
-        # Read last scanned commit
-        with Session(self.db_helper.engine) as session:
-            db_repo = session.get(Repository, repo_id)
-            last_scanned = db_repo.last_scanned_commit if db_repo else None
 
         head_commit = repo.head.commit
 
-        # If already up to date, skip scanning
-        if last_scanned and head_commit.hexsha == last_scanned:
-            return self.db_helper.get_repo_stats(repo_id)
+        # If already up to date, return empty list
+        if since_commit and head_commit.hexsha == since_commit:
+            return [], head_commit.hexsha, local_path
 
-        # Walk commit history back to the last scanned commit
+        # Walk commit history back to the since_commit
         commits_to_scan = []
         for commit in repo.iter_commits():
-            if last_scanned and commit.hexsha == last_scanned:
+            if since_commit and commit.hexsha == since_commit:
                 break
             commits_to_scan.append(commit)
 
         # Process commits from oldest to newest
         commits_to_scan.reverse()
 
-        # Initialize email mappings
-        author_emails = self.get_author_emails()
-        ignored_emails = self.get_ignored_emails()
-        if not author_emails:
-            try:
-                config_email = repo.config_reader().get_value("user", "email")
-                if config_email:
-                    author_emails = [str(config_email)]
-                    self.save_author_emails(author_emails)
-            except Exception:
-                pass
-
+        parsed_commits = []
         for commit in commits_to_scan:
             email = str(commit.author.email or "unknown@email.com")
             name = str(commit.author.name or "Unknown Author")
-
-            if email in ignored_emails:
-                continue
-
-            # Check dynamic email mappings
-            if email not in author_emails:
-                is_me = email_prompt_callback(name, email)
-                if is_me:
-                    author_emails.append(email)
-                    self.save_author_emails(author_emails)
-                else:
-                    ignored_emails.append(email)
-                    self.save_ignored_emails(ignored_emails)
-                    # Skip commit if not written by the user
-                    continue
-
             commit_date_str = commit.authored_datetime.strftime("%Y-%m-%d %H:%M:%S")
             commit_message_str = str(
                 commit.message.decode("utf-8")
@@ -164,29 +109,29 @@ class GitExtractor:
                 else (commit.message or "")
             )
 
-            commit_db_id = self.db_helper.add_commit(
-                repo_id=repo_id,
-                commit_hash=commit.hexsha,
-                author_name=name,
-                author_email=email,
-                commit_date=commit_date_str,
-                message=commit_message_str,
-            )
-
-            # Extract additions/deletions statistics per file
+            file_changes = []
             try:
                 files_stats = commit.stats.files
                 for filepath, stats in files_stats.items():
-                    self.db_helper.add_file_change(
-                        commit_id=commit_db_id,
-                        file_path=str(filepath),
-                        additions=stats.get("insertions", 0),
-                        deletions=stats.get("deletions", 0),
+                    file_changes.append(
+                        GitFileChange(
+                            file_path=str(filepath),
+                            additions=stats.get("insertions", 0),
+                            deletions=stats.get("deletions", 0),
+                        )
                     )
             except Exception:
                 pass
 
-        # Update last scanned metadata
-        self.db_helper.update_repository_scanned(repo_id, head_commit.hexsha)
+            parsed_commits.append(
+                GitCommit(
+                    hexsha=commit.hexsha,
+                    author_name=name,
+                    author_email=email,
+                    commit_date=commit_date_str,
+                    message=commit_message_str,
+                    file_changes=file_changes,
+                )
+            )
 
-        return self.db_helper.get_repo_stats(repo_id)
+        return parsed_commits, head_commit.hexsha, local_path

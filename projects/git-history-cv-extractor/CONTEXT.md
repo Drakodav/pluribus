@@ -39,6 +39,11 @@ _Avoid_: production mode
 An isolated execution setting where repository clones and database caches are targeted under separate testing directory structures.
 _Avoid_: mock mode, sandbox
 
+**Repository Synchronization**:
+The process of cloning/updating a Git repository, extracting its commit history, filtering commits by approved author emails, prompting for unknown author emails, and storing the results in the database.
+_Avoid_: ingestion loop, data writing.
+
+
 
 # git-history-cv-extractor Checklist
 
