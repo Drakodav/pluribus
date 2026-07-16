@@ -61,6 +61,6 @@ _Avoid_: exclude list, ignore rule.
 - [x] Issue 003: Git Extraction Engine (GitPython scanning & author matching)
 - [x] Issue 004: Interactive Wizard CLI (Questionary & Markdown report)
 - [x] Issue 005: Feature: Unit Testing & Mock Verifications (pytest implementation)
-- [ ] Issue 006: Configurable ChangeFilter for filtering file changes in reports
-- [ ] Issue 007: Modular Report Generation Architecture (Summary, Tech Stack, Achievements)
-- [ ] Issue 008: Update Console CLI to support multi-report selection & filter configuration
+- [x] Issue 006: Configurable ChangeFilter for filtering file changes in reports
+- [x] Issue 007: Modular Report Generation Architecture (Summary, Tech Stack, Achievements)
+- [x] Issue 008: Update Console CLI to support multi-report selection & filter configuration
