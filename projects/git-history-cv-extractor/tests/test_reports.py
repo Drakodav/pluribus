@@ -5,11 +5,11 @@ from pathlib import Path
 import pytest
 
 from src.database import RepositoryStore
-from src.reports.achievements import AchievementsReport
+from src.reports.achievements_generator import AchievementsReport
 from src.reports.filter import ChangeFilter
 from src.reports.manager import ReportManager
-from src.reports.summary import SummaryReport
-from src.reports.tech_stack import TechStackReport
+from src.reports.summary_generator import SummaryReport
+from src.reports.tech_stack_generator import TechStackReport
 
 
 @pytest.fixture
@@ -48,6 +48,14 @@ def test_env():
         "2026-07-16 14:00:00",
         "docs: update docs",
     )
+    c4 = store.add_commit(
+        repo_id,
+        "sha4",
+        "Me",
+        "me@email.com",
+        "2026-07-16 15:00:00",
+        "feat: commit with many files",
+    )
 
     # Add file changes (some matching default exclusion patterns)
     store.add_file_change(c1, "src/main.py", 10, 2)
@@ -55,6 +63,10 @@ def test_env():
     store.add_file_change(c2, "src/reports/filter.py", 5, 0)
     store.add_file_change(c2, "node_modules/lodash/index.js", 20, 20)  # Excluded
     store.add_file_change(c3, "README.md", 2, 1)
+
+    # Add 7 files to c4 to trigger truncation
+    for i in range(7):
+        store.add_file_change(c4, f"src/file_{i}.py", 1, 1)
 
     yield store, repo_id, Path(temp_dir)
 
@@ -78,12 +90,14 @@ def test_summary_report(test_env):
     assert "refactor(git-cv): clean up logic" in content
     assert "docs: update docs" in content
 
-    # Check stats are filtered (total additions should be 10 + 5 + 2 = 17,
-    # excluding lockfiles and node_modules)
-    assert "+17 / -3 lines" in content
-    assert "3 files changed" in content  # src/main.py, src/reports/filter.py, README.md
+    # Check stats are filtered (additions: 10+5+2+7 = 24; deletions: 2+0+1+7 = 10)
+    assert "+24 / -10 lines" in content
+    assert "10 files changed" in content
     assert "package-lock.json" not in content
     assert "node_modules" not in content
+
+    # Check truncation works (show 5 files, truncate the rest)
+    assert "... (+2 more files)" in content
 
 
 def test_tech_stack_report(test_env):
@@ -119,10 +133,14 @@ def test_achievements_report(test_env):
     # Check category classifications
     assert "### Feature Delivery" in content
     assert "feat: implement first feature" in content
+    assert "feat: commit with many files" in content
     assert "### Refactoring & Architecture" in content
     assert "refactor(git-cv): clean up logic" in content
     assert "### Testing & Documentation" in content
     assert "docs: update docs" in content
+
+    # Check truncation works (+2 more)
+    assert "... +2 more" in content
 
 
 def test_report_manager(test_env):

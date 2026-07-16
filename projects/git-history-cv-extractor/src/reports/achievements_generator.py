@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.database import RepositoryStore
-from src.reports.base import BaseReport
+from src.reports.base_generator import BaseReport
 from src.reports.filter import ChangeFilter
 
 # Keyword mappings for clustering achievements
@@ -139,7 +139,12 @@ class AchievementsReport(BaseReport):
                 markdown_content.append(f"### {cat_name}")
                 for commit in cat_commits:
                     files = commit_changes.get(commit.id, [])
-                    files_str = f" ({', '.join(files)})" if files else ""
+                    if len(files) > 5:
+                        files_str = (
+                            f" ({', '.join(files[:5])}, ... +{len(files) - 5} more)"
+                        )
+                    else:
+                        files_str = f" ({', '.join(files)})" if files else ""
                     hash_str = commit.hash[:7]
                     msg = commit.message.strip()
                     date_str = commit.commit_date
@@ -153,7 +158,12 @@ class AchievementsReport(BaseReport):
                 markdown_content.append("### Other Contributions")
                 for commit in other_commits:
                     files = commit_changes.get(commit.id, [])
-                    files_str = f" ({', '.join(files)})" if files else ""
+                    if len(files) > 5:
+                        files_str = (
+                            f" ({', '.join(files[:5])}, ... +{len(files) - 5} more)"
+                        )
+                    else:
+                        files_str = f" ({', '.join(files)})" if files else ""
                     hash_str = commit.hash[:7]
                     msg = commit.message.strip()
                     date_str = commit.commit_date

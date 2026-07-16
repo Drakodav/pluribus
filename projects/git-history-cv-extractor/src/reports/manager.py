@@ -1,10 +1,10 @@
 from pathlib import Path
 
 from src.database import RepositoryStore
-from src.reports.achievements import AchievementsReport
+from src.reports.achievements_generator import AchievementsReport
 from src.reports.filter import ChangeFilter
-from src.reports.summary import SummaryReport
-from src.reports.tech_stack import TechStackReport
+from src.reports.summary_generator import SummaryReport
+from src.reports.tech_stack_generator import TechStackReport
 
 REPORT_MAPPING = {
     "summary": (SummaryReport, "contributions_summary.md"),

@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.database import RepositoryStore
-from src.reports.base import BaseReport
+from src.reports.base_generator import BaseReport
 from src.reports.filter import ChangeFilter
 
 
@@ -86,9 +86,13 @@ class SummaryReport(BaseReport):
                 c_changes = [fc for fc in filtered_changes if fc.commit_id == commit.id]
                 if c_changes:
                     markdown_content.append("**Files Touched**:")
-                    for fc in c_changes:
+                    for fc in c_changes[:5]:
                         markdown_content.append(
                             f"- `{fc.file_path}` (+{fc.additions}, -{fc.deletions})"
+                        )
+                    if len(c_changes) > 5:
+                        markdown_content.append(
+                            f"- ... (+{len(c_changes) - 5} more files)"
                         )
                 markdown_content.append("")  # Spacer
 

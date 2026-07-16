@@ -4,8 +4,11 @@ from pathlib import Path
 DEFAULT_EXCLUDE_PATTERNS = [
     # Vendor & third-party folders
     "*vendors/*",
+    "*vendor/*",
     "*wp-admin/*",
     "*wp-includes/*",
+    "*wp-content/plugins/*",
+    "*dist/*",
     # Package manager lockfiles
     "*package-lock.json",
     "*yarn.lock",
@@ -18,7 +21,7 @@ DEFAULT_EXCLUDE_PATTERNS = [
     "*__pycache__/*",
     "*.pytest_cache/*",
     "*.ruff_cache/*",
-    # Media asset extensions
+    # Media asset & graphics extensions
     "*.png",
     "*.jpg",
     "*.jpeg",
@@ -26,6 +29,27 @@ DEFAULT_EXCLUDE_PATTERNS = [
     "*.gif",
     "*.ico",
     "*.webp",
+    "*.psd",
+    "*.pxm",
+    "*.xcf",
+    # Video & audio extensions
+    "*.mp4",
+    "*.mov",
+    "*.avi",
+    "*.webm",
+    "*.wav",
+    "*.mp3",
+    # Font extensions
+    "*.ttf",
+    "*.woff",
+    "*.woff2",
+    "*.eot",
+    "*.otf",
+    # Database and binary caches
+    "*.mmdb",
+    "*.db",
+    "*.sqlite",
+    "*.sqlite3",
 ]
 
 

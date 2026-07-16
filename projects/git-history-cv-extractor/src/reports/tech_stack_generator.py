@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.database import RepositoryStore
-from src.reports.base import BaseReport
+from src.reports.base_generator import BaseReport
 from src.reports.filter import ChangeFilter
 
 
