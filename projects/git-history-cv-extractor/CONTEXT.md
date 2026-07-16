@@ -43,6 +43,15 @@ _Avoid_: mock mode, sandbox
 The process of cloning/updating a Git repository, extracting its commit history, filtering commits by approved author emails, prompting for unknown author emails, and storing the results in the database.
 _Avoid_: ingestion loop, data writing.
 
+**Contribution Report**:
+A generated markdown or structured document compiling stored commit logs, technology stacks, and classified achievement themes for a contributor across repositories.
+_Avoid_: CV summary, resume export.
+
+**ChangeFilter**:
+A rule engine containing glob patterns (e.g., matching common build assets, lockfiles, or third-party packages like node_modules and wp-admin) used to prune irrelevant file changes from generated reports.
+_Avoid_: exclude list, ignore rule.
+
+
 
 
 # git-history-cv-extractor Checklist
@@ -51,4 +60,7 @@ _Avoid_: ingestion loop, data writing.
 - [x] Issue 002: GitHub Authentication (gh CLI integration)
 - [x] Issue 003: Git Extraction Engine (GitPython scanning & author matching)
 - [x] Issue 004: Interactive Wizard CLI (Questionary & Markdown report)
-- [ ] Issue 005: Unit Testing & Mock Verifications (pytest implementation)
+- [x] Issue 005: Feature: Unit Testing & Mock Verifications (pytest implementation)
+- [ ] Issue 006: Configurable ChangeFilter for filtering file changes in reports
+- [ ] Issue 007: Modular Report Generation Architecture (Summary, Tech Stack, Achievements)
+- [ ] Issue 008: Update Console CLI to support multi-report selection & filter configuration
