@@ -19,8 +19,9 @@ sudo ./gateway/vm/deploy.sh [SSH_USER] [SSH_HOST] [SSH_KEY_PATH]
 ```
 
 Defaults (inferred from `projects/homelab/.env`):
+
 - User: `ubuntu`
-- Host: `GATEWAY_PUBLIC_IP`
+- Host: `APERIO_PUBLIC_IP`
 - Key: `~/.ssh/id_rsa`
 
 ## Adding a New Gateway Component

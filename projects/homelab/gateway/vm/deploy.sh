@@ -19,11 +19,11 @@ fi
 
 # Usage: ./deploy.sh [SSH_USER] [SSH_HOST] [SSH_KEY_PATH]
 SSH_USER=${1:-ubuntu}
-SSH_HOST=${2:-${GATEWAY_PUBLIC_IP}}
+SSH_HOST=${2:-${APERIO_PUBLIC_IP}}
 SSH_KEY=${3:-${GATEWAY_SSH_KEY:-$REAL_HOME/.ssh/id_rsa}}
 
 if [ -z "$SSH_HOST" ]; then
-    echo "Error: SSH_HOST not provided and GATEWAY_PUBLIC_IP not found in $ROOT_DIR/.env"
+    echo "Error: SSH_HOST not provided and APERIO_PUBLIC_IP not found in $ROOT_DIR/.env"
     exit 1
 fi
 

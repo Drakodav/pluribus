@@ -103,13 +103,13 @@ ssh-aperio:
     #!/usr/bin/env sh
     set -eu
     if [ -f .env ]; then set -a; . ./.env; set +a; fi
-    if [ -z "${GATEWAY_PUBLIC_IP:-}" ]; then
-        echo "Error: GATEWAY_PUBLIC_IP is not defined in .env"
+    if [ -z "${APERIO_PUBLIC_IP:-}" ]; then
+        echo "Error: APERIO_PUBLIC_IP is not defined in .env"
         exit 1
     fi
     KEY="${GATEWAY_SSH_KEY:-$HOME/.ssh/id_rsa}"
-    echo "Connecting to Aperio (${GATEWAY_PUBLIC_IP})..."
-    ssh -o StrictHostKeyChecking=no -i "$KEY" "ubuntu@${GATEWAY_PUBLIC_IP}"
+    echo "Connecting to Aperio (${APERIO_PUBLIC_IP})..."
+    ssh -o StrictHostKeyChecking=no -i "$KEY" "ubuntu@${APERIO_PUBLIC_IP}"
 
 # SSH into Macerator Powerhouse (Dell Inspiron)
 ssh-macerator target_host="":
@@ -117,7 +117,7 @@ ssh-macerator target_host="":
     set -eu
     if [ -f .env ]; then set -a; . ./.env; set +a; fi
     KEY="${GATEWAY_SSH_KEY:-$HOME/.ssh/id_rsa}"
-    GATEWAY="${GATEWAY_PUBLIC_IP:-}"
+    GATEWAY="${APERIO_PUBLIC_IP:-}"
     DEFAULT_MACERATOR_IP="${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}"
     TARGET="{{target_host}}"
     if [ -z "$TARGET" ]; then
@@ -127,7 +127,7 @@ ssh-macerator target_host="":
     # If connecting to the WireGuard backbone IP and gateway is known, ProxyJump through Aperio
     if [ "$TARGET" = "$DEFAULT_MACERATOR_IP" ] || [ "$TARGET" = "10.10.0.2" ]; then
         if [ -z "$GATEWAY" ]; then
-            echo "Error: GATEWAY_PUBLIC_IP required for ProxyJump to $TARGET is not set in .env"
+            echo "Error: APERIO_PUBLIC_IP required for ProxyJump to $TARGET is not set in .env"
             exit 1
         fi
         echo "Connecting to Macerator ($TARGET) via Aperio bastion ($GATEWAY)..."
