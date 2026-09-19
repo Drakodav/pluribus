@@ -1,24 +1,28 @@
 {
-    "folders": [
-        {
-            "name": "🏠 pluribus",
-            "path": "."
-        },
-        {
-            "name": "└ git-history-cv-extractor",
-            "path": "projects/git-history-cv-extractor"
-        }
-    ],
-    "settings": {
-        "python.experiments.enabled": false,
-        "[python]": {
-            "editor.defaultFormatter": "charliermarsh.ruff",
-            "editor.formatOnSave": true,
-            "editor.codeActionsOnSave": {
-                "source.fixAll.ruff": "always",
-                "source.organizeImports.ruff": "always"
-            }
-        },
-        "python.terminal.activateEnvInCurrentTerminal": true
-    }
+	"folders": [
+		{
+			"name": "🏠 pluribus",
+			"path": "."
+		},
+		{
+			"name": "└ git-history-cv-extractor",
+			"path": "projects/git-history-cv-extractor"
+		},
+		{
+			"name": "└ ☁️-homelab",
+			"path": "projects/homelab"
+		}
+	],
+	"settings": {
+		"python.experiments.enabled": false,
+		"[python]": {
+			"editor.defaultFormatter": "charliermarsh.ruff",
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.fixAll.ruff": "always",
+				"source.organizeImports.ruff": "always"
+			}
+		},
+		"python.terminal.activateEnvInCurrentTerminal": true
+	}
 }

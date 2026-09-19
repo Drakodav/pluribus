@@ -1,0 +1,82 @@
+# List available homelab commands
+default:
+    @just --list
+
+# Verify system prerequisites (docker, terraform, shellcheck, shfmt)
+doctor:
+    @echo "=== Checking Homelab System Prerequisites ==="
+    @which docker > /dev/null && echo "  [ok] docker found: $(which docker)" || echo "  [warn] docker not found in PATH"
+    @which terraform > /dev/null && echo "  [ok] terraform found: $(which terraform)" || echo "  [warn] terraform not found in PATH"
+    @which shellcheck > /dev/null && echo "  [ok] shellcheck found: $(which shellcheck)" || echo "  [info] shellcheck not installed (install via brew/apt for script linting)"
+    @which shfmt > /dev/null && echo "  [ok] shfmt found: $(which shfmt)" || echo "  [info] shfmt not installed (install via brew/apt for script formatting)"
+    @echo "Environment check complete."
+
+# Lint shell scripts and check Terraform formatting
+lint:
+    #!/usr/bin/env sh
+    set -eu
+    echo "=== Running Homelab Linters ==="
+    if which shellcheck > /dev/null 2>&1; then
+        sh_files="$(find . -type f -name "*.sh" -not -path "*/.agents/*" -not -path "*/.git/*" 2>/dev/null || true)"
+        if [ -n "$sh_files" ]; then
+            echo "Running shellcheck on shell scripts..."
+            shellcheck $sh_files
+        else
+            echo "No shell scripts found to lint."
+        fi
+    else
+        echo "shellcheck not found. Skipping shell linting."
+    fi
+
+    if which terraform > /dev/null 2>&1 && [ -d "gateway/terraform" ]; then
+        tf_count="$(find gateway/terraform -name '*.tf' 2>/dev/null | wc -l | tr -d ' ')"
+        if [ "$tf_count" -gt 0 ]; then
+            echo "Checking Terraform formatting..."
+            terraform fmt -check -recursive gateway/terraform/
+        fi
+    fi
+    echo "Lint checks complete."
+
+# Auto-format shell scripts and Terraform code
+format:
+    #!/usr/bin/env sh
+    set -eu
+    echo "=== Formatting Homelab Files ==="
+    if which shfmt > /dev/null 2>&1; then
+        sh_files="$(find . -type f -name "*.sh" -not -path "*/.agents/*" -not -path "*/.git/*" 2>/dev/null || true)"
+        if [ -n "$sh_files" ]; then
+            echo "Formatting shell scripts with shfmt..."
+            shfmt -w -i 4 $sh_files
+        fi
+    fi
+
+    if which terraform > /dev/null 2>&1 && [ -d "gateway/terraform" ]; then
+        tf_count="$(find gateway/terraform -name '*.tf' 2>/dev/null | wc -l | tr -d ' ')"
+        if [ "$tf_count" -gt 0 ]; then
+            echo "Formatting Terraform code..."
+            terraform fmt -recursive gateway/terraform/
+        fi
+    fi
+    echo "Formatting complete."
+
+# Validate Docker Compose configurations
+validate:
+    #!/usr/bin/env sh
+    set -eu
+    echo "=== Validating Configurations ==="
+    compose_count=0
+    for f in services/*/docker-compose.yml gateway/vm/*/docker-compose.yml; do
+        if [ -f "$f" ]; then
+            compose_count=$((compose_count + 1))
+            echo "Validating $f..."
+            docker compose -f "$f" config -q
+        fi
+    done
+    if [ "$compose_count" -eq 0 ]; then
+        echo "No compose stacks staged for validation yet (Phase 1 skeleton)."
+    else
+        echo "Validated $compose_count compose files successfully."
+    fi
+
+# Standard pre-commit hook aggregator (consumed by root monorepo pre-commit)
+pre-commit: lint validate
