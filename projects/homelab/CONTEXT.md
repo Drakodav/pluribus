@@ -92,12 +92,12 @@ _Avoid_: basic auth, gateway security.
 - [x] Issue #13: Define comprehensive `.env.example` schema covering Gateway, Backbone, and Services
 - [x] Issue #13: Wire project into Pluribus monorepo (`CONTEXT-MAP.md`, `pluribus.code-workspace`, local `justfile`)
 
-### Phase 2: Public Gateway (`aperio`)
+### Phase 2: Public Gateway (`aperio` - Issue #15)
 
-- [ ] OCI Terraform Infrastructure: Clean, modular VCN, compute, and security lists
-- [ ] Idempotent VM Provisioning: Automated installation of Docker, WireGuard server, Traefik, and Consul server
-- [ ] Ingress & SSL: Traefik dynamic routing and Let's Encrypt automated certificate management
-- [ ] Remote Deployment: Streamlined `deploy.sh` script to sync and apply gateway configuration
+- [x] OCI Terraform Infrastructure: Clean, modular VCN, compute, and security lists
+- [x] Idempotent VM Provisioning: Automated installation of Docker, WireGuard server, Traefik, and Consul server
+- [x] Ingress & SSL: Traefik dynamic routing and Let's Encrypt automated certificate management
+- [x] Remote Deployment: Streamlined `deploy.sh` script to sync and apply gateway configuration
 
 ### Phase 3: Core Powerhouse (`macerator`)
 

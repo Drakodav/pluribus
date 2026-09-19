@@ -12,11 +12,11 @@ data "oci_identity_availability_domains" "ad" {
   compartment_id = var.tenancy_ocid
 }
 
-# Fetch the latest Canonical Ubuntu 22.04 ARM image
+# Fetch the latest Canonical Ubuntu 24.04 ARM image
 data "oci_core_images" "ubuntu_arm" {
   compartment_id           = var.compartment_id
   operating_system         = "Canonical Ubuntu"
-  operating_system_version = "22.04"
+  operating_system_version = "24.04"
   shape                    = var.instance_shape
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
