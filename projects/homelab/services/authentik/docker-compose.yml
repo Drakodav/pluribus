@@ -1,0 +1,51 @@
+services:
+  server:
+    container_name: authentik_server
+    image: ghcr.io/goauthentik/server:2026.8.3
+    command: server
+    restart: always
+    ports:
+      - 9000:9000
+      - 9443:9443
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      AUTHENTIK_REDIS__HOST: ${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+      AUTHENTIK_POSTGRESQL__HOST: ${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-homelab}
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-homelab}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-homelab_secret}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD:-}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/-/health/ready/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - /opt/homelab/authentik/media:/media
+      - /opt/homelab/authentik/custom-templates:/templates
+
+  worker:
+    container_name: authentik_worker
+    image: ghcr.io/goauthentik/server:2026.8.3
+    command: worker
+    restart: always
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      AUTHENTIK_REDIS__HOST: ${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+      AUTHENTIK_POSTGRESQL__HOST: ${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-homelab}
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-homelab}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-homelab_secret}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-}
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/homelab/authentik/media:/media
+      - /opt/homelab/authentik/custom-templates:/templates
+      - /opt/homelab/authentik/certs:/certs

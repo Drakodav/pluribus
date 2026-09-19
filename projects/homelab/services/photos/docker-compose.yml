@@ -1,0 +1,50 @@
+services:
+  immich-server:
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    volumes:
+      - ${IMMICH_UPLOAD_LOCATION:-/opt/homelab/immich/library}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: host
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      - IMMICH_PORT=2283
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-homelab_secret}
+      - DB_USERNAME=${POSTGRES_USER:-homelab}
+      - DB_DATABASE_NAME=immich
+      - DB_HOSTNAME=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+      - REDIS_HOSTNAME=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+      - UPLOAD_LOCATION=${IMMICH_UPLOAD_LOCATION:-/opt/homelab/immich/library}
+      - IMMICH_MACHINE_LEARNING_URL=http://${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}:3003
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2283/api/server/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-cuda
+    volumes:
+      - model-cache:/cache
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      - IMMICH_PORT=3003
+    ports:
+      - 3003:3003
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: always
+
+volumes:
+  model-cache:

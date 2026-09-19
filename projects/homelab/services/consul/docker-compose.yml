@@ -1,0 +1,17 @@
+services:
+  consul-client:
+    image: hashicorp/consul:latest
+    container_name: consul-client
+    restart: always
+    network_mode: host
+    env_file:
+      - path: ../../.env
+        required: false
+    volumes:
+      - consul-data:/consul/data
+    environment:
+      CONSUL_LOCAL_CONFIG: '{"ui_config":{"enabled":true}}'
+    command: "agent -node=${CONSUL_NODE_NAME:-macerator} -bind=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}} -client=0.0.0.0 -retry-join=${BACKBONE_APERIO_IP:-${BACKBONE_GATEWAY_IP:-10.10.0.1}} -hcl='addresses { dns = \"0.0.0.0\" }'"
+
+volumes:
+  consul-data:

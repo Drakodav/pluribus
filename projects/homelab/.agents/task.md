@@ -17,9 +17,13 @@
 - [x] Issue #15: Pass automated static verification gates (Part 1)
 - [x] Issue #15: Live human operator review & deployment verification (Part 2)
 
-## Phase 3: Primary Powerhouse (`macerator`)
-- [ ] Issue #TBD: WireGuard client backbone and Consul client agent
-- [ ] Issue #TBD: Core data services (PostgreSQL + pgvector, Redis)
-- [ ] Issue #TBD: Centralized identity (Authentik SSO + forwardAuth)
-- [ ] Issue #TBD: Media and automation stacks (Immich, Home Assistant, Netdata, Cockpit)
-- [ ] Issue #TBD: Host runner and storage scaffolding under `/opt/homelab/`
+## Phase 3: Primary Powerhouse (`macerator` - Active in Issue #16)
+- [x] Issue #16: WireGuard client backbone checks and Consul client agent in `services/consul/`
+- [x] Issue #16: Core data services (PostgreSQL 16 + pgvector, Redis) in `services/postgres/` and `services/redis/`
+- [x] Issue #16: Centralized identity (Authentik SSO + forwardAuth) in `services/authentik/`
+- [x] Issue #16: Media, automation & observability stacks (Immich, Home Assistant, Netdata, Cockpit, code-server) in `services/`
+- [x] Issue #16: Host runner, discovery firewall, and storage scaffolding under `/opt/homelab/` in `nodes/macerator/`
+- [x] Issue #16: Update `justfile` with Macerator service recipes (`services-validate`, `macerator-up`, `macerator-down`, `macerator-status`, `macerator-sync`)
+- [x] Issue #16: Pass automated static verification gates (Part 1)
+- [ ] Issue #16: Live human operator review & synchronization verification (Part 2)
+

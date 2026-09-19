@@ -1,0 +1,7 @@
+services:
+  redis:
+    container_name: shared_redis
+    image: redis:latest
+    restart: always
+    network_mode: host
+    command: redis-server --save 60 1 --loglevel warning

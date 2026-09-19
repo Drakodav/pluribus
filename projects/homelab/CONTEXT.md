@@ -99,10 +99,10 @@ _Avoid_: basic auth, gateway security.
 - [x] Ingress & SSL: Traefik dynamic routing and Let's Encrypt automated certificate management
 - [x] Remote Deployment: Streamlined `deploy.sh` script to sync and apply gateway configuration
 
-### Phase 3: Core Powerhouse (`macerator`)
+### Phase 3: Core Powerhouse (`macerator` - Issue #16)
 
-- [ ] WireGuard client endpoint and local Consul client agent connectivity
-- [ ] Shared data foundation: PostgreSQL (custom Alpine + pgvector) and Redis
-- [ ] Centralized identity: Authentik SSO and Traefik forwardAuth middleware
-- [ ] Media & Applications: Immich photo management stack, Home Assistant, Netdata, Cockpit
-- [ ] Storage scaffolding and backup orchestration under `/opt/homelab/`
+- [x] WireGuard client endpoint checks and local Consul client agent connectivity (`services/consul/`)
+- [x] Shared data foundation: PostgreSQL (custom Alpine + pgvector) and Redis (`services/postgres/`, `services/redis/`)
+- [x] Centralized identity: Authentik SSO and Traefik forwardAuth middleware (`services/authentik/`)
+- [x] Media & Applications: Immich photo management stack, Home Assistant, Netdata, Cockpit, code-server (`services/`)
+- [x] Storage scaffolding, discovery firewalls, and orchestrator under `/opt/homelab/` (`nodes/macerator/`)
