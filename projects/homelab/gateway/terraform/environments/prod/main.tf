@@ -1,7 +1,7 @@
 module "networking" {
   source         = "../../modules/networking"
   compartment_id = var.compartment_id
-  label_prefix   = "homelab"
+  label_prefix   = "aperio"
 }
 
 module "compute" {
@@ -10,7 +10,7 @@ module "compute" {
   compartment_id            = var.compartment_id
   subnet_id                 = module.networking.subnet_id
   ssh_public_key            = var.ssh_public_key
-  label_prefix              = "homelab"
+  label_prefix              = "aperio"
   instance_shape            = var.instance_shape
   instance_ocpus            = var.instance_ocpus
   instance_memory_in_gbs    = var.instance_memory_in_gbs

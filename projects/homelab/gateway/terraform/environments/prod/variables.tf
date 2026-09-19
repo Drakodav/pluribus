@@ -43,13 +43,13 @@ variable "instance_shape" {
 variable "instance_ocpus" {
   description = "Number of OCPUs for ARM instance"
   type        = number
-  default     = 4
+  default     = 2
 }
 
 variable "instance_memory_in_gbs" {
   description = "RAM in GBs for ARM instance"
   type        = number
-  default     = 24
+  default     = 12
 }
 
 variable "availability_domain_index" {

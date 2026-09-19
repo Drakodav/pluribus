@@ -10,21 +10,24 @@ CONFIG_FILE="$WG_DIR/$INTERFACE.conf"
 
 echo ">>> [WireGuard] Starting setup..."
 
-# 1. Install WireGuard
-if ! command -v wg &> /dev/null; then
-    echo ">>> [WireGuard] Installing WireGuard..."
+# 1. Install WireGuard & Firewall Tools
+if ! command -v wg &> /dev/null || ! command -v ufw &> /dev/null; then
+    echo ">>> [WireGuard] Installing WireGuard & UFW..."
     apt-get update
-    apt-get install -y wireguard wireguard-tools
+    apt-get install -y wireguard wireguard-tools ufw
 else
-    echo ">>> [WireGuard] WireGuard already installed."
+    echo ">>> [WireGuard] WireGuard and UFW already installed."
 fi
 
 # 2. Configure Firewall (UFW & iptables)
 echo ">>> [WireGuard] Configuring Firewall..."
-# Always allow SSH first to prevent lockout
-ufw allow 22/tcp
-# Allow WireGuard traffic in UFW
-ufw allow 51820/udp
+if command -v ufw &> /dev/null; then
+    # Always allow SSH first to prevent lockout
+    ufw allow 22/tcp
+    # Allow WireGuard traffic in UFW
+    ufw allow 51820/udp
+fi
+
 # Oracle-specific: Insert iptables rule at the top to bypass default REJECT
 iptables -C INPUT -p udp --dport 51820 -j ACCEPT 2>/dev/null || iptables -I INPUT 1 -p udp --dport 51820 -j ACCEPT
 iptables -C INPUT -p tcp --dport 80 -j ACCEPT 2>/dev/null || iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
@@ -32,7 +35,7 @@ iptables -C INPUT -p tcp --dport 443 -j ACCEPT 2>/dev/null || iptables -I INPUT 
 iptables -C INPUT -i wg0 -j ACCEPT 2>/dev/null || iptables -I INPUT 1 -i wg0 -j ACCEPT
 
 # Enable UFW if inactive (non-interactive)
-if ! ufw status | grep -q "Status: active"; then
+if command -v ufw &> /dev/null && ! ufw status | grep -q "Status: active"; then
     echo "y" | ufw enable
 fi
 
