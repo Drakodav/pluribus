@@ -1,0 +1,62 @@
+# List available Terraform task runner commands
+default:
+    @just --list
+
+# Format all Terraform configuration files recursively
+fmt:
+    @echo "=== Formatting Terraform Files ==="
+    terraform fmt -recursive .
+
+# Check formatting of all Terraform configuration files
+lint:
+    @echo "=== Checking Terraform Formatting ==="
+    terraform fmt -check -recursive .
+
+# Initialize Terraform working directory for environment
+init env="prod":
+    @echo "=== Initializing Terraform (env: {{env}}) ==="
+    cd environments/{{env}} && terraform init
+
+# Validate Terraform configuration files for environment
+validate env="prod":
+    @echo "=== Validating Terraform (env: {{env}}) ==="
+    cd environments/{{env}} && terraform validate
+
+# Generate and show execution plan
+plan env="prod":
+    @echo "=== Planning Terraform Changes (env: {{env}}) ==="
+    cd environments/{{env}} && terraform plan
+
+# Apply Terraform infrastructure changes (interactive)
+apply env="prod":
+    @echo "=== Applying Terraform Changes (env: {{env}}) ==="
+    cd environments/{{env}} && terraform apply
+
+# Apply Terraform infrastructure changes without confirmation
+auto-apply env="prod":
+    @echo "=== Auto-Applying Terraform Changes (env: {{env}}) ==="
+    cd environments/{{env}} && terraform apply -auto-approve
+
+# Refresh local state file against real infrastructure
+refresh env="prod":
+    @echo "=== Refreshing Terraform State (env: {{env}}) ==="
+    cd environments/{{env}} && terraform refresh
+
+# Display Terraform stack outputs
+output env="prod":
+    @echo "=== Showing Terraform Outputs (env: {{env}}) ==="
+    cd environments/{{env}} && terraform output
+
+# List resources tracked in current state
+state-list env="prod":
+    @echo "=== Listing Tracked Resources (env: {{env}}) ==="
+    cd environments/{{env}} && terraform state list
+
+# Show current state or plan
+show env="prod":
+    cd environments/{{env}} && terraform show
+
+# Destroy Terraform managed infrastructure
+destroy env="prod":
+    @echo "=== Destroying Terraform Infrastructure (env: {{env}}) ==="
+    cd environments/{{env}} && terraform destroy
