@@ -1,0 +1,14 @@
+# ==============================================================================
+# OCI Production Environment Variables Example
+# ==============================================================================
+# Copy this file to terraform.tfvars and fill in your actual credentials.
+# NOTE: terraform.tfvars contains sensitive credentials and is strictly gitignored.
+# ==============================================================================
+
+tenancy_ocid     = "ocid1.tenancy.oc1..xxxxxx"
+user_ocid        = "ocid1.user.oc1..xxxxxx"
+fingerprint      = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
+private_key_path = "~/.oci/oci_api_key.pem"
+region           = "uk-london-1"
+compartment_id   = "ocid1.compartment.oc1..xxxxxx"
+ssh_public_key   = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC..."

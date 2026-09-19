@@ -73,10 +73,30 @@ validate:
         fi
     done
     if [ "$compose_count" -eq 0 ]; then
-        echo "No compose stacks staged for validation yet (Phase 1 skeleton)."
+        echo "No compose stacks staged for validation yet."
     else
         echo "Validated $compose_count compose files successfully."
     fi
+
+# Format Gateway Terraform files
+gateway-fmt:
+    @terraform fmt -recursive gateway/terraform/
+
+# Lint Gateway Terraform files
+gateway-lint:
+    @terraform fmt -check -recursive gateway/terraform/
+
+# Validate Gateway Compose stack
+gateway-validate:
+    @docker compose -f gateway/vm/platform/docker-compose.yml config -q
+    @echo "Gateway platform compose configuration is valid."
+
+# Deploy configuration to remote Aperio Gateway VM via SSH/rsync
+gateway-deploy user="ubuntu" host="" key="":
+    #!/usr/bin/env sh
+    set -eu
+    echo "Deploying to Aperio Gateway..."
+    sudo bash gateway/vm/deploy.sh "{{user}}" "{{host}}" "{{key}}"
 
 # Standard pre-commit hook aggregator (consumed by root monorepo pre-commit)
 pre-commit: lint validate
