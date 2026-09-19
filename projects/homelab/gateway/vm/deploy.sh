@@ -1,15 +1,9 @@
 #!/bin/bash
 set -e
 
-# Ensure we are running as root locally
-if [ "$EUID" -ne 0 ]; then 
-  echo "Please run as root (sudo ./deploy.sh)"
-  exit 1
-fi
-
-# Detect actual user if running via sudo to find the correct SSH key
-REAL_USER="${SUDO_USER:-$USER}"
-REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+# Resolve user home directory portably (Linux, macOS, and CI)
+REAL_USER="$USER"
+REAL_HOME="${HOME:-$(eval echo "~$USER")}"
 
 # Directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,16 +12,27 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Load environment variables if .env exists in project root
 if [ -f "$ROOT_DIR/.env" ]; then
-    export $(grep -v '^#' "$ROOT_DIR/.env" | xargs)
+    set -a
+    . "$ROOT_DIR/.env"
+    set +a
 fi
 
-# Usage: ./deploy.sh <SSH_USER> <SSH_HOST> <SSH_KEY_PATH>
+# Usage: ./deploy.sh [SSH_USER] [SSH_HOST] [SSH_KEY_PATH]
 SSH_USER=${1:-ubuntu}
 SSH_HOST=${2:-${GATEWAY_PUBLIC_IP}}
-SSH_KEY=${3:-$REAL_HOME/.ssh/id_rsa}
+SSH_KEY=${3:-${GATEWAY_SSH_KEY:-$REAL_HOME/.ssh/id_rsa}}
 
 if [ -z "$SSH_HOST" ]; then
     echo "Error: SSH_HOST not provided and GATEWAY_PUBLIC_IP not found in $ROOT_DIR/.env"
+    exit 1
+fi
+
+if [ ! -f "$SSH_KEY" ]; then
+    echo "Error: SSH private key not found at '$SSH_KEY'"
+    echo "To fix this, either:"
+    echo "  1. Copy your private key from macerator to: $SSH_KEY"
+    echo "  2. Or set GATEWAY_SSH_KEY in $ROOT_DIR/.env to point to your key"
+    echo "  3. Or pass it as argument: ./deploy.sh $SSH_USER $SSH_HOST /path/to/key"
     exit 1
 fi
 
