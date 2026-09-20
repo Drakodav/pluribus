@@ -50,7 +50,7 @@ services:
 
 # Generate self-contained WireGuard onboarding bootstrap snippet for any node
 node-bootstrap node="macerator":
-    uv run homelab node generate-wireguard-bootstrap {{node}}
+    uv run homelab node bootstrap {{node}}
 
 # Print generated /etc/wireguard/wg0.conf for any node or gateway
 mesh-config target="aperio":
@@ -71,6 +71,20 @@ ssh-macerator:
 # Sync repository code to a node via rsync over ProxyJump SSH
 node-sync node="macerator":
     uv run homelab node sync {{node}}
+
+# Portal into executing homelab host commands remotely on a node
+node-run node action *args="":
+    uv run homelab node run {{node}} {{action}} {{args}}
+
+# Local in-node lifecycle commands (executed directly on a node host)
+host-up *args="":
+    uv run homelab host up {{args}}
+
+host-status *args="":
+    uv run homelab host status {{args}}
+
+host-down *args="":
+    uv run homelab host down {{args}}
 
 # Synchronize declared services into Consul Service Catalog
 consul-sync node="macerator":

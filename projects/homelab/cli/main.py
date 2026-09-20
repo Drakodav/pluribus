@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from cli.consul import consul_app
+from cli.host import host_app
 from cli.mesh import mesh_app
 from cli.node import node_app
 from cli.service import service_app
@@ -23,6 +24,7 @@ app = typer.Typer(
 
 app.add_typer(mesh_app, name="mesh")
 app.add_typer(node_app, name="node")
+app.add_typer(host_app, name="host")
 app.add_typer(consul_app, name="consul")
 app.add_typer(service_app, name="service")
 
