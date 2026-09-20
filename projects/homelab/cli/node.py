@@ -136,6 +136,28 @@ def node_exec(
     raise typer.Exit(code=proc.returncode)
 
 
+def _dispatch_remote_host_cmd(
+    target: str,
+    action: str,
+    topo: HomelabTopology,
+    dest: str = "~/projects/homelab/",
+    extra_args: list[str] | None = None,
+) -> int:
+    """Dispatch a 'homelab host <action>' command to a remote node via SSH with PTY."""
+    arg_str = f" {' '.join(extra_args)}" if extra_args else ""
+    remote_cmd = f"cd {dest} && uv run homelab host {action}{arg_str}"
+
+    try:
+        cmd = build_ssh_command(target, topo, remote_command=remote_cmd)
+        cmd.insert(1, "-t")
+    except Exception as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        return 1
+
+    proc = subprocess.run(cmd, check=False)
+    return proc.returncode
+
+
 @node_app.command(
     "run",
     context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
@@ -156,20 +178,91 @@ def node_run(
 ) -> None:
     """Portal to execute 'homelab host' lifecycle commands directly on a remote node via SSH."""
     topo = HomelabTopology.load(config)
-    extra_args = ctx.args
-    arg_str = f" {' '.join(extra_args)}" if extra_args else ""
-    remote_cmd = f"cd {dest} && uv run homelab host {action}{arg_str}"
-
-    try:
-        cmd = build_ssh_command(target, topo, remote_command=remote_cmd)
-        # Allocate pseudo-terminal (-t) so interactive prompts (like destroy confirmation) stream cleanly
-        cmd.insert(1, "-t")
-    except Exception as exc:
-        console.print(f"[bold red]Error:[/bold red] {exc}")
-        raise typer.Exit(code=1) from exc
-
     console.print(
         f"[bold blue]>>> Dispatching host command '{action}' to remote node '{target}'...[/bold blue]"
     )
-    proc = subprocess.run(cmd, check=False)
-    raise typer.Exit(code=proc.returncode)
+    code = _dispatch_remote_host_cmd(
+        target=target,
+        action=action,
+        topo=topo,
+        dest=dest,
+        extra_args=ctx.args,
+    )
+    raise typer.Exit(code=code)
+
+
+@node_app.command("deploy")
+def node_deploy(
+    target: str = typer.Argument(
+        ..., help="Target node or gateway name to deploy (e.g. aperio, macerator)"
+    ),
+    dest: str = typer.Option(
+        "~/projects/homelab/", "--dest", "-d", help="Remote homelab project directory"
+    ),
+    config: Path | None = typer.Option(
+        None, "--config", help="Optional path to custom topology file"
+    ),
+) -> None:
+    """Orchestrate end-to-end node deployment (sync -> setup -> up -> status)."""
+    topo = HomelabTopology.load(config)
+    project_root = Path(__file__).resolve().parent.parent
+
+    console.print(
+        "\n[bold cyan]================================================================[/bold cyan]"
+    )
+    console.print(f"[bold cyan] Deploying to Node: {target}[/bold cyan]")
+    console.print(
+        "[bold cyan] Sequence: [1] sync ➔ [2] setup ➔ [3] up ➔ [4] status[/bold cyan]"
+    )
+    console.print(
+        "[bold cyan]================================================================[/bold cyan]\n"
+    )
+
+    # 1. Sync
+    console.print(
+        f"[bold blue][1/4] Syncing {project_root} to {target}:{dest}...[/bold blue]"
+    )
+    sync_proc = sync_code_to_node(target, project_root, topo, target_dest=dest)
+    if sync_proc.returncode != 0:
+        console.print(
+            f"[bold red]Deployment aborted: Sync failed with exit code {sync_proc.returncode}[/bold red]"
+        )
+        raise typer.Exit(code=sync_proc.returncode)
+    console.print("[bold green]  [ok] Sync completed successfully.[/bold green]\n")
+
+    # 2. Setup
+    console.print(f"[bold blue][2/4] Running host setup on '{target}'...[/bold blue]")
+    setup_code = _dispatch_remote_host_cmd(target, "setup", topo, dest=dest)
+    if setup_code != 0:
+        console.print(
+            f"[bold red]Deployment aborted: Host setup failed with exit code {setup_code}[/bold red]"
+        )
+        raise typer.Exit(code=setup_code)
+    console.print(
+        "[bold green]  [ok] Host setup completed successfully.[/bold green]\n"
+    )
+
+    # 3. Up
+    console.print(f"[bold blue][3/4] Bringing up services on '{target}'...[/bold blue]")
+    up_code = _dispatch_remote_host_cmd(target, "up", topo, dest=dest)
+    if up_code != 0:
+        console.print(
+            f"[bold red]Deployment aborted: Service bring-up failed with exit code {up_code}[/bold red]"
+        )
+        raise typer.Exit(code=up_code)
+    console.print("[bold green]  [ok] Services started successfully.[/bold green]\n")
+
+    # 4. Status
+    console.print(
+        f"[bold blue][4/4] Fetching service status from '{target}'...[/bold blue]"
+    )
+    status_code = _dispatch_remote_host_cmd(target, "status", topo, dest=dest)
+    if status_code != 0:
+        console.print(
+            f"[bold red]Status check exited with code {status_code}[/bold red]"
+        )
+        raise typer.Exit(code=status_code)
+
+    console.print(
+        f"\n[bold green] Deployment to '{target}' completed successfully![/bold green]\n"
+    )

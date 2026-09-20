@@ -34,6 +34,11 @@ def test_node_commands_require_explicit_target_no_defaults():
     assert res_run.exit_code == 2
     assert "Missing argument 'target'" in res_run.output
 
+    # node deploy
+    res_deploy = runner.invoke(app, ["node", "deploy"])
+    assert res_deploy.exit_code == 2
+    assert "Missing argument 'target'" in res_deploy.output
+
 
 def test_node_run_portal_dispatches_ssh_with_pty():
     """Verify homelab node run constructs the remote host command and passes -t."""
@@ -128,3 +133,43 @@ def test_host_up_success_table():
         assert res.exit_code == 0
         mock_runner.up.assert_called_once_with(service_name="consul")
         assert "consul" in res.output
+
+
+def test_node_deploy_orchestrates_pipeline_in_order():
+    """Verify homelab node deploy executes sync, setup, up, and status in order."""
+    with (
+        patch("cli.node.sync_code_to_node") as mock_sync,
+        patch("subprocess.run") as mock_run,
+    ):
+        mock_sync.return_value = MagicMock(returncode=0)
+        mock_run.return_value = MagicMock(returncode=0)
+
+        res = runner.invoke(app, ["node", "deploy", "aperio"])
+        assert res.exit_code == 0
+        mock_sync.assert_called_once()
+        assert mock_run.call_count == 3
+
+        # Verify dispatched commands in order: setup, up, status
+        calls = mock_run.call_args_list
+        setup_cmd = " ".join(calls[0][0][0])
+        up_cmd = " ".join(calls[1][0][0])
+        status_cmd = " ".join(calls[2][0][0])
+
+        assert "uv run homelab host setup" in setup_cmd
+        assert "uv run homelab host up" in up_cmd
+        assert "uv run homelab host status" in status_cmd
+
+
+def test_node_deploy_aborts_on_sync_failure():
+    """Verify homelab node deploy halts immediately if rsync sync fails."""
+    with (
+        patch("cli.node.sync_code_to_node") as mock_sync,
+        patch("subprocess.run") as mock_run,
+    ):
+        mock_sync.return_value = MagicMock(returncode=11)
+
+        res = runner.invoke(app, ["node", "deploy", "aperio"])
+        assert res.exit_code == 11
+        mock_sync.assert_called_once()
+        mock_run.assert_not_called()
+        assert "Deployment aborted: Sync failed" in res.output
