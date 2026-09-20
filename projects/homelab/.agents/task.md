@@ -27,12 +27,19 @@
 - [x] Issue #16: Pass automated static verification gates (Part 1)
 - [ ] Issue #16: Live human operator review & synchronization verification (Part 2)
 
-## Phase 4: Node Onboarding & Backbone Connectivity Connector (Active in Issue #17)
+## Phase 4: Node Onboarding & Backbone Connectivity Connector (Completed in Issue #17)
 - [x] Issue #17: Design & implement Node Connector CLI/script generator (`just node-connect <node>`)
 - [x] Issue #17: Apply generated connector configuration on `macerator` to restore WireGuard handshake
 - [x] Issue #17: Verify WireGuard backbone handshake & ICMP ping (`10.10.0.1` <-> `10.10.0.2`)
-- [ ] Issue #17: Verify workstation ProxyJump SSH access (`just ssh-macerator`)
-- [ ] Issue #17: Synchronize consolidated Phase 3 service stacks to `macerator` (`just macerator-sync`)
-- [ ] Issue #17: Run Macerator orchestrator (`just macerator-up`) and verify Consul service discovery
-- [ ] Issue #17: Generalize onboarding protocol and documentation for future nodes
+- [x] Issue #17: Verify workstation ProxyJump SSH access through Aperio bastion
+- [x] Issue #17: Conclude bash-based connector milestone and transition to Phase 5 declarative architecture
+
+## Phase 5: Python Declarative Configuration & Type-Safe Orchestrator (Active in Issue #18)
+- [x] Issue #18: Scaffold Python project tooling with Astral `uv` (`pyproject.toml`, `ruff`, `ty`) adhering to `.agents/rules/python.md`
+- [x] Issue #18: Design declarative `topology.yaml` schema cleanly separating mesh/nodes/services from `.env` secrets
+- [x] Issue #18: Implement strictly typed Pydantic models with schema validation (IPs, ports, base64 keys, domains)
+- [x] Issue #18: Implement modular Python automation suite in `src/` (WireGuard mesh, Consul API discovery, Traefik routing, Docker Runner, SSH ProxyJump)
+- [x] Issue #18: Flatten and clean directory structure (no duplicate nested folder names)
+- [x] Issue #18: Build thin task runner interface (`justfile`) backed by `uv run homelab <cmd>`
+- [ ] Issue #18: Verify type-safe service synchronization, remote orchestration, and live Consul catalog registration
 

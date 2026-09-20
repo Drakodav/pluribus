@@ -1,0 +1,109 @@
+version: "1"
+domain: "vlmd.cc"
+
+# ==============================================================================
+# 1. Overlay Network Mesh (WireGuard Backbone)
+# ==============================================================================
+mesh:
+  subnet: "10.10.0.0/24"
+  port: 51820
+  keepalive: 25
+  mtu: 1420
+  dns:
+    - "1.1.1.1"
+
+# ==============================================================================
+# 2. Gateways (Public Ingress Nodes)
+# ==============================================================================
+gateways:
+  aperio:
+    provider: "oci"
+    role: "gateway"
+    public_ip: "143.47.250.74"
+    backbone_ip: "10.10.0.1"
+    public_key: "pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTM="
+    ssh:
+      user: "ubuntu"
+      port: 22
+
+# ==============================================================================
+# 3. Compute Nodes (Powerhouses / Bare-Metal / NAS)
+# ==============================================================================
+nodes:
+  macerator:
+    hardware: "dell-inspiron-i9"
+    role: "powerhouse"
+    backbone_ip: "10.10.0.2"
+    public_key: "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXs="
+    ssh:
+      user: "admin"
+      port: 22
+      bastion: "aperio"
+    services:
+      - consul
+      - redis
+      - postgres
+      - authentik
+      - photos
+      - home-assistant
+      - netdata
+      - cockpit
+      - code
+
+# ==============================================================================
+# 4. Service Registry & Routing Policies
+# ==============================================================================
+services:
+  consul:
+    role: "service-discovery"
+    upstream_port: 8500
+    exposure: "internal"
+    health_path: "/v1/status/leader"
+
+  redis:
+    role: "cache"
+    upstream_port: 6379
+    exposure: "internal"
+
+  postgres:
+    role: "database"
+    upstream_port: 5432
+    exposure: "internal"
+
+  authentik:
+    role: "identity"
+    subdomain: "auth"
+    upstream_port: 9000
+    exposure: "public"
+    health_path: "/-/health/ready/"
+
+  photos:
+    role: "media"
+    subdomain: "photos"
+    upstream_port: 2283
+    exposure: "sso"
+    health_path: "/api/server-info/ping"
+
+  home-assistant:
+    role: "automation"
+    subdomain: "ha"
+    upstream_port: 8123
+    exposure: "sso"
+
+  netdata:
+    role: "observability"
+    subdomain: "netdata"
+    upstream_port: 19999
+    exposure: "sso"
+
+  cockpit:
+    role: "management"
+    subdomain: "cockpit"
+    upstream_port: 9090
+    exposure: "sso"
+
+  code:
+    role: "development"
+    subdomain: "code"
+    upstream_port: 8443
+    exposure: "sso"
