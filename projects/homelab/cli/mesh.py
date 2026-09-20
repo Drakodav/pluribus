@@ -11,8 +11,16 @@ from rich.console import Console
 from models.topology import HomelabTopology
 from providers.wireguard import generate_gateway_wg_conf, generate_node_wg_conf
 
-mesh_app = typer.Typer(help="WireGuard overlay mesh commands.", no_args_is_help=True)
+mesh_app = typer.Typer(help="WireGuard overlay mesh commands.")
 console = Console()
+
+
+@mesh_app.callback(invoke_without_command=True)
+def mesh_callback(ctx: typer.Context) -> None:
+    """WireGuard overlay mesh commands."""
+    if ctx.invoked_subcommand is None:
+        console.print(ctx.get_help())
+        raise typer.Exit(code=0)
 
 
 @mesh_app.command("config")

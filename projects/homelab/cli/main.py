@@ -17,7 +17,6 @@ from workflows.validate import run_full_validation
 app = typer.Typer(
     name="homelab",
     help="Type-safe declarative configuration engine for hybrid homelab.",
-    no_args_is_help=True,
 )
 
 app.add_typer(mesh_app, name="mesh")
@@ -25,6 +24,14 @@ app.add_typer(node_app, name="node")
 app.add_typer(consul_app, name="consul")
 
 console = Console()
+
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context) -> None:
+    """Type-safe declarative configuration engine for hybrid homelab."""
+    if ctx.invoked_subcommand is None:
+        console.print(ctx.get_help())
+        raise typer.Exit(code=0)
 
 
 @app.command("validate")

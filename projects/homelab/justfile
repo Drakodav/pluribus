@@ -6,6 +6,14 @@
 default:
     @just --list
 
+# Run the Homelab CLI directly with arbitrary arguments
+cli *args="":
+    uv run homelab {{args}}
+
+# Alias for cli
+homelab *args="":
+    uv run homelab {{args}}
+
 # Verify system prerequisites (uv, docker, terraform)
 doctor:
     @echo "=== Checking Homelab System Prerequisites ==="
@@ -40,9 +48,9 @@ validate:
 services:
     uv run homelab services
 
-# Generate self-contained WireGuard connection snippet for any node
-node-connect node="macerator":
-    uv run homelab node connect {{node}}
+# Generate self-contained WireGuard onboarding bootstrap snippet for any node
+node-bootstrap node="macerator":
+    uv run homelab node generate-wireguard-bootstrap {{node}}
 
 # Print generated /etc/wireguard/wg0.conf for any node or gateway
 mesh-config target="aperio":

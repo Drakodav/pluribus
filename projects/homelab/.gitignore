@@ -13,7 +13,6 @@
 
 # Local execution and agent temp files
 .agents/temp/
-nodes/*/connect.sh
 
 # Python & Virtual Environments
 .venv/

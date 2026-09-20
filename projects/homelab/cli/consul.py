@@ -11,10 +11,16 @@ from rich.table import Table
 from models.topology import HomelabTopology
 from workflows.sync import sync_services_to_consul
 
-consul_app = typer.Typer(
-    help="Consul service discovery commands.", no_args_is_help=True
-)
+consul_app = typer.Typer(help="Consul service discovery commands.")
 console = Console()
+
+
+@consul_app.callback(invoke_without_command=True)
+def consul_callback(ctx: typer.Context) -> None:
+    """Consul service discovery commands."""
+    if ctx.invoked_subcommand is None:
+        console.print(ctx.get_help())
+        raise typer.Exit(code=0)
 
 
 @consul_app.command("sync")

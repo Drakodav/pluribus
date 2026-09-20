@@ -14,18 +14,26 @@ from providers.ssh import build_ssh_command
 from providers.wireguard import generate_node_connect_script
 from workflows.sync import sync_code_to_node
 
-node_app = typer.Typer(help="Node lifecycle and access commands.", no_args_is_help=True)
+node_app = typer.Typer(help="Node lifecycle and access commands.")
 console = Console()
 
 
-@node_app.command("connect")
-def node_connect(
+@node_app.callback(invoke_without_command=True)
+def node_callback(ctx: typer.Context) -> None:
+    """Node lifecycle and access commands."""
+    if ctx.invoked_subcommand is None:
+        console.print(ctx.get_help())
+        raise typer.Exit(code=0)
+
+
+@node_app.command("generate-wireguard-bootstrap")
+def generate_wireguard_bootstrap(
     node: str = typer.Argument("macerator", help="Target node name"),
     config: Path | None = typer.Option(
         None, "--config", "-c", help="Path to topology.yaml"
     ),
 ) -> None:
-    """Generate self-contained WireGuard connection script for a node."""
+    """Generate self-contained WireGuard onboarding bootstrap script for a node."""
     topo = HomelabTopology.load(config)
     try:
         script = generate_node_connect_script(node, topo)
@@ -34,7 +42,7 @@ def node_connect(
         raise typer.Exit(code=1) from exc
 
     console.print(
-        f"[bold green]=== WireGuard Connector for Node: {node} ===[/bold green]"
+        f"[bold green]=== WireGuard Bootstrap Script for Node: {node} ===[/bold green]"
     )
     console.print("Run the following snippet on the target node directly:\n")
     console.print("cat << 'EOF' | sudo bash")

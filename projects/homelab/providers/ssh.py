@@ -96,7 +96,6 @@ def build_rsync_command(
         "--exclude=.agents/temp",
         "--exclude=.venv",
         "--exclude=__pycache__",
-        "--exclude=nodes/*/connect.sh",
         "-e",
         " ".join(ssh_opts),
         source_dir,
