@@ -13,6 +13,7 @@
 
 # Local execution and agent temp files
 .agents/temp/
+nodes/*/connect.sh
 
 # OS files
 .DS_Store

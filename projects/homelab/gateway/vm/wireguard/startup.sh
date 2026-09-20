@@ -52,7 +52,9 @@ fi
 # Load environment variables if they exist in the sync directory
 ENV_FILE="$(dirname "$(dirname "$0")")/.env"
 if [ -f "$ENV_FILE" ]; then
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
+    set -a
+    . "$ENV_FILE"
+    set +a
 fi
 
 # 4. Create/Update Config (Always Overwrite)
@@ -61,8 +63,8 @@ PRIVATE_KEY=$(cat "$PRIVATE_KEY_FILE")
 
 # Support both new Latin Distiller names and backward-compatible aliases
 BACKBONE_APERIO_IP=${BACKBONE_APERIO_IP:-${BACKBONE_GATEWAY_IP:-10.10.0.1}}
-BACKBONE_MACERATOR_IP=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.10}}
-MACERATOR_PUBKEY=${BACKBONE_MACERATOR_PUBLIC_KEY:-${BACKBONE_POWERHOUSE_PUBLIC_KEY}}
+BACKBONE_MACERATOR_IP=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
+MACERATOR_PUBKEY=${BACKBONE_MACERATOR_PUBLIC_KEY:-${BACKBONE_POWERHOUSE_PUBLIC_KEY:-}}
 
 # Stop service before overwriting to prevent SaveConfig from reverting changes
 systemctl stop "wg-quick@$INTERFACE" || true

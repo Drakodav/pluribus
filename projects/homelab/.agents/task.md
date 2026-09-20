@@ -27,3 +27,12 @@
 - [x] Issue #16: Pass automated static verification gates (Part 1)
 - [ ] Issue #16: Live human operator review & synchronization verification (Part 2)
 
+## Phase 4: Node Onboarding & Backbone Connectivity Connector (Active in Issue #17)
+- [x] Issue #17: Design & implement Node Connector CLI/script generator (`just node-connect <node>`)
+- [x] Issue #17: Apply generated connector configuration on `macerator` to restore WireGuard handshake
+- [x] Issue #17: Verify WireGuard backbone handshake & ICMP ping (`10.10.0.1` <-> `10.10.0.2`)
+- [ ] Issue #17: Verify workstation ProxyJump SSH access (`just ssh-macerator`)
+- [ ] Issue #17: Synchronize consolidated Phase 3 service stacks to `macerator` (`just macerator-sync`)
+- [ ] Issue #17: Run Macerator orchestrator (`just macerator-up`) and verify Consul service discovery
+- [ ] Issue #17: Generalize onboarding protocol and documentation for future nodes
+

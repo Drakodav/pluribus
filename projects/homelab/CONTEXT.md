@@ -106,3 +106,12 @@ _Avoid_: basic auth, gateway security.
 - [x] Centralized identity: Authentik SSO and Traefik forwardAuth middleware (`services/authentik/`)
 - [x] Media & Applications: Immich photo management stack, Home Assistant, Netdata, Cockpit, code-server (`services/`)
 - [x] Storage scaffolding, discovery firewalls, and orchestrator under `/opt/homelab/` (`nodes/macerator/`)
+
+### Phase 4: Node Onboarding & Backbone Connectivity Connector (Issue #17)
+
+- [ ] Automated Node Connector CLI & script generator (`just node-connect <node>`)
+- [ ] WireGuard handshake restoration on `macerator` (`10.10.0.1` <-> `10.10.0.2`)
+- [ ] Live cross-node reachability and workstation ProxyJump SSH verification
+- [ ] Service stack synchronization to `macerator` and live container orchestration
+- [ ] Repeatable onboarding runbook for future nodes
+
