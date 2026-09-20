@@ -17,7 +17,9 @@ chmod 600 letsencrypt/acme.json
 # 2. Start the stack
 # Load env vars for compose interpolation
 if [ -f "../.env" ]; then
-    export $(grep -v '^#' "../.env" | xargs)
+    set -a
+    . "../.env"
+    set +a
 fi
 
 docker compose pull

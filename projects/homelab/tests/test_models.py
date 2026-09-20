@@ -65,13 +65,13 @@ def test_backbone_ip_collision():
             "gw": {
                 "public_ip": "1.2.3.4",
                 "backbone_ip": "10.10.0.1",
-                "public_key": "pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTM=",
+                "public_key": "pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTQ=",
             }
         },
         "nodes": {
             "node1": {
                 "backbone_ip": "10.10.0.1",  # Collision!
-                "public_key": "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXs=",
+                "public_key": "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXt=",
             }
         },
     }
@@ -88,13 +88,13 @@ def test_undeclared_service_reference():
             "gw": {
                 "public_ip": "1.2.3.4",
                 "backbone_ip": "10.10.0.1",
-                "public_key": "pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTM=",
+                "public_key": "pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTQ=",
             }
         },
         "nodes": {
             "node1": {
                 "backbone_ip": "10.10.0.2",
-                "public_key": "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXs=",
+                "public_key": "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXt=",
                 "services": ["non_existent_service"],
             }
         },

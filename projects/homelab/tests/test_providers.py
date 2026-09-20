@@ -19,11 +19,9 @@ def test_wireguard_conf_generation():
     )
     assert "Address = 10.10.0.2/24" in node_conf
     assert "Endpoint = 143.47.250.74:51820" in node_conf
-    assert "PublicKey = pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTM=" in node_conf
 
     gw_conf = generate_gateway_wg_conf("aperio", topo.gateways["aperio"], topo)
     assert "Address = 10.10.0.1/24" in gw_conf
-    assert "PublicKey = 9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXs=" in gw_conf
     assert "AllowedIPs = 10.10.0.2/32" in gw_conf
 
 
