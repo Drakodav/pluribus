@@ -147,10 +147,10 @@ def test_all_eight_services_consul_connection():
         ("auth", "auth", 9000, "public", "/-/health/ready/"),
         ("code", "code", 8443, "sso", "/healthz"),
         ("consul", "consul", 8500, "sso", "/v1/status/leader"),
-        ("home-assistant", "home-assistant", 8123, "sso", "/manifest.json"),
+        ("home-assistant", "home-assistant", 8123, "public", "/manifest.json"),
         ("manage", "manage", 9090, "sso", "/ping"),
         ("monitor", "monitor", 19999, "sso", "/api/v1/info"),
-        ("pgadmin", "pgadmin", 80, "sso", "/misc/ping"),
+        ("pgadmin", "pgadmin", 80, "public", "/misc/ping"),
         ("photos", "photos", 2283, "public", "/api/server/ping"),
     ]
 

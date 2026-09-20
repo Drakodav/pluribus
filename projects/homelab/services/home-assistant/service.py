@@ -13,26 +13,8 @@ class HomeAssistantService(ComposeService):
     role = "automation"
     subdomain = "home-assistant"
     upstream_port = 8123
-    exposure = "sso"
+    exposure = "public"
     health_path = "/manifest.json"
-
-    def get_traefik_tags(self, domain: str) -> list[str]:
-        """Support both ha.<domain> and home-assistant.<domain> routing rules."""
-        tags = super().get_traefik_tags(domain)
-        tags.extend(
-            [
-                f"traefik.http.routers.{self.registered_name}-alias.rule=Host(`home-assistant.{domain}`)",
-                f"traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
-                f"traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
-                f"traefik.http.routers.{self.registered_name}-alias.service={self.registered_name}",
-            ]
-        )
-        if self.exposure == "sso":
-            middleware = self.auth_middleware or f"auth-{self.registered_name}@docker"
-            tags.append(
-                f"traefik.http.routers.{self.registered_name}-alias.middlewares={middleware}"
-            )
-        return tags
 
     def pre_up(self) -> None:
         """Ensure Home Assistant and Matter persistent volumes exist."""
