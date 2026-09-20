@@ -1,0 +1,42 @@
+services:
+  postgres:
+    container_name: shared_postgres
+    build:
+      context: .
+      network: host
+    image: homelab-postgres:latest
+    restart: always
+    network_mode: host
+    environment:
+      - POSTGRES_USER=${SERVICE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${SERVICE_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${SERVICE_POSTGRES_DB}
+    volumes:
+      - /opt/homelab/postgres:/var/lib/postgresql/data
+      - ./init-immich.sql:/docker-entrypoint-initdb.d/init-immich.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SERVICE_POSTGRES_USER} -d ${SERVICE_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    network_mode: host
+    environment:
+      - PGADMIN_CONFIG_AUTHENTICATION_SOURCES=['oauth2']
+      - PGADMIN_CONFIG_OAUTH2_AUTO_CREATE_USER=True
+      - PGADMIN_CONFIG_PROXY_X_HOST_COUNT=1
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=False
+      - "PGADMIN_CONFIG_OAUTH2_CONFIG=[{'OAUTH2_NAME':'authentik','OAUTH2_DISPLAY_NAME':'Authentik','OAUTH2_CLIENT_ID':'${SERVICE_PGADMIN_OAUTH2_CLIENT_ID}','OAUTH2_CLIENT_SECRET':'${SERVICE_PGADMIN_OAUTH2_CLIENT_SECRET}','OAUTH2_TOKEN_URL':'https://auth.${GLOBAL_ROOT_DOMAIN}/application/o/token/','OAUTH2_AUTHORIZATION_URL':'https://auth.${GLOBAL_ROOT_DOMAIN}/application/o/authorize/','OAUTH2_API_BASE_URL':'https://auth.${GLOBAL_ROOT_DOMAIN}/','OAUTH2_USERINFO_ENDPOINT':'https://auth.${GLOBAL_ROOT_DOMAIN}/application/o/userinfo/','OAUTH2_SERVER_METADATA_URL':'https://auth.${GLOBAL_ROOT_DOMAIN}/application/o/pgadmin/.well-known/openid-configuration','OAUTH2_SCOPE':'openid email profile','OAUTH2_ICON':'fa-lock','OAUTH2_BUTTON_COLOR':'#3d6ad6'}]"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /opt/homelab/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres

@@ -1,0 +1,26 @@
+services:
+  home-assistant:
+    container_name: home_assistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - /opt/homelab/home-assistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    network_mode: host
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - AUTHENTIK_CLIENT_ID=${SERVICE_HOMEASSISTANT_OAUTH2_CLIENT_ID}
+      - AUTHENTIK_CLIENT_SECRET=${SERVICE_HOMEASSISTANT_OAUTH2_CLIENT_SECRET}
+      - AUTHENTIK_URL=https://auth.${GLOBAL_ROOT_DOMAIN}
+
+  matterjs-server:
+    container_name: matterjs-server
+    image: ghcr.io/matter-js/matterjs-server:latest
+    read_only: true
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /opt/homelab/matterjs-server:/data
+    environment:
+      - LOG_LEVEL=debug

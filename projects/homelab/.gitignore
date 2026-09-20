@@ -14,6 +14,16 @@
 # Local execution and agent temp files
 .agents/temp/
 
+# Python & Virtual Environments
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
 # OS files
 .DS_Store
 Thumbs.db

@@ -1,0 +1,87 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: always
+    network_mode: host
+    command:
+      - "--log.level=DEBUG"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.consulcatalog=true"
+      - "--providers.consulcatalog.exposedbydefault=false"
+      - "--providers.consulcatalog.endpoint.address=localhost:8500"
+      - "--providers.consulcatalog.endpoint.scheme=http"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=${GLOBAL_ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--serverstransport.insecureskipverify=true"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${GLOBAL_ROOT_DOMAIN}`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.middlewares=auth-traefik@docker"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      # Authentik Traefik Middleware
+      - "traefik.http.middlewares.auth-traefik.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.auth-traefik.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-traefik.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
+      # Authentik Cockpit Middleware
+      - "traefik.http.middlewares.auth-cockpit.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.auth-cockpit.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-cockpit.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid"
+      # Authentik Code Middleware
+      - "traefik.http.middlewares.auth-code.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.auth-code.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-code.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
+      # Authentik Photos Middleware
+      - "traefik.http.middlewares.auth-photos.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.auth-photos.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-photos.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
+      # Authentik pgAdmin Middleware
+      - "traefik.http.middlewares.auth-pgadmin.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.auth-pgadmin.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-pgadmin.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
+      # Authentik Home Assistant Middleware
+      - "traefik.http.middlewares.auth-home-assistant.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.auth-home-assistant.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-home-assistant.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
+
+  consul-server:
+    image: hashicorp/consul:latest
+    container_name: consul-server
+    restart: always
+    volumes:
+      - consul-data:/consul/data
+    network_mode: host
+    environment:
+      CONSUL_LOCAL_CONFIG: '{"ui_config":{"enabled":true}}'
+      SERVICE_IGNORE: "true"
+    command: "agent -server -bootstrap-expect=1 -client=0.0.0.0 -bind=${NODE_APERIO_BACKBONE_IP}"
+    healthcheck:
+      test: ['CMD', 'consul', 'info']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.consul.rule=Host(`consul.${GLOBAL_ROOT_DOMAIN}`)"
+      - "traefik.http.routers.consul.entrypoints=websecure"
+      - "traefik.http.routers.consul.tls.certresolver=myresolver"
+      - "traefik.http.routers.consul.middlewares=auth-traefik@docker"
+      - "traefik.http.routers.consul.service=consul-server-ui"
+      - "traefik.http.services.consul-server-ui.loadbalancer.server.url=http://127.0.0.1:8500"
+
+volumes:
+  consul-data:

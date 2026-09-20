@@ -1,0 +1,45 @@
+services:
+  server:
+    container_name: authentik_server
+    image: ghcr.io/goauthentik/server:2026.8.3
+    command: server
+    restart: always
+    ports:
+      - 9000:9000
+      - 9443:9443
+    environment:
+      AUTHENTIK_REDIS__HOST: ${NODE_MACERATOR_BACKBONE_IP}
+      AUTHENTIK_POSTGRESQL__HOST: ${NODE_MACERATOR_BACKBONE_IP}
+      AUTHENTIK_POSTGRESQL__USER: ${SERVICE_POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${SERVICE_POSTGRES_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${SERVICE_POSTGRES_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${SERVICE_AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${SERVICE_AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${SERVICE_AUTHENTIK_BOOTSTRAP_EMAIL}
+    healthcheck:
+      test: ["CMD", "ak", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - /opt/homelab/authentik/media:/media
+      - /opt/homelab/authentik/custom-templates:/templates
+
+  worker:
+    container_name: authentik_worker
+    image: ghcr.io/goauthentik/server:2026.8.3
+    command: worker
+    restart: always
+    environment:
+      AUTHENTIK_REDIS__HOST: ${NODE_MACERATOR_BACKBONE_IP}
+      AUTHENTIK_POSTGRESQL__HOST: ${NODE_MACERATOR_BACKBONE_IP}
+      AUTHENTIK_POSTGRESQL__USER: ${SERVICE_POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${SERVICE_POSTGRES_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${SERVICE_POSTGRES_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${SERVICE_AUTHENTIK_SECRET_KEY}
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/homelab/authentik/media:/media
+      - /opt/homelab/authentik/custom-templates:/templates
+      - /opt/homelab/authentik/certs:/certs

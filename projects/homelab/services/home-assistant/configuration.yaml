@@ -1,0 +1,33 @@
+# Home Assistant Core Configuration
+default_config:
+
+# Standard includes for the UI-managed config files
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Reverse Proxy Configuration (Traefik)
+# Required to allow logins via your public domain
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 10.10.0.1  # WireGuard Gateway IP (aperio)
+    - 127.0.0.1
+    - ::1
+
+# Identity & Access Management (Simple OpenID Connect)
+openid:
+  client_id: !env_var AUTHENTIK_CLIENT_ID
+  client_secret: !env_var AUTHENTIK_CLIENT_SECRET
+  configure_url: "https://auth.example.com/application/o/home-assistant/.well-known/openid-configuration"
+  username_field: "preferred_username"
+  scope: "openid profile email"
+  openid_text: "Login with Authentik"
+  create_user: true
+
+# Debug logging for troubleshooting
+logger:
+  default: warning
+  logs:
+    custom_components.openid: debug
+    homeassistant.components.tapo: debug

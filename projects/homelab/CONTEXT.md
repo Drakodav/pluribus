@@ -72,13 +72,14 @@ _Avoid_: basic auth, gateway security.
 
 ## Architecture Principles
 
-1. **Decoupled Machine Topologies**:
-   - `gateway/`: Contains all cloud-native IaC (Terraform) and gateway VM deployment scripts.
+1. **Decoupled Machine Topologies & Symmetrical Nodes**:
+   - `models/`, `providers/`, `workflows/`, `cli/`: Type-safe Python orchestration engine powered by Pydantic and Typer.
+   - `nodes/`: Houses symmetrical node assets (`nodes/aperio/` for gateway Terraform IaC and VM platform; `nodes/macerator/` for compute powerhouse host specs).
    - `services/`: Houses portable, modular Docker Compose stacks agnostic of host hardware.
-   - `nodes/`: Houses bare-metal host runners (starting with `nodes/macerator/`) for storage mounting, GPU hooks, firewall policies, and designated service boots.
+   - `topology.yaml`: Single declarative blueprint defining the mesh, gateways, compute nodes, and service exposure policies.
 2. **Zero Cloud Infrastructure Cost**: Strictly constrained to Oracle Cloud's "Always Free" tier.
 3. **Data Sovereignty**: High-capacity data (photos, databases, home telemetry) never leaves physical local storage.
-4. **Resilient Portability**: New nodes (e.g. future satellite laptops or low-power servers) can be added to `nodes/` and connected to the Backbone without altering existing service definitions.
+4. **Resilient Portability**: New nodes (e.g. future satellite laptops, NAS, or low-power servers) can be added to `nodes/` and connected to the Backbone without altering existing service definitions.
 
 ---
 
@@ -92,17 +93,33 @@ _Avoid_: basic auth, gateway security.
 - [x] Issue #13: Define comprehensive `.env.example` schema covering Gateway, Backbone, and Services
 - [x] Issue #13: Wire project into Pluribus monorepo (`CONTEXT-MAP.md`, `pluribus.code-workspace`, local `justfile`)
 
-### Phase 2: Public Gateway (`aperio`)
+### Phase 2: Public Gateway (`aperio` - Issue #15)
 
-- [ ] OCI Terraform Infrastructure: Clean, modular VCN, compute, and security lists
-- [ ] Idempotent VM Provisioning: Automated installation of Docker, WireGuard server, Traefik, and Consul server
-- [ ] Ingress & SSL: Traefik dynamic routing and Let's Encrypt automated certificate management
-- [ ] Remote Deployment: Streamlined `deploy.sh` script to sync and apply gateway configuration
+- [x] OCI Terraform Infrastructure: Clean, modular VCN, compute, and security lists
+- [x] Idempotent VM Provisioning: Automated installation of Docker, WireGuard server, Traefik, and Consul server
+- [x] Ingress & SSL: Traefik dynamic routing and Let's Encrypt automated certificate management
+- [x] Remote Deployment: Streamlined `deploy.sh` script to sync and apply gateway configuration
 
-### Phase 3: Core Powerhouse (`macerator`)
+### Phase 3: Core Powerhouse (`macerator` - Issue #16)
 
-- [ ] WireGuard client endpoint and local Consul client agent connectivity
-- [ ] Shared data foundation: PostgreSQL (custom Alpine + pgvector) and Redis
-- [ ] Centralized identity: Authentik SSO and Traefik forwardAuth middleware
-- [ ] Media & Applications: Immich photo management stack, Home Assistant, Netdata, Cockpit
-- [ ] Storage scaffolding and backup orchestration under `/opt/homelab/`
+- [x] WireGuard client endpoint checks and local Consul client agent connectivity (`services/consul/`)
+- [x] Shared data foundation: PostgreSQL (custom Alpine + pgvector) and Redis (`services/postgres/`, `services/redis/`)
+- [x] Centralized identity: Authentik SSO and Traefik forwardAuth middleware (`services/authentik/`)
+- [x] Media & Applications: Immich photo management stack, Home Assistant, Netdata, Cockpit, code-server (`services/`)
+- [x] Storage scaffolding, discovery firewalls, and orchestrator under `/opt/homelab/` (`nodes/macerator/`)
+
+### Phase 4: Node Onboarding & Backbone Connectivity Connector (Issue #17)
+
+- [x] Automated Node Connector CLI & script generator (`just node-connect <node>`)
+- [x] WireGuard handshake restoration on `macerator` (`10.10.0.1` <-> `10.10.0.2`)
+- [x] Live cross-node reachability and workstation ProxyJump SSH verification
+- [x] Conclusion of bash-based connector milestone in favor of type-safe declarative architecture
+
+### Phase 5: Python Declarative Configuration & Type-Safe Orchestrator (Issue #18)
+
+- [ ] Declarative topology blueprint (`topology.yaml`) cleanly separating mesh/nodes/services from secrets
+- [ ] Strictly typed Pydantic models with schema validation (IPs, ports, base64 keys, domains)
+- [ ] Modular Python automation suite (`src/`) eliminating bash duplication (WireGuard, Consul API, Traefik, Docker, SSH)
+- [ ] Non-redundant folder structure eliminating duplicate nesting
+- [ ] Type-safe service synchronization, remote orchestration, and live Consul catalog registration
+

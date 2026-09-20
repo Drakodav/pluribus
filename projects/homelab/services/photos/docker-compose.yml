@@ -1,0 +1,44 @@
+services:
+  immich-server:
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:${SERVICE_PHOTOS_VERSION}
+    volumes:
+      - ${SERVICE_PHOTOS_UPLOAD_LOCATION}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: host
+    environment:
+      - IMMICH_PORT=2283
+      - DB_PASSWORD=${SERVICE_POSTGRES_PASSWORD}
+      - DB_USERNAME=${SERVICE_POSTGRES_USER}
+      - DB_DATABASE_NAME=immich
+      - DB_HOSTNAME=${NODE_MACERATOR_BACKBONE_IP}
+      - REDIS_HOSTNAME=${NODE_MACERATOR_BACKBONE_IP}
+      - UPLOAD_LOCATION=${SERVICE_PHOTOS_UPLOAD_LOCATION}
+      - IMMICH_MACHINE_LEARNING_URL=http://${NODE_MACERATOR_BACKBONE_IP}:3003
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2283/api/server/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:${SERVICE_PHOTOS_VERSION}-cuda
+    volumes:
+      - model-cache:/cache
+    environment:
+      - IMMICH_PORT=3003
+    ports:
+      - 3003:3003
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: always
+
+volumes:
+  model-cache:
