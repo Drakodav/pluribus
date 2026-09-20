@@ -5,9 +5,6 @@ services:
     image: homelab-postgres:latest
     restart: always
     network_mode: host
-    env_file:
-      - path: ../../.env
-        required: false
     environment:
       - POSTGRES_USER=${SERVICE_POSTGRES_USER}
       - POSTGRES_PASSWORD=${SERVICE_POSTGRES_PASSWORD}
@@ -26,9 +23,6 @@ services:
     image: dpage/pgadmin4:latest
     restart: always
     network_mode: host
-    env_file:
-      - path: ../../.env
-        required: false
     environment:
       - PGADMIN_CONFIG_AUTHENTICATION_SOURCES=['oauth2']
       - PGADMIN_CONFIG_OAUTH2_AUTO_CREATE_USER=True

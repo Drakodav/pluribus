@@ -55,7 +55,12 @@ def generate_gateway_wg_conf(
         f"Address = {gateway.backbone_ip}/24",
         f"ListenPort = {topology.mesh.port}",
         f"PrivateKey = {private_key_placeholder}",
+        f"MTU = {topology.mesh.mtu}",
         "SaveConfig = false",
+        "PostUp = ufw route allow in on wg0 out on ens3 2>/dev/null || true",
+        "PostUp = iptables -t nat -I POSTROUTING -o ens3 -j MASQUERADE",
+        "PreDown = ufw route delete allow in on wg0 out on ens3 2>/dev/null || true",
+        "PreDown = iptables -t nat -D POSTROUTING -o ens3 -j MASQUERADE",
         "",
     ]
 

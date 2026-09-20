@@ -62,6 +62,14 @@ def host_setup(
     ),
 ) -> None:
     """Prepare host-level prerequisites, directories, and firewall rules."""
+    ctx = AppContext()
+    if not ctx.runtime.is_root and not ctx.runtime.is_local_workstation:
+        import os
+        import sys
+
+        console.print("[yellow]>>> Elevating 'host setup' with sudo...[/yellow]")
+        os.execvp("sudo", ["sudo", *sys.argv])
+
     runner = get_current_host_runner(node)
     console.print(
         f"[bold blue]>>> Setting up host environment for '{runner.name}'...[/bold blue]"

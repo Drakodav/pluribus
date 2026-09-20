@@ -7,9 +7,6 @@ services:
     ports:
       - 9000:9000
       - 9443:9443
-    env_file:
-      - path: ../../.env
-        required: false
     environment:
       AUTHENTIK_REDIS__HOST: ${NODE_MACERATOR_BACKBONE_IP}
       AUTHENTIK_POSTGRESQL__HOST: ${NODE_MACERATOR_BACKBONE_IP}
@@ -33,9 +30,6 @@ services:
     image: ghcr.io/goauthentik/server:2026.8.3
     command: worker
     restart: always
-    env_file:
-      - path: ../../.env
-        required: false
     environment:
       AUTHENTIK_REDIS__HOST: ${NODE_MACERATOR_BACKBONE_IP}
       AUTHENTIK_POSTGRESQL__HOST: ${NODE_MACERATOR_BACKBONE_IP}

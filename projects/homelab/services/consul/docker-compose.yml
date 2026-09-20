@@ -4,9 +4,6 @@ services:
     container_name: consul-client
     restart: always
     network_mode: host
-    env_file:
-      - path: ../../.env
-        required: false
     volumes:
       - consul-data:/consul/data
     environment:

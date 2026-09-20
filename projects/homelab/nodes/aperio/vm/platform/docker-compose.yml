@@ -4,9 +4,6 @@ services:
     container_name: traefik
     restart: always
     network_mode: host
-    env_file:
-      - path: ../.env
-        required: false
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
@@ -52,9 +49,6 @@ services:
     image: hashicorp/consul:latest
     container_name: consul-server
     restart: always
-    env_file:
-      - path: ../.env
-        required: false
     volumes:
       - consul-data:/consul/data
     network_mode: host

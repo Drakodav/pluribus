@@ -18,16 +18,16 @@ class ComposeService(BaseService):
         return self.service_dir / "docker-compose.yml"
 
     def _build_compose_cmd(self, *subcommand: str) -> list[str]:
-        """Construct docker compose command with --env-file and compose path."""
+        """Construct docker compose command with --env-file, compose path, and sudo if required."""
         from context import AppContext
+        from providers.docker import build_docker_compose_cmd
 
         ctx = AppContext()
-        cmd = ["docker", "compose"]
-        if ctx.env_file.exists():
-            cmd.extend(["--env-file", str(ctx.env_file)])
-        cmd.extend(["-f", str(self.compose_file)])
-        cmd.extend(subcommand)
-        return cmd
+        return build_docker_compose_cmd(
+            self.compose_file,
+            *subcommand,
+            env_file=ctx.env_file,
+        )
 
     def up(self) -> bool:
         """Idempotently prepare environment and bring up Docker Compose stack."""

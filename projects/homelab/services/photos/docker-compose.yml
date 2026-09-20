@@ -6,9 +6,6 @@ services:
       - ${SERVICE_PHOTOS_UPLOAD_LOCATION}:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
-    env_file:
-      - path: ../../.env
-        required: false
     environment:
       - IMMICH_PORT=2283
       - DB_PASSWORD=${SERVICE_POSTGRES_PASSWORD}
@@ -30,9 +27,6 @@ services:
     image: ghcr.io/immich-app/immich-machine-learning:${SERVICE_PHOTOS_VERSION}-cuda
     volumes:
       - model-cache:/cache
-    env_file:
-      - path: ../../.env
-        required: false
     environment:
       - IMMICH_PORT=3003
     ports:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -9,9 +10,37 @@ from models.topology import HomelabTopology
 from providers.ssh import run_ssh_command
 
 
+def needs_sudo_for_docker() -> bool:
+    """Check if current user lacks read/write access to docker daemon socket."""
+    if os.geteuid() == 0:
+        return False
+    sock = Path("/var/run/docker.sock")
+    if not sock.exists():
+        return False
+    return not os.access(sock, os.R_OK | os.W_OK)
+
+
+def build_docker_compose_cmd(
+    compose_file: Path | str,
+    *subcommand: str,
+    env_file: Path | str | None = None,
+) -> list[str]:
+    """Construct docker compose command with --env-file, compose path, and sudo if required."""
+    cmd: list[str] = []
+    if needs_sudo_for_docker():
+        cmd.append("sudo")
+    cmd.extend(["docker", "compose"])
+    if env_file and Path(env_file).exists():
+        cmd.extend(["--env-file", str(env_file)])
+    cmd.extend(["-f", str(compose_file)])
+    cmd.extend(subcommand)
+    return cmd
+
+
 def validate_compose_files(project_root: Path) -> dict[str, bool]:
     """Validate all service and node compose files using 'docker compose config -q'."""
     results: dict[str, bool] = {}
+    env_file = project_root / ".env"
 
     compose_files: list[Path] = []
     services_dir = project_root / "services"
@@ -25,7 +54,10 @@ def validate_compose_files(project_root: Path) -> dict[str, bool]:
 
     for compose_path in compose_files:
         rel_name = str(compose_path.relative_to(project_root).parent)
-        cmd = ["docker", "compose", "-f", str(compose_path), "config", "-q"]
+        cmd = ["docker", "compose"]
+        if env_file.exists():
+            cmd.extend(["--env-file", str(env_file)])
+        cmd.extend(["-f", str(compose_path), "config", "-q"])
         proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
         results[rel_name] = proc.returncode == 0
 

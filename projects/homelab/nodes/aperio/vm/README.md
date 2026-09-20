@@ -1,31 +1,44 @@
-# Aperio Gateway VM Provisioning
+# Aperio Gateway Architecture
 
-This directory contains the provisioning and runtime configuration for the public gateway VM (`aperio`). It is designed to be **idempotent**, **modular**, and **replayable**.
+This directory contains the platform configuration for the public gateway node (`aperio`).
+
+Lifecycle and provisioning are managed natively in pure Python by `AperioNode` (`nodes/aperio/node.py`) and orchestrated via the unified Homelab CLI.
 
 ## Structure
 
-- **`startup.sh`**: The master entrypoint executed on `aperio`. It runs services sequentially in dependency order (`docker` → `wireguard` → `platform`).
-- **`deploy.sh`**: The local operator deployment script. Synchronizes this directory and `projects/homelab/.env` to the remote VM via `rsync` over SSH and executes `startup.sh`.
-- **`docker/`**: Idempotent installation of Docker Engine and the Docker Compose plugin.
-- **`wireguard/`**: WireGuard server endpoint setup (`wg0` on `10.10.0.1/24`), iptables/UFW firewall rules, and IP forwarding.
-- **`platform/`**: Traefik reverse proxy (Let's Encrypt SSL, Consul Catalog discovery provider, Authentik ForwardAuth middleware) and HashiCorp Consul Server.
+- **`platform/docker-compose.yml`**: Docker Compose definition for the core gateway platform stack:
+  - **Traefik**: Ingress reverse proxy with automatic Let's Encrypt SSL, Consul service catalog discovery provider, and Authentik ForwardAuth middleware.
+  - **Consul Server**: Ingress service discovery server bound to the WireGuard backbone (`10.10.0.1:8500`).
 
-## How to Deploy to Aperio
+## Lifecycle Management
 
-From `projects/homelab/` (or using `just gateway-deploy`):
+### From Workstation
+All operations can be dispatched directly using `just cli`:
 
 ```bash
-sudo ./gateway/vm/deploy.sh [SSH_USER] [SSH_HOST] [SSH_KEY_PATH]
+# 1. Synchronize repository to Aperio
+just cli node sync aperio
+
+# 2. Provision host (WireGuard, iptables, storage permissions)
+just cli node run aperio setup
+
+# 3. Deploy platform services (Traefik + Consul Server)
+just cli node run aperio up
+
+# 4. Check platform status
+just cli node run aperio status
 ```
 
-Defaults (inferred from `projects/homelab/.env`):
+### On Aperio Directly
+When logged into the node:
 
-- User: `ubuntu`
-- Host: `APERIO_PUBLIC_IP`
-- Key: `~/.ssh/id_rsa`
+```bash
+# Provision host networking and permissions
+just cli host setup
 
-## Adding a New Gateway Component
+# Bring up platform stack
+just cli host up
 
-1. Create a new directory inside `gateway/vm/` (e.g. `gateway/vm/fail2ban/`).
-2. Add an idempotent `startup.sh` script inside that folder.
-3. Append the service name to the `SERVICES` array in `gateway/vm/startup.sh`.
+# Check status
+just cli host status
+```

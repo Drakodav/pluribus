@@ -92,6 +92,7 @@ def build_rsync_command(
         "--exclude=__pycache__",
         "--exclude=.pytest_cache",
         "--exclude=.ruff_cache",
+        "--exclude=letsencrypt",
         "-e",
         " ".join(ssh_opts),
         source_dir,
