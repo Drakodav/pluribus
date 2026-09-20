@@ -34,18 +34,22 @@
 - [x] Issue #17: Verify workstation ProxyJump SSH access through Aperio bastion
 - [x] Issue #17: Conclude bash-based connector milestone and transition to Phase 5 declarative architecture
 
-## Phase 5: Python Declarative Configuration & Type-Safe Orchestrator (Active in Issue #18)
-- [x] Issue #18: Scaffold Python project tooling with Astral `uv` (`pyproject.toml`, `ruff`, `ty`) adhering to `.agents/rules/python.md`
-- [x] Issue #18: Design declarative `topology.yaml` schema cleanly separating mesh/nodes/services from `.env` secrets
+## Phase 5: Python Code-as-Configuration & Type-Safe Orchestrator (Active in Issue #18)
+- [x] Issue #18: Scaffold Python project tooling with Astral `uv` (`pyproject.toml`, `ruff`, `ty`, `pytest`) adhering to `.agents/rules/python.md`
 - [x] Issue #18: Implement strictly typed Pydantic models with schema validation (IPs, ports, base64 keys, domains)
-- [x] Issue #18: Implement modular Python automation suite in `src/` (WireGuard mesh, Consul API discovery, Traefik routing, Docker Runner, SSH ProxyJump)
-- [x] Issue #18: Flatten and clean directory structure (Direct Flat Architecture)
-- [x] Issue #18: Build thin task runner interface (`justfile`) backed by `uv run homelab <cmd>`
+- [x] Issue #18: Evolve to 100% Code-as-Configuration (remove `topology.yaml`, dynamic `HomelabTopology.build()`, `homelab export-topology`)
+- [x] Issue #18: Implement centralized `AppContext` singleton with host detection (`is_macerator`, `is_aperio`, `is_local_workstation`)
+- [x] Issue #18: Implement modular domain providers (WireGuard mesh, Consul API discovery, Traefik routing, Docker Runner, SSH ProxyJump)
+- [x] Issue #18: Enforce Docker Compose `--env-file` passing across all compose operations
 - [x] Issue #18: Transition services to OOP lifecycle classes (`BaseService`, `ComposeService`, `services/registry.py`)
-- [x] Issue #18: Transition node runner to Python orchestrator (`BaseNodeRunner`, `MaceratorRunner`, `nodes/registry.py`)
+- [x] Issue #18: Transition node runners to Python orchestrator (`BaseNodeRunner`, `MaceratorRunner`, `AperioNode`, `nodes/registry.py`)
 - [x] Issue #18: Eliminate legacy `startup.sh` bash scripts across all services and nodes
-- [x] Issue #18: Wire `homelab service` and `homelab node` CLI subcommands
-- [x] Issue #18: Implement unit tests (`tests/test_services.py`) and pass all quality gates (`just pre-commit`)
-- [ ] Issue #18: Verify live synchronization and orchestration on `macerator`
+- [x] Issue #18: Configure explicit HTTP health checks across all 8 ingress services (`auth`, `code`, `consul`, `home-assistant`, `manage`, `monitor`, `pgadmin`, `photos`)
+- [x] Issue #18: Add container health checks (`pg_isready`, `redis-cli ping`) with automatic Consul TCP socket fallbacks for database/cache
+- [x] Issue #18: Wire `homelab service`, `homelab node`, `homelab mesh`, `homelab consul`, and `homelab export-topology` CLI commands
+- [x] Issue #18: Build thin task runner interface (`justfile`) backed by `uv run homelab <cmd>`
+- [x] Issue #18: Implement comprehensive unit tests (`tests/`) and pass all quality gates (`just pre-commit`: 19/19 tests, ruff, ty, validation)
+- [x] Issue #18: Commit and push changes to `origin/homelab/unified` (commit `ddead72`)
+- [ ] Issue #18: Verify live synchronization and orchestration on `macerator` with human operator
 
 
