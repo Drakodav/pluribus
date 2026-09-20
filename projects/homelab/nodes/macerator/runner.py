@@ -21,6 +21,7 @@ ORDERED_SERVICES = [
     "home-assistant",
     "netdata",
     "code",
+    "pgadmin",
 ]
 
 
@@ -29,17 +30,47 @@ class MaceratorRunner(BaseNodeRunner):
 
     name = "macerator"
     role = "powerhouse"
+    hardware = "dell-inspiron-i9"
+    ssh_user = "admin"
+    ssh_port = 22
+    ssh_bastion = "aperio"
+
+    @property
+    def backbone_ip(self) -> str:
+        """WireGuard backbone mesh IP for Macerator."""
+        from context import AppContext
+
+        return AppContext().backbone_macerator_ip
+
+    @property
+    def public_key(self) -> str:
+        """WireGuard public key for Macerator."""
+        from context import AppContext
+
+        return AppContext().get_env(
+            "BACKBONE_MACERATOR_PUBLIC_KEY",
+            "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXs=",
+        )
 
     def setup_host(self) -> bool:
         """Idempotently prepare host storage directories, permissions, and firewall rules."""
-        # 1. Storage Scaffolding
+        from context import AppContext
+
+        ctx = AppContext()
+        # Ensure directory creation uses sudo only when not root
+        use_sudo = not ctx.runtime.is_root
         storage_dirs = [Path("/opt/homelab")]
 
         for d in storage_dirs:
             try:
                 d.mkdir(parents=True, exist_ok=True)
             except PermissionError:
-                subprocess.run(["sudo", "mkdir", "-p", str(d)], check=False)
+                cmd = (
+                    ["sudo", "mkdir", "-p", str(d)]
+                    if use_sudo
+                    else ["mkdir", "-p", str(d)]
+                )
+                subprocess.run(cmd, check=False)
 
         # 2. Host Networking & Discovery Firewall Configuration (iptables)
         if shutil.which("iptables"):

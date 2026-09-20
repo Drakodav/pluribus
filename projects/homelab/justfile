@@ -40,7 +40,7 @@ typecheck:
 test:
     uv run pytest
 
-# Validate topology.yaml and all Docker Compose service stacks
+# Validate topology and all Docker Compose service stacks
 validate:
     uv run homelab validate
 

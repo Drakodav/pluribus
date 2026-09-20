@@ -9,7 +9,10 @@ class ConsulService(ComposeService):
     """Consul client agent stack."""
 
     name = "consul"
+    consul_name = "consul"
     role = "service-discovery"
+    subdomain = "consul"
     upstream_port = 8500
-    exposure = "internal"
+    exposure = "sso"
+    auth_middleware = "auth-traefik@docker"
     health_path = "/v1/status/leader"

@@ -9,6 +9,7 @@ class PhotosService(ComposeService):
     """Immich photos and machine learning service stack."""
 
     name = "photos"
+    consul_name = "photos"
     role = "media"
     subdomain = "photos"
     upstream_port = 2283

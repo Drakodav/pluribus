@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -14,13 +13,19 @@ class CodeService(BaseService):
     """Code-server native host systemd service."""
 
     name = "code"
+    consul_name = "code"
     role = "development"
     upstream_port = 8443
     exposure = "sso"
     subdomain = "code"
+    auth_middleware = "auth-code@docker"
+    health_path = "/healthz"
 
     def _get_primary_user(self) -> str:
-        return os.environ.get("SUDO_USER") or os.environ.get("USER", "ubuntu")
+        from context import AppContext
+
+        ctx = AppContext()
+        return ctx.runtime.user or "ubuntu"
 
     def pre_up(self) -> None:
         """Ensure code-server is installed and user directories exist."""
@@ -55,7 +60,10 @@ class CodeService(BaseService):
         user = self._get_primary_user()
         service_name = f"code-server@{user}.service"
         res = subprocess.run(["sudo", "systemctl", "stop", service_name], check=False)
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_down()
+            return True
+        return False
 
     def restart(self) -> bool:
         """Restart code-server service."""
@@ -67,7 +75,10 @@ class CodeService(BaseService):
         service_name = f"code-server@{user}.service"
         subprocess.run(["sudo", "systemctl", "disable", service_name], check=False)
         res = subprocess.run(["sudo", "systemctl", "stop", service_name], check=False)
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_down()
+            return True
+        return False
 
     def status(self) -> dict[str, str]:
         """Check systemd status of code-server."""

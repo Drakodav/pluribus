@@ -9,6 +9,7 @@ class AuthentikService(ComposeService):
     """Authentik Server and Worker identity stack."""
 
     name = "authentik"
+    consul_name = "auth"
     role = "identity"
     subdomain = "auth"
     upstream_port = 9000

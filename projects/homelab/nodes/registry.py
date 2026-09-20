@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from nodes.aperio.node import AperioNode
 from nodes.base import BaseNodeRunner
 from nodes.macerator.runner import MaceratorRunner
 
 NODE_RUNNERS: dict[str, type[BaseNodeRunner]] = {
+    "aperio": AperioNode,
     "macerator": MaceratorRunner,
 }
 
@@ -29,3 +31,12 @@ def get_node_runner(name: str, project_root: Path | None = None) -> BaseNodeRunn
 
     node_dir = root / "nodes" / name
     return runner_cls(node_dir=node_dir, project_root=root)
+
+
+def get_all_nodes(project_root: Path | None = None) -> dict[str, BaseNodeRunner]:
+    """Instantiate and return all registered node runners keyed by node name."""
+    root = project_root or get_default_project_root()
+    return {
+        name: cls(node_dir=root / "nodes" / name, project_root=root)
+        for name, cls in NODE_RUNNERS.items()
+    }

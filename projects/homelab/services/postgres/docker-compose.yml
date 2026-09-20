@@ -15,6 +15,11 @@ services:
     volumes:
       - /opt/homelab/postgres:/var/lib/postgresql/data
       - ./init-immich.sql:/docker-entrypoint-initdb.d/init-immich.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-homelab} -d ${POSTGRES_DB:-homelab}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     container_name: pgadmin

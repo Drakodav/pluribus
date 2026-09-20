@@ -1,7 +1,5 @@
 """Unit tests for WireGuard, Consul, and SSH providers."""
 
-from pathlib import Path
-
 from models.topology import HomelabTopology
 from providers.consul import ConsulClient
 from providers.ssh import build_ssh_command
@@ -14,8 +12,7 @@ from providers.wireguard import (
 
 def test_wireguard_conf_generation():
     """Ensure WireGuard configuration strings are cleanly formatted."""
-    topo_path = Path(__file__).resolve().parent.parent / "topology.yaml"
-    topo = HomelabTopology.load(topo_path)
+    topo = HomelabTopology.load()
 
     node_conf = generate_node_wg_conf(
         "macerator", topo.nodes["macerator"], topo.gateways["aperio"], topo
@@ -32,8 +29,7 @@ def test_wireguard_conf_generation():
 
 def test_node_connect_script_generation():
     """Ensure the generated connect script is valid bash and includes keys."""
-    topo_path = Path(__file__).resolve().parent.parent / "topology.yaml"
-    topo = HomelabTopology.load(topo_path)
+    topo = HomelabTopology.load()
 
     script = generate_node_connect_script("macerator", topo)
     assert "#!/bin/bash" in script
@@ -44,8 +40,7 @@ def test_node_connect_script_generation():
 
 def test_consul_service_payload_builder():
     """Ensure Consul payload includes correct tags, address, port, and healthcheck."""
-    topo_path = Path(__file__).resolve().parent.parent / "topology.yaml"
-    topo = HomelabTopology.load(topo_path)
+    topo = HomelabTopology.load()
 
     client = ConsulClient()
     svc = topo.services["authentik"]
@@ -62,8 +57,7 @@ def test_consul_service_payload_builder():
 
 def test_ssh_command_builder_proxyjump():
     """Ensure SSH builder configures ProxyJump through Aperio for Macerator."""
-    topo_path = Path(__file__).resolve().parent.parent / "topology.yaml"
-    topo = HomelabTopology.load(topo_path)
+    topo = HomelabTopology.load()
 
     cmd = build_ssh_command("macerator", topo)
     assert "ssh" in cmd

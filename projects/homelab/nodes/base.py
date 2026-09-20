@@ -14,6 +14,14 @@ class BaseNodeRunner(ABC):
 
     name: str
     role: str
+    hardware: str | None = None
+    provider: str | None = None
+    public_ip: str | None = None
+    backbone_ip: str = "10.10.0.1"
+    public_key: str = ""
+    ssh_user: str = "admin"
+    ssh_port: int = 22
+    ssh_bastion: str | None = None
 
     def __init__(self, node_dir: Path, project_root: Path | None = None) -> None:
         self.node_dir = node_dir

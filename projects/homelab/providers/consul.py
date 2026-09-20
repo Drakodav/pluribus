@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Any
+import logging
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
 from models.node import ComputeNode
 from models.service import ServiceConfig
 from models.topology import HomelabTopology
+
+if TYPE_CHECKING:
+    from services.base import BaseService
+
+logger = logging.getLogger(__name__)
 
 
 class ConsulClient:
@@ -48,9 +54,69 @@ class ConsulClient:
             },
         }
 
+        # Mandatory Health Check: HTTP if path declared, TCP socket check otherwise
         if service.health_path:
             payload["Check"] = {
                 "HTTP": f"http://{node.backbone_ip}:{service.upstream_port}{service.health_path}",
+                "Interval": "15s",
+                "Timeout": "3s",
+                "DeregisterCriticalServiceAfter": "10m",
+            }
+        else:
+            payload["Check"] = {
+                "TCP": f"{node.backbone_ip}:{service.upstream_port}",
+                "Interval": "15s",
+                "Timeout": "3s",
+                "DeregisterCriticalServiceAfter": "10m",
+            }
+
+        return payload
+
+    def build_service_payload_from_object(
+        self,
+        service: BaseService,
+        node_name: str,
+        backbone_ip: str,
+        domain: str,
+    ) -> dict[str, Any]:
+        """Construct registration payload directly from a BaseService instance."""
+        tags = [
+            f"exposure={service.exposure}",
+            f"node={node_name}",
+            f"role={service.role}",
+            "managed-by=homelab-engine",
+        ]
+        if service.subdomain:
+            tags.append(f"subdomain={service.subdomain}")
+
+        # Inject Traefik router, entrypoint, TLS, and middleware tags
+        traefik_tags = service.get_traefik_tags(domain)
+        tags.extend(traefik_tags)
+
+        payload: dict[str, Any] = {
+            "ID": f"{service.registered_name}-{node_name}",
+            "Name": service.registered_name,
+            "Tags": tags,
+            "Address": backbone_ip,
+            "Port": service.upstream_port,
+            "Meta": {
+                "node": node_name,
+                "role": service.role,
+                "exposure": service.exposure,
+            },
+        }
+
+        # Mandatory Health Check: HTTP endpoint check or fallback TCP socket check
+        if service.health_path:
+            payload["Check"] = {
+                "HTTP": f"http://{backbone_ip}:{service.upstream_port}{service.health_path}",
+                "Interval": "15s",
+                "Timeout": "3s",
+                "DeregisterCriticalServiceAfter": "10m",
+            }
+        else:
+            payload["Check"] = {
+                "TCP": f"{backbone_ip}:{service.upstream_port}",
                 "Interval": "15s",
                 "Timeout": "3s",
                 "DeregisterCriticalServiceAfter": "10m",
@@ -65,12 +131,54 @@ class ConsulClient:
         node_name: str,
         node: ComputeNode,
     ) -> bool:
-        """Register a single service to the Consul agent."""
+        """Register a single service configuration to the Consul agent."""
         payload = self.build_service_payload(service_name, service, node_name, node)
         endpoint = f"{self.base_url}/v1/agent/service/register"
-        with httpx.Client(timeout=self.timeout) as client:
-            resp = client.put(endpoint, json=payload)
-            return resp.status_code == 200
+        try:
+            with httpx.Client(timeout=self.timeout) as client:
+                resp = client.put(endpoint, json=payload)
+                return resp.status_code == 200
+        except httpx.RequestError as exc:
+            logger.warning("Failed to connect to Consul agent at %s: %s", endpoint, exc)
+            return False
+
+    def register_service_object(
+        self,
+        service: BaseService,
+        node_name: str,
+        backbone_ip: str,
+        domain: str,
+    ) -> bool:
+        """Register a concrete BaseService instance with Traefik tags and health check."""
+        payload = self.build_service_payload_from_object(
+            service, node_name, backbone_ip, domain
+        )
+        endpoint = f"{self.base_url}/v1/agent/service/register"
+        try:
+            with httpx.Client(timeout=self.timeout) as client:
+                resp = client.put(endpoint, json=payload)
+                return resp.status_code == 200
+        except httpx.RequestError as exc:
+            logger.warning(
+                "Failed to register %s in Consul at %s: %s", service.name, endpoint, exc
+            )
+            return False
+
+    def deregister_service(self, service_id: str) -> bool:
+        """Deregister a service from the Consul agent by service ID."""
+        endpoint = f"{self.base_url}/v1/agent/service/deregister/{service_id}"
+        try:
+            with httpx.Client(timeout=self.timeout) as client:
+                resp = client.put(endpoint)
+                return resp.status_code == 200
+        except httpx.RequestError as exc:
+            logger.warning(
+                "Failed to deregister %s from Consul at %s: %s",
+                service_id,
+                endpoint,
+                exc,
+            )
+            return False
 
     def sync_node_services(
         self,

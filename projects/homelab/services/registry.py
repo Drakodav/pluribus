@@ -12,7 +12,7 @@ from services.code.service import CodeService
 from services.consul.service import ConsulService
 from services.netdata.service import NetdataService
 from services.photos.service import PhotosService
-from services.postgres.service import PostgresService
+from services.postgres.service import PgAdminService, PostgresService
 from services.redis.service import RedisService
 
 
@@ -27,13 +27,19 @@ SERVICE_CLASSES: dict[str, type[BaseService]] = {
     "code": CodeService,
     "consul": ConsulService,
     "netdata": NetdataService,
+    "pgadmin": PgAdminService,
     "photos": PhotosService,
     "postgres": PostgresService,
     "redis": RedisService,
 }
 
 SERVICE_ALIASES: dict[str, str] = {
+    "auth": "authentik",
+    "manage": "cockpit",
+    "monitor": "netdata",
+    "pg-admin": "pgadmin",
     "ha": "home-assistant",
+    "immich": "photos",
 }
 
 
@@ -59,16 +65,20 @@ def get_service(name: str, project_root: Path | None = None) -> BaseService:
             f"Unknown service: '{name}'. Available services: {valid_names}"
         )
 
-    service_dir = root / "services" / canonical_name
+    # pgadmin shares directory with postgres
+    target_folder = "postgres" if canonical_name == "pgadmin" else canonical_name
+    service_dir = root / "services" / target_folder
     return service_cls(service_dir)
 
 
 def get_all_services(project_root: Path | None = None) -> dict[str, BaseService]:
     """Instantiate and return all registered services keyed by canonical name."""
     root = project_root or get_default_project_root()
-    services = {
-        name: cls(root / "services" / name) for name, cls in SERVICE_CLASSES.items()
-    }
+    services: dict[str, BaseService] = {}
+    for name, cls in SERVICE_CLASSES.items():
+        target_folder = "postgres" if name == "pgadmin" else name
+        services[name] = cls(root / "services" / target_folder)
+
     services["home-assistant"] = _get_home_assistant_class()(
         root / "services" / "home-assistant"
     )

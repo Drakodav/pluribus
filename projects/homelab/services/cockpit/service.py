@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 
@@ -13,13 +12,34 @@ class CockpitService(BaseService):
     """Cockpit native host systemd service."""
 
     name = "cockpit"
+    consul_name = "manage"
     role = "management"
     upstream_port = 9090
     exposure = "sso"
-    subdomain = "cockpit"
+    subdomain = "manage"
+    auth_middleware = "auth-cockpit@docker"
+    health_path = "/ping"
+
+    def get_traefik_tags(self, domain: str) -> list[str]:
+        """Custom Traefik tags for Cockpit including cockpit alias and auth-cockpit middleware."""
+        tags = super().get_traefik_tags(domain)
+        tags.extend(
+            [
+                f"traefik.http.routers.{self.registered_name}-alias.rule=Host(`cockpit.{domain}`)",
+                "traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
+                "traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
+                f"traefik.http.routers.{self.registered_name}-alias.service={self.registered_name}",
+                "traefik.http.routers.{self.registered_name}-alias.middlewares=auth-cockpit@docker",
+            ]
+        )
+        return tags
 
     def pre_up(self) -> None:
         """Configure PAM and systemd override for no-TLS backend."""
+        from context import AppContext
+
+        ctx = AppContext()
+
         # Ensure PAM configuration is standard Ubuntu/Debian
         pam_file = Path("/etc/pam.d/cockpit")
         if pam_file.parent.exists():
@@ -67,7 +87,7 @@ class CockpitService(BaseService):
         # Cockpit WebService Configuration
         cockpit_dir = Path("/etc/cockpit")
         cockpit_conf = cockpit_dir / "cockpit.conf"
-        root_domain = os.environ.get("ROOT_DOMAIN", "vlmd.cc")
+        root_domain = ctx.root_domain
         conf_content = (
             "[WebService]\n"
             f"Origins = https://manage.{root_domain} https://cockpit.{root_domain} wss://manage.{root_domain} wss://cockpit.{root_domain} http://localhost:9090\n"
@@ -122,7 +142,10 @@ class CockpitService(BaseService):
         res = subprocess.run(
             ["sudo", "systemctl", "stop", "cockpit", "cockpit.socket"], check=False
         )
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_down()
+            return True
+        return False
 
     def restart(self) -> bool:
         """Restart Cockpit service."""
@@ -134,7 +157,10 @@ class CockpitService(BaseService):
         res = subprocess.run(
             ["sudo", "systemctl", "stop", "cockpit", "cockpit.socket"], check=False
         )
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_down()
+            return True
+        return False
 
     def status(self) -> dict[str, str]:
         """Check systemd status of cockpit."""

@@ -1,7 +1,5 @@
 """Unit tests for declarative Homelab models and schema validation."""
 
-from pathlib import Path
-
 import pytest
 from pydantic import ValidationError
 
@@ -9,9 +7,8 @@ from models.topology import HomelabTopology
 
 
 def test_load_production_topology():
-    """Verify that the repository's topology.yaml loads cleanly and passes all checks."""
-    topo_path = Path(__file__).resolve().parent.parent / "topology.yaml"
-    topo = HomelabTopology.load(topo_path)
+    """Verify that HomelabTopology builds cleanly from Python code and passes all checks."""
+    topo = HomelabTopology.build()
 
     assert topo.domain == "vlmd.cc"
     assert "aperio" in topo.gateways
@@ -26,6 +23,21 @@ def test_load_production_topology():
     assert str(macerator.backbone_ip) == "10.10.0.2"
     assert macerator.ssh.user == "admin"
     assert macerator.ssh.bastion == "aperio"
+
+
+def test_topology_export_yaml_and_dict():
+    """Verify that HomelabTopology can be exported to valid YAML and dict representations."""
+    topo = HomelabTopology.build()
+    yaml_str = topo.to_yaml()
+    assert "vlmd.cc" in yaml_str
+    assert "macerator" in yaml_str
+    assert "aperio" in yaml_str
+
+    d = topo.to_dict()
+    assert d["domain"] == "vlmd.cc"
+    assert "gateways" in d
+    assert "nodes" in d
+    assert "services" in d
 
 
 def test_invalid_wireguard_key_length():

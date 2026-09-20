@@ -1,4 +1,4 @@
-"""Root declarative homelab topology model and disk loader."""
+"""Root declarative homelab topology model assembled dynamically from Python code."""
 
 from __future__ import annotations
 
@@ -9,12 +9,12 @@ import yaml
 from pydantic import BaseModel, Field, model_validator
 
 from models.mesh import MeshConfig
-from models.node import ComputeNode, GatewayNode
+from models.node import ComputeNode, GatewayNode, SSHConfig
 from models.service import ServiceConfig
 
 
 class HomelabTopology(BaseModel):
-    """Root declarative homelab topology."""
+    """Root declarative homelab topology model."""
 
     version: str = "1"
     domain: str = "vlmd.cc"
@@ -64,17 +64,87 @@ class HomelabTopology(BaseModel):
         return self
 
     @classmethod
+    def build(cls, project_root: Path | None = None) -> HomelabTopology:
+        """Dynamically assemble cluster topology directly from registered Python code."""
+        from context import AppContext
+        from nodes.registry import get_all_nodes
+        from services.registry import get_all_services
+
+        ctx = AppContext(project_root)
+        domain = ctx.root_domain
+
+        # 1. Gather all registered services
+        services_map = get_all_services(project_root)
+        services_dict: dict[str, ServiceConfig] = {}
+        for s_name, svc in services_map.items():
+            services_dict[s_name] = ServiceConfig(
+                role=svc.role,
+                subdomain=svc.subdomain,
+                upstream_port=svc.upstream_port,
+                exposure=svc.exposure,
+                health_path=svc.health_path,
+            )
+
+        # 2. Gather all registered nodes
+        nodes_map = get_all_nodes(project_root)
+        gateways_dict: dict[str, GatewayNode] = {}
+        nodes_dict: dict[str, ComputeNode] = {}
+
+        for n_name, runner in nodes_map.items():
+            if runner.role == "gateway":
+                gateways_dict[n_name] = GatewayNode(
+                    provider=runner.provider or "oci",
+                    role=runner.role,
+                    public_ip=runner.public_ip or "[IP_ADDRESS]",  # type: ignore[arg-type]
+                    backbone_ip=runner.backbone_ip,  # type: ignore[arg-type]
+                    public_key=runner.public_key,
+                    ssh=SSHConfig(
+                        user=runner.ssh_user,
+                        port=runner.ssh_port,
+                        bastion=runner.ssh_bastion,
+                    ),
+                )
+            else:
+                assigned_svcs = [s.name for s in runner.get_services()]
+                nodes_dict[n_name] = ComputeNode(
+                    hardware=runner.hardware,
+                    role=runner.role,
+                    backbone_ip=runner.backbone_ip,  # type: ignore[arg-type]
+                    public_key=runner.public_key,
+                    ssh=SSHConfig(
+                        user=runner.ssh_user,
+                        port=runner.ssh_port,
+                        bastion=runner.ssh_bastion,
+                    ),
+                    services=assigned_svcs,
+                )
+
+        return cls(
+            version="1",
+            domain=domain,
+            mesh=MeshConfig(),
+            gateways=gateways_dict,
+            nodes=nodes_dict,
+            services=services_dict,
+        )
+
+    @classmethod
     def load(cls, path: Path | str | None = None) -> HomelabTopology:
-        """Load and parse topology.yaml from disk."""
-        if path is None:
-            path = Path(__file__).resolve().parent.parent / "topology.yaml"
-        else:
-            path = Path(path)
+        """Load topology directly from code, with optional fallback to YAML if specified."""
+        if path is not None:
+            p = Path(path)
+            if p.exists():
+                with open(p, encoding="utf-8") as f:
+                    raw_data: Any = yaml.safe_load(f)
+                return cls.model_validate(raw_data)
 
-        if not path.exists():
-            raise FileNotFoundError(f"Topology file not found at: {path}")
+        # Default: Pure Python Code-as-Configuration assembly
+        return cls.build()
 
-        with open(path, encoding="utf-8") as f:
-            raw_data: Any = yaml.safe_load(f)
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize topology model to plain dictionary."""
+        return self.model_dump(mode="json")
 
-        return cls.model_validate(raw_data)
+    def to_yaml(self) -> str:
+        """Export dynamic cluster topology to YAML formatted string."""
+        return yaml.dump(self.to_dict(), sort_keys=False)

@@ -17,6 +17,18 @@ class ComposeService(BaseService):
         """Return the path to this service's docker-compose.yml."""
         return self.service_dir / "docker-compose.yml"
 
+    def _build_compose_cmd(self, *subcommand: str) -> list[str]:
+        """Construct docker compose command with --env-file and compose path."""
+        from context import AppContext
+
+        ctx = AppContext()
+        cmd = ["docker", "compose"]
+        if ctx.env_file.exists():
+            cmd.extend(["--env-file", str(ctx.env_file)])
+        cmd.extend(["-f", str(self.compose_file)])
+        cmd.extend(subcommand)
+        return cmd
+
     def up(self) -> bool:
         """Idempotently prepare environment and bring up Docker Compose stack."""
         self.pre_up()
@@ -27,19 +39,9 @@ class ComposeService(BaseService):
             )
 
         # Attempt to pull latest images if possible
-        subprocess.run(
-            ["docker", "compose", "-f", str(self.compose_file), "pull"],
-            check=False,
-        )
+        subprocess.run(self._build_compose_cmd("pull"), check=False)
 
-        cmd = [
-            "docker",
-            "compose",
-            "-f",
-            str(self.compose_file),
-            "up",
-            "-d",
-        ]
+        cmd = self._build_compose_cmd("up", "-d")
         res = subprocess.run(cmd, check=False)
         if res.returncode == 0:
             self.post_up()
@@ -51,50 +53,47 @@ class ComposeService(BaseService):
         if not self.compose_file.exists():
             return True
 
-        cmd = ["docker", "compose", "-f", str(self.compose_file), "down"]
+        cmd = self._build_compose_cmd("down")
         res = subprocess.run(cmd, check=False)
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_down()
+            return True
+        return False
 
     def restart(self) -> bool:
         """Restart containers in the compose stack."""
         if not self.compose_file.exists():
             return False
 
-        cmd = ["docker", "compose", "-f", str(self.compose_file), "restart"]
+        cmd = self._build_compose_cmd("restart")
         res = subprocess.run(cmd, check=False)
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_up()
+            return True
+        return False
 
     def destroy(self) -> bool:
         """Tear down containers, remove networks, and destroy volumes."""
         if not self.compose_file.exists():
             return True
 
-        cmd = [
-            "docker",
-            "compose",
-            "-f",
-            str(self.compose_file),
-            "down",
-            "-v",
-            "--remove-orphans",
-        ]
+        cmd = self._build_compose_cmd("down", "-v", "--remove-orphans")
         res = subprocess.run(cmd, check=False)
-        return res.returncode == 0
+        if res.returncode == 0:
+            self.post_down()
+            return True
+        return False
 
     def status(self) -> dict[str, str]:
         """Fetch running status of containers in this service stack."""
         if not self.compose_file.exists():
             return {"status": "missing_compose_file"}
 
-        cmd = [
-            "docker",
-            "compose",
-            "-f",
-            str(self.compose_file),
+        cmd = self._build_compose_cmd(
             "ps",
             "--format",
             "{{.Name}}: {{.Status}}",
-        ]
+        )
         res = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if res.returncode == 0:
             lines = [line.strip() for line in res.stdout.splitlines() if line.strip()]

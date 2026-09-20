@@ -21,11 +21,11 @@ def run_full_validation(
     project_root: Path,
     config_path: Path | None = None,
 ) -> ValidationReport:
-    """Execute complete validation across topology schema and Docker Compose files."""
-    if config_path is None:
-        config_path = project_root / "topology.yaml"
-
-    topo = HomelabTopology.load(config_path)
+    topo = (
+        HomelabTopology.load(config_path)
+        if config_path
+        else HomelabTopology.build(project_root)
+    )
     compose_results = validate_compose_files(project_root)
     all_compose_valid = all(compose_results.values()) if compose_results else True
 

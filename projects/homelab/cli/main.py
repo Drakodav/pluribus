@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import typer
@@ -39,10 +40,10 @@ def main(ctx: typer.Context) -> None:
 @app.command("validate")
 def validate(
     config: Path | None = typer.Option(
-        None, "--config", "-c", help="Path to topology.yaml"
+        None, "--config", "-c", help="Optional path to custom topology file"
     ),
 ) -> None:
-    """Validate topology.yaml integrity and all Docker Compose service stacks."""
+    """Validate cluster schema integrity and all Docker Compose service stacks."""
     console.print(
         "[bold blue]>>> Validating Declarative Homelab Configuration...[/bold blue]"
     )
@@ -93,7 +94,7 @@ def validate(
 @app.command("services")
 def list_services(
     config: Path | None = typer.Option(
-        None, "--config", "-c", help="Path to topology.yaml"
+        None, "--config", "-c", help="Optional path to custom topology file"
     ),
 ) -> None:
     """List all registered services and their routing / exposure policies."""
@@ -134,6 +135,20 @@ def list_services(
         )
 
     console.print(table)
+
+
+@app.command("export-topology")
+def export_topology(
+    format: str = typer.Option(
+        "yaml", "--format", "-f", help="Export format: yaml or json"
+    ),
+) -> None:
+    """Export dynamic code-defined cluster topology to YAML or JSON."""
+    topo = HomelabTopology.build()
+    if format.lower() == "json":
+        console.print(json.dumps(topo.to_dict(), indent=2))
+    else:
+        console.print(topo.to_yaml())
 
 
 if __name__ == "__main__":
