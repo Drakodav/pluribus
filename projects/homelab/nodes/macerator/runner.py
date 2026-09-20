@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -34,44 +33,13 @@ class MaceratorRunner(BaseNodeRunner):
     def setup_host(self) -> bool:
         """Idempotently prepare host storage directories, permissions, and firewall rules."""
         # 1. Storage Scaffolding
-        storage_dirs = [
-            Path("/opt/homelab"),
-            Path("/opt/homelab/postgres"),
-            Path("/opt/homelab/pgadmin"),
-            Path("/opt/homelab/authentik/media"),
-            Path("/opt/homelab/authentik/custom-templates"),
-            Path("/opt/homelab/authentik/certs"),
-            Path("/opt/homelab/immich/library"),
-            Path("/opt/homelab/immich/db"),
-            Path("/opt/homelab/netdata"),
-            Path("/opt/homelab/home-assistant"),
-            Path("/opt/homelab/matterjs-server"),
-        ]
+        storage_dirs = [Path("/opt/homelab")]
 
         for d in storage_dirs:
             try:
                 d.mkdir(parents=True, exist_ok=True)
             except PermissionError:
                 subprocess.run(["sudo", "mkdir", "-p", str(d)], check=False)
-
-        # Permissions: PostgreSQL (UID 70 on Alpine) and pgAdmin (UID 5050)
-        pg_dir = Path("/opt/homelab/postgres")
-        if pg_dir.exists():
-            try:
-                os.chown(pg_dir, 70, 70)
-            except PermissionError:
-                subprocess.run(
-                    ["sudo", "chown", "-R", "70:70", str(pg_dir)], check=False
-                )
-
-        pgadmin_dir = Path("/opt/homelab/pgadmin")
-        if pgadmin_dir.exists():
-            try:
-                os.chown(pgadmin_dir, 5050, 5050)
-            except PermissionError:
-                subprocess.run(
-                    ["sudo", "chown", "-R", "5050:5050", str(pgadmin_dir)], check=False
-                )
 
         # 2. Host Networking & Discovery Firewall Configuration (iptables)
         if shutil.which("iptables"):
