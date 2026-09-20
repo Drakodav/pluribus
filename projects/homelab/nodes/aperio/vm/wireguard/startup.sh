@@ -61,10 +61,10 @@ fi
 echo ">>> [WireGuard] Generating configuration for $INTERFACE..."
 PRIVATE_KEY=$(cat "$PRIVATE_KEY_FILE")
 
-# Support both new Latin Distiller names and backward-compatible aliases
-BACKBONE_APERIO_IP=${BACKBONE_APERIO_IP:-${BACKBONE_GATEWAY_IP:-10.10.0.1}}
-BACKBONE_MACERATOR_IP=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
-MACERATOR_PUBKEY=${BACKBONE_MACERATOR_PUBLIC_KEY:-${BACKBONE_POWERHOUSE_PUBLIC_KEY:-}}
+# Strict domain-scoped environment variables
+BACKBONE_APERIO_IP=${NODE_APERIO_BACKBONE_IP}
+BACKBONE_MACERATOR_IP=${NODE_MACERATOR_BACKBONE_IP}
+MACERATOR_PUBKEY=${NODE_MACERATOR_PUBLIC_KEY}
 
 # Stop service before overwriting to prevent SaveConfig from reverting changes
 systemctl stop "wg-quick@$INTERFACE" || true

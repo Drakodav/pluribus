@@ -12,11 +12,11 @@ if [ -f "$PROJECT_ROOT/.env" ]; then
     set +a
 fi
 
-API_KEY="${IMMICH_API_KEY:-}"
+API_KEY="${SERVICE_PHOTOS_API_KEY:-}"
 IMMICH_GO_DIR="${HOME}/Downloads/immich-go_Linux_x86_64"
 
 if [ -z "$API_KEY" ]; then
-    echo "Warning: IMMICH_API_KEY is not defined in .env"
+    echo "Warning: SERVICE_PHOTOS_API_KEY is not defined in .env"
 fi
 
 if [ ! -d "$IMMICH_GO_DIR" ]; then

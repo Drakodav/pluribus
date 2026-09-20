@@ -13,9 +13,9 @@ services:
       - path: ../../.env
         required: false
     environment:
-      - AUTHENTIK_CLIENT_ID=${HOME_ASSISTANT_CLIENT_ID:-}
-      - AUTHENTIK_CLIENT_SECRET=${HOME_ASSISTANT_CLIENT_SECRET:-}
-      - AUTHENTIK_URL=https://auth.${ROOT_DOMAIN:-example.com}
+      - AUTHENTIK_CLIENT_ID=${SERVICE_HOMEASSISTANT_OAUTH2_CLIENT_ID}
+      - AUTHENTIK_CLIENT_SECRET=${SERVICE_HOMEASSISTANT_OAUTH2_CLIENT_SECRET}
+      - AUTHENTIK_URL=https://auth.${GLOBAL_ROOT_DOMAIN}
 
   matterjs-server:
     container_name: matterjs-server

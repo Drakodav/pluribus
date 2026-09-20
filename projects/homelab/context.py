@@ -154,38 +154,53 @@ class AppContext:
             return str(self.node_profiles[target]["fallback_consul_endpoint"])
         return "http://10.10.0.1:8500"
 
+    def get_required_env(self, key: str) -> str:
+        """Retrieve required environment variable or raise KeyError if missing."""
+        val = os.environ.get(key, self.env.get(key, ""))
+        if not val:
+            raise KeyError(
+                f"Required environment variable '{key}' is missing. "
+                f"Please define it in '{self.env_file}' or host environment."
+            )
+        return val
+
     def get_env(self, key: str, default: str | None = None) -> str:
         """Get an environment variable from os.environ or loaded .env file."""
         return os.environ.get(key, self.env.get(key, default or ""))
 
     def __getitem__(self, key: str) -> str:
         """Access environment variables directly using dictionary syntax: ctx['KEY']."""
-        val = self.get_env(key)
-        if not val:
-            raise KeyError(f"Environment variable '{key}' not set")
-        return val
+        return self.get_required_env(key)
 
     @property
     def root_domain(self) -> str:
-        """Declared root domain (defaults to topology.domain or vlmd.cc)."""
-        topo = self._safe_load_topology()
-        default_domain = topo.domain if topo else "vlmd.cc"
-        return self.get_env("ROOT_DOMAIN", default_domain)
+        """Declared root domain from GLOBAL_ROOT_DOMAIN."""
+        return self.get_required_env("GLOBAL_ROOT_DOMAIN")
 
     @property
     def backbone_macerator_ip(self) -> str:
-        """WireGuard backbone IP for Macerator."""
-        return self.get_env("BACKBONE_MACERATOR_IP", "10.10.0.2")
+        """WireGuard backbone IP for Macerator from NODE_MACERATOR_BACKBONE_IP."""
+        return self.get_required_env("NODE_MACERATOR_BACKBONE_IP")
 
     @property
     def backbone_aperio_ip(self) -> str:
-        """WireGuard backbone IP for Aperio."""
-        return self.get_env("BACKBONE_APERIO_IP", "10.10.0.1")
+        """WireGuard backbone IP for Aperio from NODE_APERIO_BACKBONE_IP."""
+        return self.get_required_env("NODE_APERIO_BACKBONE_IP")
 
     @property
     def acme_email(self) -> str:
-        """Let's Encrypt ACME notification email."""
-        return self.get_env("ACME_EMAIL", "")
+        """Let's Encrypt ACME notification email from GLOBAL_ACME_EMAIL."""
+        return self.get_required_env("GLOBAL_ACME_EMAIL")
+
+    @property
+    def mesh_subnet(self) -> str:
+        """WireGuard mesh subnet CIDR from GLOBAL_MESH_SUBNET."""
+        return self.get_required_env("GLOBAL_MESH_SUBNET")
+
+    @property
+    def mesh_port(self) -> int:
+        """WireGuard mesh port from GLOBAL_MESH_PORT."""
+        return int(self.get_required_env("GLOBAL_MESH_PORT"))
 
     def _load_env_file(self) -> dict[str, str]:
         env_map: dict[str, str] = {}

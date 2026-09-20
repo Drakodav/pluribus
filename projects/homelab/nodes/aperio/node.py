@@ -15,16 +15,28 @@ class AperioNode(BaseNodeRunner):
     name = "aperio"
     role = "gateway"
     provider = "oci"
-    ssh_user = "ubuntu"
-    ssh_port = 22
     ssh_bastion = None
+
+    @property
+    def ssh_user(self) -> str:
+        """SSH user for Aperio gateway."""
+        from context import AppContext
+
+        return AppContext().get_required_env("NODE_APERIO_SSH_USER")
+
+    @property
+    def ssh_port(self) -> int:
+        """SSH port for Aperio gateway."""
+        from context import AppContext
+
+        return int(AppContext().get_required_env("NODE_APERIO_SSH_PORT"))
 
     @property
     def public_ip(self) -> str:
         """Public IPv4 address assigned to the gateway."""
         from context import AppContext
 
-        return AppContext().get_env("GATEWAY_PUBLIC_IP", "143.47.250.74")
+        return AppContext().get_required_env("NODE_APERIO_PUBLIC_IP")
 
     @property
     def backbone_ip(self) -> str:
@@ -38,10 +50,7 @@ class AperioNode(BaseNodeRunner):
         """WireGuard public key for Aperio."""
         from context import AppContext
 
-        return AppContext().get_env(
-            "BACKBONE_APERIO_PUBLIC_KEY",
-            "pYy7pFu8OG4R3OLgKkw58RmhXxlsQwLER1OEtX2JRTM=",
-        )
+        return AppContext().get_required_env("NODE_APERIO_PUBLIC_KEY")
 
     def setup_host(self) -> bool:
         """Aperio host provisioning is handled via Terraform and cloud-init."""

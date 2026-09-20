@@ -1,9 +1,9 @@
 services:
   immich-server:
     container_name: immich_server
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    image: ghcr.io/immich-app/immich-server:${SERVICE_PHOTOS_VERSION}
     volumes:
-      - ${IMMICH_UPLOAD_LOCATION:-/opt/homelab/immich/library}:/usr/src/app/upload
+      - ${SERVICE_PHOTOS_UPLOAD_LOCATION}:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     env_file:
@@ -11,13 +11,13 @@ services:
         required: false
     environment:
       - IMMICH_PORT=2283
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-homelab_secret}
-      - DB_USERNAME=${POSTGRES_USER:-homelab}
+      - DB_PASSWORD=${SERVICE_POSTGRES_PASSWORD}
+      - DB_USERNAME=${SERVICE_POSTGRES_USER}
       - DB_DATABASE_NAME=immich
-      - DB_HOSTNAME=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
-      - REDIS_HOSTNAME=${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}
-      - UPLOAD_LOCATION=${IMMICH_UPLOAD_LOCATION:-/opt/homelab/immich/library}
-      - IMMICH_MACHINE_LEARNING_URL=http://${BACKBONE_MACERATOR_IP:-${BACKBONE_POWERHOUSE_IP:-10.10.0.2}}:3003
+      - DB_HOSTNAME=${NODE_MACERATOR_BACKBONE_IP}
+      - REDIS_HOSTNAME=${NODE_MACERATOR_BACKBONE_IP}
+      - UPLOAD_LOCATION=${SERVICE_PHOTOS_UPLOAD_LOCATION}
+      - IMMICH_MACHINE_LEARNING_URL=http://${NODE_MACERATOR_BACKBONE_IP}:3003
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2283/api/server/ping"]
       interval: 30s
@@ -27,7 +27,7 @@ services:
 
   immich-machine-learning:
     container_name: immich_machine_learning
-    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-cuda
+    image: ghcr.io/immich-app/immich-machine-learning:${SERVICE_PHOTOS_VERSION}-cuda
     volumes:
       - model-cache:/cache
     env_file:

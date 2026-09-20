@@ -31,9 +31,27 @@ class MaceratorRunner(BaseNodeRunner):
     name = "macerator"
     role = "powerhouse"
     hardware = "dell-inspiron-i9"
-    ssh_user = "admin"
-    ssh_port = 22
-    ssh_bastion = "aperio"
+
+    @property
+    def ssh_user(self) -> str:
+        """SSH user for Macerator powerhouse."""
+        from context import AppContext
+
+        return AppContext().get_required_env("NODE_MACERATOR_SSH_USER")
+
+    @property
+    def ssh_port(self) -> int:
+        """SSH port for Macerator powerhouse."""
+        from context import AppContext
+
+        return int(AppContext().get_required_env("NODE_MACERATOR_SSH_PORT"))
+
+    @property
+    def ssh_bastion(self) -> str:
+        """SSH bastion for Macerator powerhouse."""
+        from context import AppContext
+
+        return AppContext().get_required_env("NODE_MACERATOR_SSH_BASTION")
 
     @property
     def backbone_ip(self) -> str:
@@ -47,10 +65,7 @@ class MaceratorRunner(BaseNodeRunner):
         """WireGuard public key for Macerator."""
         from context import AppContext
 
-        return AppContext().get_env(
-            "BACKBONE_MACERATOR_PUBLIC_KEY",
-            "9sDaXK7HWMJCDvdwOfskPuutpS7oQXjkvoB+EJ2BnXs=",
-        )
+        return AppContext().get_required_env("NODE_MACERATOR_PUBLIC_KEY")
 
     def setup_host(self) -> bool:
         """Idempotently prepare host storage directories, permissions, and firewall rules."""

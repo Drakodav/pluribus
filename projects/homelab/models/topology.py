@@ -122,7 +122,10 @@ class HomelabTopology(BaseModel):
         return cls(
             version="1",
             domain=domain,
-            mesh=MeshConfig(),
+            mesh=MeshConfig(
+                subnet=ctx.mesh_subnet,
+                port=ctx.mesh_port,
+            ),
             gateways=gateways_dict,
             nodes=nodes_dict,
             services=services_dict,

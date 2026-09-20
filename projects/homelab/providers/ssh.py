@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 
+from context import AppContext
 from models.topology import HomelabTopology
 
 
@@ -18,13 +18,10 @@ def build_ssh_command(
     """Build the argument list for an SSH connection with automatic ProxyJump."""
     cmd = ["ssh", "-o", "StrictHostKeyChecking=no"]
 
-    key = (
-        identity_file
-        or os.environ.get("GATEWAY_SSH_KEY")
-        or str(Path.home() / ".ssh" / "id_rsa")
-    )
-    if Path(key).exists():
-        cmd.extend(["-i", key])
+    key_str = identity_file or AppContext().get_required_env("NODE_APERIO_SSH_KEY")
+    key_path = Path(key_str).expanduser()
+    if key_path.exists():
+        cmd.extend(["-i", str(key_path)])
 
     if target_name in topology.gateways:
         gw = topology.gateways[target_name]
@@ -67,14 +64,11 @@ def build_rsync_command(
     if not source_dir.endswith("/"):
         source_dir += "/"
 
-    key = (
-        identity_file
-        or os.environ.get("GATEWAY_SSH_KEY")
-        or str(Path.home() / ".ssh" / "id_rsa")
-    )
+    key_str = identity_file or AppContext().get_required_env("NODE_APERIO_SSH_KEY")
     ssh_opts = ["ssh", "-o", "StrictHostKeyChecking=no"]
-    if Path(key).exists():
-        ssh_opts.extend(["-i", key])
+    key_path = Path(key_str).expanduser()
+    if key_path.exists():
+        ssh_opts.extend(["-i", str(key_path)])
 
     if target_name in topology.nodes:
         node = topology.nodes[target_name]

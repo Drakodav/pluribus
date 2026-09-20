@@ -8,7 +8,7 @@ REAL_HOME="${HOME:-$(eval echo "~$USER")}"
 # Directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REMOTE_DIR="~/vm-deployment"
-ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Load environment variables if .env exists in project root
 if [ -f "$ROOT_DIR/.env" ]; then
@@ -18,20 +18,21 @@ if [ -f "$ROOT_DIR/.env" ]; then
 fi
 
 # Usage: ./deploy.sh [SSH_USER] [SSH_HOST] [SSH_KEY_PATH]
-SSH_USER=${1:-ubuntu}
-SSH_HOST=${2:-${APERIO_PUBLIC_IP}}
-SSH_KEY=${3:-${GATEWAY_SSH_KEY:-$REAL_HOME/.ssh/id_rsa}}
+SSH_USER=${1:-${NODE_APERIO_SSH_USER}}
+SSH_HOST=${2:-${NODE_APERIO_PUBLIC_IP}}
+SSH_KEY=${3:-${NODE_APERIO_SSH_KEY}}
+SSH_KEY="${SSH_KEY/#\~/$REAL_HOME}"
 
 if [ -z "$SSH_HOST" ]; then
-    echo "Error: SSH_HOST not provided and APERIO_PUBLIC_IP not found in $ROOT_DIR/.env"
+    echo "Error: SSH_HOST not provided and NODE_APERIO_PUBLIC_IP not found in $ROOT_DIR/.env"
     exit 1
 fi
 
 if [ ! -f "$SSH_KEY" ]; then
     echo "Error: SSH private key not found at '$SSH_KEY'"
     echo "To fix this, either:"
-    echo "  1. Copy your private key from macerator to: $SSH_KEY"
-    echo "  2. Or set GATEWAY_SSH_KEY in $ROOT_DIR/.env to point to your key"
+    echo "  1. Copy your private key to: $SSH_KEY"
+    echo "  2. Or set NODE_APERIO_SSH_KEY in $ROOT_DIR/.env to point to your key"
     echo "  3. Or pass it as argument: ./deploy.sh $SSH_USER $SSH_HOST /path/to/key"
     exit 1
 fi
