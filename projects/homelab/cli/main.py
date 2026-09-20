@@ -11,6 +11,7 @@ from rich.table import Table
 from cli.consul import consul_app
 from cli.mesh import mesh_app
 from cli.node import node_app
+from cli.service import service_app
 from models.topology import HomelabTopology
 from workflows.validate import run_full_validation
 
@@ -22,6 +23,7 @@ app = typer.Typer(
 app.add_typer(mesh_app, name="mesh")
 app.add_typer(node_app, name="node")
 app.add_typer(consul_app, name="consul")
+app.add_typer(service_app, name="service")
 
 console = Console()
 

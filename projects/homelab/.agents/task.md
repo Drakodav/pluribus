@@ -39,7 +39,13 @@
 - [x] Issue #18: Design declarative `topology.yaml` schema cleanly separating mesh/nodes/services from `.env` secrets
 - [x] Issue #18: Implement strictly typed Pydantic models with schema validation (IPs, ports, base64 keys, domains)
 - [x] Issue #18: Implement modular Python automation suite in `src/` (WireGuard mesh, Consul API discovery, Traefik routing, Docker Runner, SSH ProxyJump)
-- [x] Issue #18: Flatten and clean directory structure (no duplicate nested folder names)
+- [x] Issue #18: Flatten and clean directory structure (Direct Flat Architecture)
 - [x] Issue #18: Build thin task runner interface (`justfile`) backed by `uv run homelab <cmd>`
-- [ ] Issue #18: Verify type-safe service synchronization, remote orchestration, and live Consul catalog registration
+- [x] Issue #18: Transition services to OOP lifecycle classes (`BaseService`, `ComposeService`, `services/registry.py`)
+- [x] Issue #18: Transition node runner to Python orchestrator (`BaseNodeRunner`, `MaceratorRunner`, `nodes/registry.py`)
+- [x] Issue #18: Eliminate legacy `startup.sh` bash scripts across all services and nodes
+- [x] Issue #18: Wire `homelab service` and `homelab node` CLI subcommands
+- [x] Issue #18: Implement unit tests (`tests/test_services.py`) and pass all quality gates (`just pre-commit`)
+- [ ] Issue #18: Verify live synchronization and orchestration on `macerator`
+
 
