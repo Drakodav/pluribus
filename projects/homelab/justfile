@@ -44,5 +44,9 @@ test:
 validate:
     uv run homelab validate
 
+# Bootstrap baseline host packages (docker, python, uv, just, wireguard)
+setup-node:
+    sudo bash setup-node.sh
+
 # Standard pre-commit hook aggregator
 pre-commit: lint format typecheck test validate

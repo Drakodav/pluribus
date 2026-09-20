@@ -7,7 +7,7 @@ from pathlib import Path
 
 from models.topology import HomelabTopology
 from providers.consul import ConsulClient
-from providers.ssh import build_rsync_command
+from providers.ssh import build_rsync_command, run_ssh_command
 
 
 def sync_code_to_node(
@@ -17,6 +17,8 @@ def sync_code_to_node(
     target_dest: str = "~/projects/homelab/",
 ) -> subprocess.CompletedProcess[bytes]:
     """Sync repository code to a node via rsync over ProxyJump SSH."""
+    # Ensure remote directory exists before invoking rsync
+    run_ssh_command(node_name, topology, f"mkdir -p {target_dest}")
     cmd = build_rsync_command(project_root, node_name, target_dest, topology)
     return subprocess.run(cmd, check=False)
 
