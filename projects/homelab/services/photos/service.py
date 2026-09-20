@@ -13,8 +13,8 @@ class PhotosService(ComposeService):
     role = "media"
     subdomain = "photos"
     upstream_port = 2283
-    exposure = "sso"
-    health_path = "/api/server-info/ping"
+    exposure = "public"
+    health_path = "/api/server/ping"
 
     def pre_up(self) -> None:
         """Ensure Immich upload library and database directories exist."""

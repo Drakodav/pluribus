@@ -16,7 +16,17 @@ def build_ssh_command(
     identity_file: str | None = None,
 ) -> list[str]:
     """Build the argument list for an SSH connection with automatic ProxyJump."""
-    cmd = ["ssh", "-o", "StrictHostKeyChecking=no"]
+    cmd = [
+        "ssh",
+        "-o",
+        "StrictHostKeyChecking=no",
+        "-o",
+        "ControlMaster=auto",
+        "-o",
+        "ControlPersist=10m",
+        "-o",
+        "ControlPath=~/.ssh/cm-%C",
+    ]
 
     key_str = identity_file or AppContext().get_required_env("NODE_APERIO_SSH_KEY")
     key_path = Path(key_str).expanduser()
@@ -65,10 +75,21 @@ def build_rsync_command(
         source_dir += "/"
 
     key_str = identity_file or AppContext().get_required_env("NODE_APERIO_SSH_KEY")
-    ssh_opts = ["ssh", "-o", "StrictHostKeyChecking=no"]
+    ssh_opts = [
+        "ssh",
+        "-o",
+        "StrictHostKeyChecking=no",
+        "-o",
+        "ControlMaster=auto",
+        "-o",
+        "ControlPersist=10m",
+        "-o",
+        "ControlPath=~/.ssh/cm-%C",
+    ]
     key_path = Path(key_str).expanduser()
     if key_path.exists():
-        ssh_opts.extend(["-i", str(key_path)])
+        cmd_i = ["-i", str(key_path)]
+        ssh_opts.extend(cmd_i)
 
     if target_name in topology.nodes:
         node = topology.nodes[target_name]

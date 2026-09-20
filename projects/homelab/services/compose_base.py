@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 
@@ -29,6 +28,19 @@ class ComposeService(BaseService):
             env_file=ctx.env_file,
         )
 
+    @property
+    def has_build(self) -> bool:
+        """Check if service has a Dockerfile in its directory."""
+        return (self.service_dir / "Dockerfile").exists()
+
+    def build(self) -> bool:
+        """Build custom service container image using docker compose build."""
+        if not self.has_build:
+            return True
+        cmd = self._build_compose_cmd("build")
+        res = subprocess.run(cmd, check=False)
+        return res.returncode == 0
+
     def up(self) -> bool:
         """Idempotently prepare environment and bring up Docker Compose stack."""
         self.pre_up()
@@ -38,10 +50,20 @@ class ComposeService(BaseService):
                 f"Compose file not found for {self.name}: {self.compose_file}"
             )
 
-        # Attempt to pull latest images if possible
-        subprocess.run(self._build_compose_cmd("pull"), check=False)
+        if self.has_build:
+            build_success = self.build()
+            if not build_success:
+                return False
 
-        cmd = self._build_compose_cmd("up", "-d")
+        # Attempt to pull latest external images (ignoring services with local builds)
+        subprocess.run(
+            self._build_compose_cmd("pull", "--ignore-buildable"), check=False
+        )
+
+        up_args = ["up", "-d"]
+        if self.has_build:
+            up_args.append("--build")
+        cmd = self._build_compose_cmd(*up_args)
         res = subprocess.run(cmd, check=False)
         if res.returncode == 0:
             self.post_up()
@@ -117,10 +139,7 @@ class ComposeService(BaseService):
         p = Path(path)
         p.mkdir(parents=True, exist_ok=True)
         if uid is not None and gid is not None:
-            try:
-                os.chown(p, uid, gid)
-            except PermissionError:
-                subprocess.run(
-                    ["sudo", "chown", "-R", f"{uid}:{gid}", str(p)],
-                    check=False,
-                )
+            subprocess.run(
+                ["sudo", "chown", "-R", f"{uid}:{gid}", str(p)],
+                check=False,
+            )

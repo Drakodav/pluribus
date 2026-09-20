@@ -22,8 +22,8 @@ class HomeAssistantService(ComposeService):
         tags.extend(
             [
                 f"traefik.http.routers.{self.registered_name}-alias.rule=Host(`home-assistant.{domain}`)",
-                "traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
-                "traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
+                f"traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
+                f"traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
                 f"traefik.http.routers.{self.registered_name}-alias.service={self.registered_name}",
             ]
         )
@@ -37,4 +37,4 @@ class HomeAssistantService(ComposeService):
     def pre_up(self) -> None:
         """Ensure Home Assistant and Matter persistent volumes exist."""
         self.ensure_dir("/opt/homelab/home-assistant")
-        self.ensure_dir("/opt/homelab/matterjs-server")
+        self.ensure_dir("/opt/homelab/matterjs-server", uid=1000, gid=1000)

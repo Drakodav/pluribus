@@ -42,6 +42,35 @@ def service_list() -> None:
     console.print(table)
 
 
+@service_app.command("build")
+def service_build(
+    name: str = typer.Argument(..., help="Service name to build"),
+) -> None:
+    """Build custom container images for a service (if Dockerfile present)."""
+    console.print(f"[bold blue]>>> Building image for service '{name}'...[/bold blue]")
+    try:
+        svc = get_service(name)
+        if not getattr(svc, "has_build", False):
+            console.print(
+                f"[yellow]Service '{name}' does not define a custom Dockerfile. Skipping build.[/yellow]"
+            )
+            raise typer.Exit(code=0)
+
+        success = svc.build()
+        if success:
+            console.print(
+                f"[bold green]Service '{name}' image built successfully![/bold green]"
+            )
+        else:
+            console.print(
+                f"[bold red]Failed to build service '{name}' image[/bold red]"
+            )
+            raise typer.Exit(code=1)
+    except Exception as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+
 @service_app.command("up")
 def service_up(
     name: str = typer.Argument(..., help="Service name to start"),

@@ -17,7 +17,7 @@ services:
       AUTHENTIK_BOOTSTRAP_PASSWORD: ${SERVICE_AUTHENTIK_BOOTSTRAP_PASSWORD}
       AUTHENTIK_BOOTSTRAP_EMAIL: ${SERVICE_AUTHENTIK_BOOTSTRAP_EMAIL}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/-/health/ready/"]
+      test: ["CMD", "ak", "healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -1,7 +1,9 @@
 services:
   postgres:
     container_name: shared_postgres
-    build: .
+    build:
+      context: .
+      network: host
     image: homelab-postgres:latest
     restart: always
     network_mode: host

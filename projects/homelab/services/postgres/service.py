@@ -27,7 +27,19 @@ class PostgresService(ComposeService):
     exposure = "internal"
 
     def pre_up(self) -> None:
-        """Set strict directory permissions for PostgreSQL (UID 70) and pgAdmin (UID 5050)."""
+        """Set strict directory permissions and verify custom Dockerfile and init scripts."""
+        dockerfile = self.service_dir / "Dockerfile"
+        if not dockerfile.exists():
+            raise FileNotFoundError(
+                f"Missing required PostgreSQL Dockerfile: {dockerfile}"
+            )
+
+        init_sql = self.service_dir / "init-immich.sql"
+        if not init_sql.exists():
+            raise FileNotFoundError(
+                f"Missing required PostgreSQL init script: {init_sql}"
+            )
+
         self.ensure_dir("/opt/homelab/postgres", uid=70, gid=70)
         self.ensure_dir("/opt/homelab/pgadmin", uid=5050, gid=5050)
 

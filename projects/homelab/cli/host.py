@@ -86,6 +86,45 @@ def host_setup(
         raise typer.Exit(code=1)
 
 
+@host_app.command("build")
+def host_build(
+    svc: str | None = typer.Option(
+        None, "--svc", "-s", help="Optional specific service to build"
+    ),
+    node: str | None = typer.Option(
+        None, "--node", "-n", help="Optional node name override"
+    ),
+) -> None:
+    """Build custom container images for assigned services on this host."""
+    runner = get_current_host_runner(node)
+    console.print(
+        f"[bold blue]>>> Building custom service images on '{runner.name}' (service={svc or 'all'})...[/bold blue]"
+    )
+    results = runner.build(service_name=svc)
+    if not results:
+        console.print(
+            "[yellow]No services with custom Dockerfile build definitions found.[/yellow]"
+        )
+        return
+
+    table = Table(title=f"Host '{runner.name}' Build Status")
+    table.add_column("Service", style="bold cyan")
+    table.add_column("Status", justify="center")
+
+    all_ok = True
+    for s_name, ok in results.items():
+        status_text = (
+            "[bold green]Built[/bold green]" if ok else "[bold red]Failed[/bold red]"
+        )
+        table.add_row(s_name, status_text)
+        if not ok:
+            all_ok = False
+
+    console.print(table)
+    if not all_ok:
+        raise typer.Exit(code=1)
+
+
 @host_app.command("up")
 def host_up(
     svc: str | None = typer.Option(

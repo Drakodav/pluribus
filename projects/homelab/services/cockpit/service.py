@@ -26,10 +26,10 @@ class CockpitService(BaseService):
         tags.extend(
             [
                 f"traefik.http.routers.{self.registered_name}-alias.rule=Host(`cockpit.{domain}`)",
-                "traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
-                "traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
+                f"traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
+                f"traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
                 f"traefik.http.routers.{self.registered_name}-alias.service={self.registered_name}",
-                "traefik.http.routers.{self.registered_name}-alias.middlewares=auth-cockpit@docker",
+                f"traefik.http.routers.{self.registered_name}-alias.middlewares=auth-cockpit@docker",
             ]
         )
         return tags

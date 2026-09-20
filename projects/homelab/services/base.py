@@ -27,6 +27,10 @@ class BaseService(ABC):
         """Service name used for Consul registration and Traefik routing."""
         return self.consul_name or self.name
 
+    def build(self) -> bool:
+        """Build custom container images if required. Default implementation is a no-op."""
+        return True
+
     @abstractmethod
     def up(self) -> bool:
         """Idempotently bring up the service. Always update to the latest version if possible."""

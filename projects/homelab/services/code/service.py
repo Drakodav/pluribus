@@ -28,7 +28,7 @@ class CodeService(BaseService):
         return ctx.runtime.user or "ubuntu"
 
     def pre_up(self) -> None:
-        """Ensure code-server is installed and user directories exist."""
+        """Ensure code-server is installed, configured for SSO on upstream_port, and user directories exist."""
         if not shutil.which("code-server"):
             # Install code-server if missing
             subprocess.run(
@@ -37,9 +37,31 @@ class CodeService(BaseService):
                 check=False,
             )
 
-        home = Path.home()
-        (home / ".config").mkdir(parents=True, exist_ok=True)
-        (home / ".local").mkdir(parents=True, exist_ok=True)
+        user = self._get_primary_user()
+        user_home = Path(f"/home/{user}") if user != "root" else Path("/root")
+        config_dir = user_home / ".config" / "code-server"
+        config_dir.mkdir(parents=True, exist_ok=True)
+        config_file = config_dir / "config.yaml"
+        config_content = (
+            f"bind-addr: 0.0.0.0:{self.upstream_port}\nauth: none\ncert: false\n"
+        )
+        try:
+            config_file.write_text(config_content)
+        except PermissionError:
+            subprocess.run(
+                [
+                    "sudo",
+                    "bash",
+                    "-c",
+                    f"cat <<'EOF' > {config_file}\n{config_content}EOF",
+                ],
+                check=False,
+            )
+        subprocess.run(
+            ["sudo", "chown", "-R", f"{user}:{user}", str(user_home / ".config")],
+            check=False,
+        )
+        (user_home / ".local").mkdir(parents=True, exist_ok=True)
 
     def up(self) -> bool:
         """Idempotently install, configure, and start code-server."""

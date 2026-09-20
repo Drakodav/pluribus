@@ -146,6 +146,15 @@ class MaceratorRunner(BaseNodeRunner):
             return [get_service(canonical, self.project_root)]
         return self.get_services()
 
+    def build(self, service_name: str | None = None) -> dict[str, bool]:
+        """Build custom container images for assigned services (e.g. Postgres with pgvector)."""
+        targets = self._resolve_targets(service_name)
+        results: dict[str, bool] = {}
+        for svc in targets:
+            if getattr(svc, "has_build", False):
+                results[svc.name] = svc.build()
+        return results
+
     def up(self, service_name: str | None = None) -> dict[str, bool]:
         """Prepare host prerequisites and bring up services in order."""
         self.setup_host()

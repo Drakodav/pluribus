@@ -23,8 +23,8 @@ class NetdataService(ComposeService):
         tags.extend(
             [
                 f"traefik.http.routers.{self.registered_name}-alias.rule=Host(`netdata.{domain}`)",
-                "traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
-                "traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
+                f"traefik.http.routers.{self.registered_name}-alias.entrypoints=websecure",
+                f"traefik.http.routers.{self.registered_name}-alias.tls.certresolver=myresolver",
                 f"traefik.http.routers.{self.registered_name}-alias.service={self.registered_name}",
                 f"traefik.http.routers.{self.registered_name}-alias.middlewares={self.auth_middleware}",
             ]

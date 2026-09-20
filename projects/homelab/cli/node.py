@@ -78,6 +78,54 @@ def node_sync(
         raise typer.Exit(code=proc.returncode)
 
 
+@node_app.command("copy-id")
+def node_copy_id(
+    target: str = typer.Argument(..., help="Target node or gateway name (required)"),
+    config: Path | None = typer.Option(
+        None, "--config", help="Optional path to custom topology file"
+    ),
+) -> None:
+    """Authorize local SSH public key on target host for passwordless access."""
+    topo = HomelabTopology.load(config)
+    from context import AppContext
+
+    ctx = AppContext()
+    key_str = ctx.get_required_env("NODE_APERIO_SSH_KEY")
+    key_path = Path(key_str).expanduser()
+    pub_path = key_path.with_suffix(key_path.suffix + ".pub")
+    if not pub_path.exists():
+        pub_path = Path(str(key_path) + ".pub")
+
+    if not pub_path.exists():
+        console.print(
+            f"[bold red]Error:[/bold red] Public key not found at '{pub_path}'"
+        )
+        raise typer.Exit(code=1)
+
+    pub_key_content = pub_path.read_text().strip()
+    remote_cmd = (
+        f"mkdir -p ~/.ssh && chmod 700 ~/.ssh && "
+        f"grep -qxF '{pub_key_content}' ~/.ssh/authorized_keys 2>/dev/null || "
+        f"echo '{pub_key_content}' >> ~/.ssh/authorized_keys && "
+        f"chmod 600 ~/.ssh/authorized_keys"
+    )
+
+    console.print(
+        f"[bold blue]>>> Authorizing public key ({pub_path.name}) on '{target}'...[/bold blue]"
+    )
+    cmd = build_ssh_command(target, topo, remote_command=remote_cmd)
+    proc = subprocess.run(cmd, check=False)
+    if proc.returncode == 0:
+        console.print(
+            f"[bold green]Public key authorized on '{target}'! Passwordless SSH is now active.[/bold green]"
+        )
+    else:
+        console.print(
+            f"[bold red]Failed to authorize public key on '{target}' with exit code {proc.returncode}.[/bold red]"
+        )
+        raise typer.Exit(code=proc.returncode)
+
+
 @node_app.command("bootstrap")
 def node_bootstrap(
     target: str = typer.Argument(..., help="Target node name (required)"),
@@ -115,8 +163,12 @@ def node_generate_wireguard_bootstrap(
     node_bootstrap(target=target, config=config)
 
 
-@node_app.command("exec")
+@node_app.command(
+    "exec",
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+)
 def node_exec(
+    ctx: typer.Context,
     target: str = typer.Argument(..., help="Target node or gateway name (required)"),
     command: str = typer.Argument(..., help="Shell command to execute on remote host"),
     config: Path | None = typer.Option(
@@ -125,13 +177,14 @@ def node_exec(
 ) -> None:
     """Execute an arbitrary shell command on a remote node or gateway over SSH."""
     topo = HomelabTopology.load(config)
+    full_cmd = f"{command} {' '.join(ctx.args)}" if ctx.args else command
     try:
-        cmd = build_ssh_command(target, topo, remote_command=command)
+        cmd = build_ssh_command(target, topo, remote_command=full_cmd)
     except Exception as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    console.print(f"[dim]Running on '{target}': {command}[/dim]")
+    console.print(f"[dim]Running on '{target}': {full_cmd}[/dim]")
     proc = subprocess.run(cmd, check=False)
     raise typer.Exit(code=proc.returncode)
 

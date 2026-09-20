@@ -39,6 +39,11 @@ def test_node_commands_require_explicit_target_no_defaults():
     assert res_deploy.exit_code == 2
     assert "Missing argument 'target'" in res_deploy.output
 
+    # node copy-id
+    res_copy = runner.invoke(app, ["node", "copy-id"])
+    assert res_copy.exit_code == 2
+    assert "Missing argument 'target'" in res_copy.output
+
 
 def test_node_run_portal_dispatches_ssh_with_pty():
     """Verify homelab node run constructs the remote host command and passes -t."""
@@ -173,3 +178,30 @@ def test_node_deploy_aborts_on_sync_failure():
         mock_sync.assert_called_once()
         mock_run.assert_not_called()
         assert "Deployment aborted: Sync failed" in res.output
+
+
+def test_service_build_cli():
+    """Verify homelab service build invokes svc.build()."""
+    mock_svc = MagicMock()
+    mock_svc.has_build = True
+    mock_svc.build.return_value = True
+
+    with patch("cli.service.get_service", return_value=mock_svc):
+        res = runner.invoke(app, ["service", "build", "postgres"])
+        assert res.exit_code == 0
+        mock_svc.build.assert_called_once()
+        assert "built successfully" in res.output
+
+
+def test_host_build_cli():
+    """Verify homelab host build dispatches runner.build()."""
+    mock_runner = MagicMock()
+    mock_runner.name = "macerator"
+    mock_runner.build.return_value = {"postgres": True}
+
+    with patch("cli.host.get_current_host_runner", return_value=mock_runner):
+        res = runner.invoke(host_app, ["build", "--svc", "postgres"])
+        assert res.exit_code == 0
+        mock_runner.build.assert_called_once_with(service_name="postgres")
+        assert "postgres" in res.output
+        assert "Built" in res.output

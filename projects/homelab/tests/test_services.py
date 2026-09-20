@@ -98,7 +98,12 @@ def test_traefik_tags_generation():
     assert "traefik.http.routers.photos.entrypoints=websecure" in tags
     assert "traefik.http.routers.photos.tls.certresolver=myresolver" in tags
     assert "traefik.http.services.photos.loadbalancer.server.port=2283" in tags
-    assert "traefik.http.routers.photos.middlewares=auth-photos@docker" in tags
+    assert not any("middlewares" in t for t in tags)
+
+    # SSO service includes ForwardAuth middleware
+    code = get_service("code")
+    code_tags = code.get_traefik_tags("vlmd.cc")
+    assert "traefik.http.routers.code.middlewares=auth-code@docker" in code_tags
 
     # Internal service generates no Traefik tags
     redis = get_service("redis")
@@ -146,7 +151,7 @@ def test_all_eight_services_consul_connection():
         ("manage", "manage", 9090, "sso", "/ping"),
         ("monitor", "monitor", 19999, "sso", "/api/v1/info"),
         ("pgadmin", "pgadmin", 80, "sso", "/misc/ping"),
-        ("photos", "photos", 2283, "sso", "/api/server-info/ping"),
+        ("photos", "photos", 2283, "public", "/api/server/ping"),
     ]
 
     for (
@@ -287,3 +292,55 @@ def test_macerator_runner_lifecycle_dispatch():
             down_res = runner.down(service_name="consul")
             assert down_res == {"consul": True}
             mock_svc.down.assert_called_once()
+
+
+def test_postgres_has_build_and_pre_up_checks():
+    """Verify PostgresService detects custom Dockerfile and checks init scripts."""
+    postgres = get_service("postgres")
+    assert getattr(postgres, "has_build", False) is True
+
+    # Other services should not have a Dockerfile
+    redis = get_service("redis")
+    assert getattr(redis, "has_build", False) is False
+
+    # Verify missing Dockerfile or SQL init raises in pre_up
+    with patch.object(Path, "exists", side_effect=[False, True]):
+        with pytest.raises(FileNotFoundError) as exc:
+            postgres.pre_up()
+        assert "Dockerfile" in str(exc.value)
+
+    with patch.object(Path, "exists", side_effect=[True, False]):
+        with pytest.raises(FileNotFoundError) as exc:
+            postgres.pre_up()
+        assert "init script" in str(exc.value)
+
+
+def test_postgres_build_triggers_compose_build():
+    """Verify PostgresService.build() calls docker compose build."""
+    postgres = get_service("postgres")
+    with patch("subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+        assert postgres.build() is True
+        mock_run.assert_called_once()
+        cmd = mock_run.call_args[0][0]
+        assert "build" in cmd
+        assert "--env-file" in cmd
+
+
+def test_macerator_runner_build_dispatch():
+    """Verify MaceratorRunner.build() only triggers build on services with Dockerfile."""
+    runner = get_node_runner("macerator")
+    mock_pg = MagicMock(spec=BaseService)
+    mock_pg.name = "postgres"
+    mock_pg.has_build = True
+    mock_pg.build.return_value = True
+
+    mock_redis = MagicMock(spec=BaseService)
+    mock_redis.name = "redis"
+    mock_redis.has_build = False
+
+    with patch.object(runner, "_resolve_targets", return_value=[mock_pg, mock_redis]):
+        res = runner.build()
+        assert res == {"postgres": True}
+        mock_pg.build.assert_called_once()
+        mock_redis.build.assert_not_called()

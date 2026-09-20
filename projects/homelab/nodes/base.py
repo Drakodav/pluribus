@@ -37,6 +37,10 @@ class BaseNodeRunner(ABC):
         """Return ordered list of services assigned to this node."""
         ...
 
+    def build(self, service_name: str | None = None) -> dict[str, bool]:
+        """Build custom service images for assigned services. Default is no-op."""
+        return {}
+
     @abstractmethod
     def up(self, service_name: str | None = None) -> dict[str, bool]:
         """Idempotently prepare host and start assigned services in dependency order."""
