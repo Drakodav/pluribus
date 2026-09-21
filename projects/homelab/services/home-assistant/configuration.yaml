@@ -1,3 +1,4 @@
+# These yaml files only get copied to home assistant container if they don't exist.
 # Home Assistant Core Configuration
 default_config:
 
