@@ -11,7 +11,7 @@ scene: !include scenes.yaml
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 10.10.0.1  # WireGuard Gateway IP (aperio)
+    - 10.10.0.1 # WireGuard Gateway IP (aperio)
     - 127.0.0.1
     - ::1
 
@@ -19,7 +19,7 @@ http:
 openid:
   client_id: !env_var AUTHENTIK_CLIENT_ID
   client_secret: !env_var AUTHENTIK_CLIENT_SECRET
-  configure_url: "https://auth.example.com/application/o/home-assistant/.well-known/openid-configuration"
+  configure_url: "https://auth.vlmd.cc/application/o/home-assistant/.well-known/openid-configuration"
   username_field: "preferred_username"
   scope: "openid profile email"
   openid_text: "Login with Authentik"

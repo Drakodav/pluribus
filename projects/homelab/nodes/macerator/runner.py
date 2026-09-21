@@ -15,6 +15,7 @@ ORDERED_SERVICES = [
     "consul",
     "redis",
     "postgres",
+    "mail",
     "authentik",
     "photos",
     "cockpit",

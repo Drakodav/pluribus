@@ -29,6 +29,7 @@ def test_service_registry_resolution():
         "coolify",
         "home-assistant",
         "komodo",
+        "mail",
         "netdata",
         "pgadmin",
         "photos",
@@ -46,6 +47,9 @@ def test_service_registry_resolution():
     assert get_service("immich").name == "photos"
     assert get_service("fleet").name == "komodo"
     assert get_service("paas").name == "coolify"
+    assert get_service("relay").name == "mail"
+    assert get_service("smtp").name == "mail"
+    assert get_service("postfix").name == "mail"
 
     # Verify invalid service raises ValueError
     with pytest.raises(ValueError) as exc:
@@ -142,6 +146,16 @@ def test_consul_mandatory_health_checks():
     assert "Check" in pg_payload
     assert "TCP" in pg_payload["Check"]
     assert pg_payload["Check"]["TCP"] == "10.10.0.2:5432"
+
+    # Mail relay -> internal TCP check on port 25
+    mail = get_service("mail")
+    mail_payload = client.build_service_payload_from_object(
+        mail, "macerator", "10.10.0.2", "vlmd.cc"
+    )
+    assert "Check" in mail_payload
+    assert "TCP" in mail_payload["Check"]
+    assert mail_payload["Check"]["TCP"] == "10.10.0.2:25"
+    assert mail.get_traefik_tags("vlmd.cc") == []
 
 
 def test_all_eight_services_consul_connection():
@@ -270,6 +284,7 @@ def test_macerator_runner_registry_and_services():
         "consul",
         "redis",
         "postgres",
+        "mail",
         "authentik",
         "photos",
         "cockpit",
