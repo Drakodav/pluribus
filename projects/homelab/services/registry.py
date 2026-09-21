@@ -10,6 +10,8 @@ from services.base import BaseService
 from services.cockpit.service import CockpitService
 from services.code.service import CodeService
 from services.consul.service import ConsulService
+from services.coolify.service import CoolifyService
+from services.komodo.service import KomodoService
 from services.netdata.service import NetdataService
 from services.photos.service import PhotosService
 from services.postgres.service import PgAdminService, PostgresService
@@ -26,6 +28,8 @@ SERVICE_CLASSES: dict[str, type[BaseService]] = {
     "cockpit": CockpitService,
     "code": CodeService,
     "consul": ConsulService,
+    "coolify": CoolifyService,
+    "komodo": KomodoService,
     "netdata": NetdataService,
     "pgadmin": PgAdminService,
     "photos": PhotosService,
@@ -40,6 +44,8 @@ SERVICE_ALIASES: dict[str, str] = {
     "pg-admin": "pgadmin",
     "ha": "home-assistant",
     "immich": "photos",
+    "fleet": "komodo",
+    "paas": "coolify",
 }
 
 

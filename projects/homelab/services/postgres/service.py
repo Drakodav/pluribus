@@ -13,7 +13,7 @@ class PgAdminService(ComposeService):
     name = "pgadmin"
     consul_name = "pgadmin"
     role = "database-management"
-    upstream_port = 80
+    upstream_port = 5050
     exposure = "public"
     subdomain = "pgadmin"
     health_path = "/misc/ping"

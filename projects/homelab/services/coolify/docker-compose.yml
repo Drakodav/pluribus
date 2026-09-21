@@ -1,0 +1,99 @@
+services:
+  coolify:
+    image: coollabsio/coolify:latest
+    container_name: coolify
+    restart: always
+    working_dir: /var/www/html
+    ports:
+      - "8000:8080"
+    environment:
+      APP_ENV: production
+      APP_ID: ${SERVICE_COOLIFY_APP_ID}
+      APP_KEY: ${SERVICE_COOLIFY_APP_KEY}
+      APP_URL: https://coolify.${GLOBAL_ROOT_DOMAIN}
+      DB_CONNECTION: pgsql
+      DB_HOST: coolify-db
+      DB_PORT: 5432
+      DB_DATABASE: coolify
+      DB_USERNAME: ${SERVICE_COOLIFY_DB_USER}
+      DB_PASSWORD: ${SERVICE_COOLIFY_DB_PASSWORD}
+      REDIS_HOST: coolify-redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${SERVICE_COOLIFY_REDIS_PASSWORD}
+      PUSHER_APP_ID: ${SERVICE_COOLIFY_PUSHER_ID}
+      PUSHER_APP_KEY: ${SERVICE_COOLIFY_PUSHER_KEY}
+      PUSHER_APP_SECRET: ${SERVICE_COOLIFY_PUSHER_SECRET}
+      PUSHER_HOST: coolify-realtime
+      PUSHER_PORT: 6001
+      PUSHER_SCHEME: http
+    volumes:
+      - /opt/homelab/coolify/data:/data/coolify
+      - /opt/homelab/coolify/ssh:/var/www/html/storage/app/ssh
+      - /opt/homelab/coolify/applications:/var/www/html/storage/app/applications
+      - /opt/homelab/coolify/databases:/var/www/html/storage/app/databases
+      - /opt/homelab/coolify/services:/var/www/html/storage/app/services
+      - /opt/homelab/coolify/backups:/var/www/html/storage/app/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      coolify-db:
+        condition: service_healthy
+      coolify-redis:
+        condition: service_healthy
+      coolify-realtime:
+        condition: service_started
+    networks:
+      - coolify-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coolify-db:
+    image: postgres:15-alpine
+    container_name: coolify-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${SERVICE_COOLIFY_DB_USER}
+      POSTGRES_PASSWORD: ${SERVICE_COOLIFY_DB_PASSWORD}
+      POSTGRES_DB: coolify
+    volumes:
+      - /opt/homelab/coolify/db:/var/lib/postgresql/data
+    networks:
+      - coolify-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SERVICE_COOLIFY_DB_USER} -d coolify"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coolify-redis:
+    image: redis:7-alpine
+    container_name: coolify-redis
+    restart: always
+    command: redis-server --requirepass ${SERVICE_COOLIFY_REDIS_PASSWORD}
+    volumes:
+      - /opt/homelab/coolify/redis:/data
+    networks:
+      - coolify-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${SERVICE_COOLIFY_REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coolify-realtime:
+    image: coollabsio/coolify-realtime:latest
+    container_name: coolify-realtime
+    restart: always
+    environment:
+      SOKETI_DEBUG: "0"
+      SOKETI_DEFAULT_APP_ID: ${SERVICE_COOLIFY_PUSHER_ID}
+      SOKETI_DEFAULT_APP_KEY: ${SERVICE_COOLIFY_PUSHER_KEY}
+      SOKETI_DEFAULT_APP_SECRET: ${SERVICE_COOLIFY_PUSHER_SECRET}
+    networks:
+      - coolify-network
+
+networks:
+  coolify-network:
+    name: coolify-network

@@ -117,9 +117,18 @@ _Avoid_: basic auth, gateway security.
 
 ### Phase 5: Python Declarative Configuration & Type-Safe Orchestrator (Issue #18)
 
-- [ ] Declarative topology blueprint (`topology.yaml`) cleanly separating mesh/nodes/services from secrets
-- [ ] Strictly typed Pydantic models with schema validation (IPs, ports, base64 keys, domains)
-- [ ] Modular Python automation suite (`src/`) eliminating bash duplication (WireGuard, Consul API, Traefik, Docker, SSH)
-- [ ] Non-redundant folder structure eliminating duplicate nesting
-- [ ] Type-safe service synchronization, remote orchestration, and live Consul catalog registration
+- [x] Declarative topology blueprint with strictly typed Pydantic models (HomelabTopology.build())
+- [x] AppContext thread-safe singleton with dynamic runtime detection and secret resolution
+- [x] Modular Python service & node lifecycles eliminating legacy bash scripts
+- [x] Mandatory Consul catalog registration with unauthenticated HTTP/TCP health checks
+- [x] Typer CLI (`homelab`) and thin justfile interface with 100% test coverage
+
+### Phase 6: Multi-Server Fleet Operations & Developer PaaS (Issue #20)
+
+- [x] Relocate pgAdmin from port 80 to port 5050 to free host port 80 on `macerator`
+- [x] Deploy Komodo Core on `macerator` with Periphery agent on `aperio` for multi-server fleet monitoring
+- [x] Deploy Coolify developer PaaS on `macerator` for automated Git builds and preview environments
+- [x] Configure two-tier ingress on `aperio` Traefik with wildcard proxy for `*.apps.vlmd.cc`
+- [x] Model Komodo and Coolify as first-class Python services with Consul catalog registration
+- [ ] Manual verification of Authentik OIDC authentication and app deployment
 

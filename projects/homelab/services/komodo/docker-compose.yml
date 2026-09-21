@@ -1,0 +1,72 @@
+services:
+  mongo:
+    image: mongo:7-jammy
+    container_name: komodo_mongo
+    restart: always
+    command: --quiet --wiredTigerCacheSizeGB 0.25
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${SERVICE_KOMODO_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${SERVICE_KOMODO_DB_PASSWORD}
+    volumes:
+      - /opt/homelab/komodo/mongo:/data/db
+      - /opt/homelab/komodo/mongo-config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  core:
+    image: ghcr.io/moghtech/komodo-core:2
+    container_name: komodo_core
+    init: true
+    restart: always
+    depends_on:
+      mongo:
+        condition: service_healthy
+    network_mode: host
+    environment:
+      KOMODO_HOST: https://komodo.${GLOBAL_ROOT_DOMAIN}
+      KOMODO_PORT: 9120
+      KOMODO_DATABASE_ADDRESS: 127.0.0.1:27017
+      KOMODO_DATABASE_USERNAME: ${SERVICE_KOMODO_DB_USER}
+      KOMODO_DATABASE_PASSWORD: ${SERVICE_KOMODO_DB_PASSWORD}
+      KOMODO_PERIPHERY_PORT: 8120
+      KOMODO_LOCAL_AUTH: "true"
+      KOMODO_INIT_ADMIN_USERNAME: ${SERVICE_KOMODO_ADMIN_USER}
+      KOMODO_INIT_ADMIN_PASSWORD: ${SERVICE_KOMODO_ADMIN_PASSWORD}
+      KOMODO_JWT_SECRET: ${SERVICE_KOMODO_JWT_SECRET}
+      KOMODO_WEBHOOK_SECRET: ${SERVICE_KOMODO_WEBHOOK_SECRET}
+      KOMODO_ENABLE_NEW_USERS: "true"
+      KOMODO_OIDC_ENABLED: ${SERVICE_KOMODO_OIDC_ENABLED}
+      KOMODO_OIDC_PROVIDER: https://auth.${GLOBAL_ROOT_DOMAIN}/application/o/komodo/
+      KOMODO_OIDC_CLIENT_ID: ${SERVICE_KOMODO_OIDC_CLIENT_ID}
+      KOMODO_OIDC_CLIENT_SECRET: ${SERVICE_KOMODO_OIDC_CLIENT_SECRET}
+      KOMODO_OIDC_REDIRECT_URI: https://komodo.${GLOBAL_ROOT_DOMAIN}/auth/oidc/callback
+    volumes:
+      - /opt/homelab/komodo/keys:/config/keys
+      - /opt/homelab/komodo/backups:/etc/komodo/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9120/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:2
+    container_name: komodo_periphery_macerator
+    restart: always
+    depends_on:
+      - core
+    network_mode: host
+    environment:
+      PERIPHERY_PORT: 8120
+      PERIPHERY_CORE_ADDRESS: http://127.0.0.1:9120
+      PERIPHERY_CONNECT_AS: macerator
+    volumes:
+      - /opt/homelab/komodo/keys:/config/keys
+      - /opt/homelab/komodo/keys:/etc/komodo/keys
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -22,6 +22,8 @@ ORDERED_SERVICES = [
     "netdata",
     "code",
     "pgadmin",
+    "komodo",
+    "coolify",
 ]
 
 

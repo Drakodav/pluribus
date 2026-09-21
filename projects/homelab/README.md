@@ -97,7 +97,10 @@ A key architectural insight in this homelab is the strict separation between ser
 | `auth.vlmd.cc` | Authentik Server | `9000` | `/-/health/ready/` | `public` | Native Authentik Web UI / IdP |
 | `photos.vlmd.cc` | Immich Web & API | `2283` | `/api/server/ping` | `public` | Native Authentik OAuth2 (Web + Mobile App) |
 | `home-assistant.vlmd.cc` | Home Assistant Core | `8123` | `/manifest.json` | `public` | Native OpenID Connect (Web + Mobile App) |
-| `pgadmin.vlmd.cc` | pgAdmin 4 Web | `80` | `/misc/ping` | `public` | Native Authentik OAuth2 (`ProxyFix` enabled) |
+| `pgadmin.vlmd.cc` | pgAdmin 4 Web | `5050` | `/misc/ping` | `public` | Native Authentik OAuth2 (`ProxyFix` enabled) |
+| `komodo.vlmd.cc` | Komodo Fleet Ops | `9120` | `/` | `public` | Native Authentik OIDC (Multi-Server Fleet) |
+| `coolify.vlmd.cc` | Coolify Control Plane | `8000` | `/` | `public` | Native Authentik OIDC (Developer PaaS) |
+| `*.apps.vlmd.cc` | Pluribus Project Previews | `80` | Dynamic | `public` | Coolify Ingress Router (Wildcard Traefik Chaining) |
 | `code.vlmd.cc` | code-server (VS Code) | `8443` | `/healthz` | `sso` | Traefik ForwardAuth (`auth-code`) |
 | `manage.vlmd.cc` | Cockpit Host Admin | `9090` | `/ping` | `sso` | Traefik ForwardAuth (`auth-cockpit`) |
 | `monitor.vlmd.cc` | Netdata Telemetry | `19999`| `/api/v1/info` | `sso` | Traefik ForwardAuth (`auth-traefik`) |
@@ -139,10 +142,12 @@ projects/homelab/
 │   ├── code/                   # code-server native systemd integration
 │   ├── compose_base.py         # ComposeService Docker Compose lifecycle adapter
 │   ├── consul/                 # Consul client agent
+│   ├── coolify/                # Coolify developer PaaS engine
 │   ├── home-assistant/         # Home Assistant & MatterJS stack
+│   ├── komodo/                 # Komodo multi-server fleet manager
 │   ├── netdata/                # Netdata monitoring container
 │   ├── photos/                 # Immich server & machine learning
-│   ├── postgres/               # PostgreSQL 16 + pgvector Dockerfile & pgAdmin
+│   ├── postgres/               # PostgreSQL 16 + pgvector Dockerfile & pgAdmin (port 5050)
 │   ├── redis/                  # Shared Redis cache
 │   └── registry.py             # Central service factory and alias resolution
 └── tests/                      # Comprehensive pytest test suite (33 passing tests)
