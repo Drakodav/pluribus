@@ -1,0 +1,17 @@
+{
+  "notifications": {
+    "smtp": {
+      "enabled": true,
+      "from": "Immich <notifications@vlmd.cc>",
+      "replyTo": "notifications@vlmd.cc",
+      "transport": {
+        "host": "10.10.0.2",
+        "port": 25,
+        "secure": false,
+        "ignoreCert": true,
+        "username": "",
+        "password": ""
+      }
+    }
+  }
+}

@@ -5,9 +5,11 @@ services:
     volumes:
       - ${SERVICE_PHOTOS_UPLOAD_LOCATION}:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
+      - ./immich-config.json:/etc/immich/immich-config.json:ro
     network_mode: host
     environment:
       - IMMICH_PORT=2283
+      - IMMICH_CONFIG_FILE=/etc/immich/immich-config.json
       - DB_PASSWORD=${SERVICE_POSTGRES_PASSWORD}
       - DB_USERNAME=${SERVICE_POSTGRES_USER}
       - DB_DATABASE_NAME=immich
