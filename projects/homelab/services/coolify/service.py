@@ -22,6 +22,8 @@ class CoolifyService(ComposeService):
         self.ensure_dir("/opt/homelab/coolify/db", uid=70, gid=70)
         self.ensure_dir("/opt/homelab/coolify/redis", uid=999, gid=999)
         self.ensure_dir("/opt/homelab/coolify/ssh", uid=9999, gid=0)
+        self.ensure_dir("/opt/homelab/coolify/ssh/keys", uid=9999, gid=0)
+        self.ensure_dir("/opt/homelab/coolify/ssh/mux", uid=9999, gid=0)
         self.ensure_dir("/opt/homelab/coolify/applications", uid=9999, gid=0)
         self.ensure_dir("/opt/homelab/coolify/databases", uid=9999, gid=0)
         self.ensure_dir("/opt/homelab/coolify/services", uid=9999, gid=0)
