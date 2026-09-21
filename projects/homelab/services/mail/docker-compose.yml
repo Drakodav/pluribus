@@ -1,0 +1,19 @@
+services:
+  mail:
+    container_name: mail_relay
+    image: boky/postfix:v5.1.0-alpine
+    restart: always
+    ports:
+      - "25:587"
+      - "587:587"
+    environment:
+      - ALLOWED_NETWORKS=${SERVICE_MAIL_ALLOWED_NETWORKS}
+      - ALLOWED_SENDER_DOMAINS=${SERVICE_MAIL_ALLOWED_SENDER_DOMAINS}
+      - RELAYHOST=${SERVICE_MAIL_RELAY_HOST}
+      - RELAYHOST_USERNAME=${SERVICE_MAIL_RELAY_USER}
+      - RELAYHOST_PASSWORD=${SERVICE_MAIL_RELAY_PASSWORD}
+      - POSTFIX_myhostname=${SERVICE_MAIL_MYHOSTNAME}
+      - POSTFIX_mydomain=${GLOBAL_ROOT_DOMAIN}
+      - POSTFIX_message_size_limit=${SERVICE_MAIL_MESSAGE_SIZE_LIMIT}
+    volumes:
+      - /opt/homelab/mail/spool:/var/spool/postfix
