@@ -1,37 +1,116 @@
-# git-history-cv-extractor
+# Git History CV Extractor: Resume Intelligence & Contribution Miner
 
-This is a utility project designed to scan and extract metadata/context from Git repositories (commits, diffs, refactoring events, message summaries) for downstream consumption by an AI to construct or update a CV/resume.
+An AI-ready developer intelligence tool designed to parse, extract, and synthesize historical metadata from Git repositories (commits, diffs, refactoring events, and commit summaries) for downstream ingestion by Large Language Models to construct or update professional CVs and portfolios.
 
-## Features
+This project lives inside the **Pluribus** monorepo under [`projects/git-history-cv-extractor/`](.).
 
-- **Interactive Console Wizard**: A guided terminal interface powered by `questionary` to authenticate, register repositories, view stats, and export reports.
-- **Dual-Mode Operation**:
-  - *Test Mode*: Sandbox execution utilizing a local `output/test/` workspace. Automatically scans the parent Pluribus monorepo read-only on startup, bypassing authentication.
-  - *Real Mode*: Production execution utilizing `output/real/` workspace. Requires active GitHub authentication to clone/fetch external repositories.
-- **SQLite Ingestion Cache**: Powered by `sqlmodel` (SQLAlchemy/Pydantic) to store parsed repositories, commits, and file changes, avoiding redundant Git queries.
-- **Git Extraction Engine**: Clones, fetches, and parses commit histories, author details, and file-level addition/deletion metrics using `GitPython`.
-- **Interactive Author Resolution**: Prompts you to confirm whether encountered commit authors represent your work. Decisions (including ignored accounts) are cached persistently.
-- **Tech Stack Auto-Detection**: Dynamically maps modified file extensions to summarize the technologies used in each repository.
-- **Markdown Report Generation**: Groups contribution statistics and commit logs by repository into a comprehensive Markdown file optimized for resume generation.
+---
 
-## Setup & Usage
+## 1. Pipeline Overview
 
-This project uses `just` as a command runner and `uv` for environment management.
+```
+   ┌───────────────────────┐       ┌───────────────────────┐
+   │ Local Git Repository  │       │ Remote GitHub Repos   │
+   │ (Read-Only Test Mode) │       │ (Authed via `gh` CLI) │
+   └───────────┬───────────┘       └───────────┬───────────┘
+               │                               │
+               └───────────────┬───────────────┘
+                               │
+                               ▼
+               ┌───────────────────────────────┐
+               │    Git Extraction Pipeline    │
+               │   (GitPython + Diff Parser)   │
+               └───────────────┬───────────────┘
+                               │
+                               ▼
+               ┌───────────────────────────────┐
+               │  Interactive Author Resolver  │
+               │ (Persistent Identity Mapping) │
+               └───────────────┬───────────────┘
+                               │
+                               ▼
+               ┌───────────────────────────────┐
+               │   SQLite Ingestion Cache      │
+               │    (SQLModel / Pydantic)      │
+               └───────────────┬───────────────┘
+                               │
+                               ▼
+               ┌───────────────────────────────┐
+               │     Tech Stack Detection      │
+               │  & Markdown Report Generator  │
+               │    (LLM-Optimized Context)    │
+               └───────────────────────────────┘
+```
 
-### System Prerequisites
-- [uv](https://github.com/astral-sh/uv) (Astral's fast Python package installer and resolver)
-- [just](https://github.com/casey/just) (Command orchestrator)
-- [GitHub CLI (gh)](https://cli.github.com/) (Required for Real Mode GitHub token retrieval)
+---
+
+## 2. Core Capabilities
+
+- **Interactive Terminal Wizard**: Guided CLI built with `questionary` and `rich` to authenticate, register repositories, inspect contribution metrics, and export structured reports.
+- **Dual-Mode Execution**:
+  - **Sandbox / Test Mode**: Operates in an isolated `output/test/` workspace. Automatically analyzes the parent Pluribus repository on startup without requiring external network access or GitHub tokens.
+  - **Real / Production Mode**: Operates in an `output/real/` workspace. Uses the local GitHub CLI (`gh`) session to dynamically list, clone, and ingest remote user repositories.
+- **Persistent Ingestion Cache**: Uses `sqlmodel` (combining SQLAlchemy with Pydantic) and SQLite to cache repositories, commit hashes, author metadata, and file changes, preventing expensive re-parsing of Git histories.
+- **Interactive Author Disambiguation**: As new commit authors or email aliases are discovered across repositories, the wizard prompts you to confirm whether they represent your work. Your identity resolutions (and ignored bot/colleague accounts) are persistently cached.
+- **Tech Stack Auto-Detection**: Analyzes file extensions, commit scopes, and language distributions to summarize the exact technologies and frameworks used per repository.
+- **LLM-Optimized Markdown Output**: Synthesizes key accomplishments, structural changes, repository statistics, and major milestones into an organized Markdown document ready for LLM prompt context.
+
+---
+
+## 3. Directory Layout
+
+```
+projects/git-history-cv-extractor/
+├── main.py                     # CLI entrypoint and questionary console wizard
+├── pyproject.toml              # Dependencies and project metadata (managed by uv)
+├── justfile                    # Local project task runner recipes
+├── src/                        # Core extraction and parsing modules
+│   ├── cache.py                # SQLModel cache database schema and helpers
+│   ├── extractor.py            # GitPython commit log and diff extraction
+│   ├── github.py               # GitHub CLI token integration and repo listing
+│   └── reporter.py             # Markdown summary and technology aggregator
+└── tests/                      # Pytest unit and integration test suite
+```
+
+---
+
+## 4. Setup & Usage
+
+### Prerequisites
+- [uv](https://github.com/astral-sh/uv) (Python package installer and execution engine)
+- [just](https://github.com/casey/just) (Command runner)
+- [GitHub CLI (gh)](https://cli.github.com/) (Required for Real Mode repository fetching)
 
 ### Command Reference
 
-Run these commands inside the `projects/git-history-cv-extractor` directory:
+Run these commands inside `projects/git-history-cv-extractor/`:
 
-- **List commands**: `just` (or `just --list`)
-- **Initialize & Sync dependencies**: `just setup`
-- **Execute script**: `just run`
-- **Format codebase**: `just format`
-- **Lint codebase**: `just lint`
-- **Static type check**: `just typecheck`
-- **Run project hooks**: `just pre-commit` (runs check, format, and ty typecheck)
-- **Clean output & environment**: `just clean`
+```bash
+# Display all available recipes
+just
+
+# Install and sync virtual environment dependencies
+just setup
+
+# Launch the interactive extraction wizard
+just run
+
+# Run code formatting and lint checks
+just format
+just lint
+
+# Run static type checking with ty
+just typecheck
+
+# Run pre-commit quality gate (ruff, formatting, typecheck)
+just pre-commit
+
+# Clean cache databases and temporary output directories
+just clean
+```
+
+---
+
+## 5. License
+
+Maintained inside the **Pluribus** monorepo under the terms of the root repository [LICENSE](../../LICENSE).
