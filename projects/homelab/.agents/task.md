@@ -52,4 +52,12 @@
 - [x] Issue #18: Commit and push changes to `origin/homelab/unified` (commit `ddead72`)
 - [ ] Issue #18: Verify live synchronization and orchestration on `macerator` with human operator
 
-
+## Phase 6: Multi-Server Fleet Operations (Komodo) & Developer PaaS (Coolify) (Issue #20)
+- [x] Issue #20: Relocate pgAdmin from port 80 to 5050 to free host port 80 on `macerator`
+- [x] Issue #20: Deploy Komodo Core & MongoDB on `macerator` with Periphery agent on `aperio` for multi-server fleet management
+- [x] Issue #20: Deploy Coolify developer PaaS on `macerator` with PostgreSQL, Redis, and Realtime soketi engine
+- [x] Issue #20: Configure Traefik wildcard ingress router on `aperio` for `*.apps.vlmd.cc` forwarding to `macerator:80`
+- [x] Issue #20: Register `komodo` and `coolify` as first-class Python services with Consul catalog registration
+- [x] Issue #20: Enable Authentik SSO (free native OIDC) integration for Komodo and Coolify
+- [x] Issue #20: Pass all static tests and validation gates (`ruff`, `ty`, `pytest` 33/33, `homelab validate`)
+- [x] Issue #20: Live deployment verification on `macerator` and `aperio` nodes

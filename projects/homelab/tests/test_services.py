@@ -26,7 +26,9 @@ def test_service_registry_resolution():
         "cockpit",
         "code",
         "consul",
+        "coolify",
         "home-assistant",
+        "komodo",
         "netdata",
         "pgadmin",
         "photos",
@@ -42,6 +44,8 @@ def test_service_registry_resolution():
     assert get_service("ha").name == "home-assistant"
     assert get_service("pg-admin").name == "pgadmin"
     assert get_service("immich").name == "photos"
+    assert get_service("fleet").name == "komodo"
+    assert get_service("paas").name == "coolify"
 
     # Verify invalid service raises ValueError
     with pytest.raises(ValueError) as exc:
@@ -150,8 +154,10 @@ def test_all_eight_services_consul_connection():
         ("home-assistant", "home-assistant", 8123, "public", "/manifest.json"),
         ("manage", "manage", 9090, "sso", "/ping"),
         ("monitor", "monitor", 19999, "sso", "/api/v1/info"),
-        ("pgadmin", "pgadmin", 80, "public", "/misc/ping"),
+        ("pgadmin", "pgadmin", 5050, "public", "/misc/ping"),
         ("photos", "photos", 2283, "public", "/api/server/ping"),
+        ("komodo", "komodo", 9120, "public", "/"),
+        ("coolify", "coolify", 8000, "public", "/"),
     ]
 
     for (
@@ -271,6 +277,8 @@ def test_macerator_runner_registry_and_services():
         "netdata",
         "code",
         "pgadmin",
+        "komodo",
+        "coolify",
     ]
 
 
