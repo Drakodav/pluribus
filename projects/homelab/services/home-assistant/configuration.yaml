@@ -15,16 +15,6 @@ http:
     - 127.0.0.1
     - ::1
 
-# Identity & Access Management (Simple OpenID Connect)
-openid:
-  client_id: !env_var AUTHENTIK_CLIENT_ID
-  client_secret: !env_var AUTHENTIK_CLIENT_SECRET
-  configure_url: "https://auth.vlmd.cc/application/o/home-assistant/.well-known/openid-configuration"
-  username_field: "preferred_username"
-  scope: "openid profile email"
-  openid_text: "Login with Authentik"
-  create_user: true
-
 # Debug logging for troubleshooting
 logger:
   default: warning
