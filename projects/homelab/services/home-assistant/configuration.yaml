@@ -31,14 +31,3 @@ logger:
   logs:
     custom_components.openid: debug
     homeassistant.components.tapo: debug
-
-# SMTP Outbound Email Notifications
-notify:
-  - platform: smtp
-    name: "smtp_relay"
-    server: "10.10.0.2"
-    port: 25
-    encryption: "none"
-    sender: "notifications@vlmd.cc"
-    sender_name: "Home Assistant"
-    recipient: "vmedves@gmail.com"
