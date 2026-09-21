@@ -130,5 +130,5 @@ _Avoid_: basic auth, gateway security.
 - [x] Deploy Coolify developer PaaS on `macerator` for automated Git builds and preview environments
 - [x] Configure two-tier ingress on `aperio` Traefik with wildcard proxy for `*.apps.vlmd.cc`
 - [x] Model Komodo and Coolify as first-class Python services with Consul catalog registration
-- [ ] Manual verification of Authentik OIDC authentication and app deployment
+- [x] Manual verification of Authentik OIDC authentication, Sentinel telemetry sync, and Komodo multi-server fleet connections
 

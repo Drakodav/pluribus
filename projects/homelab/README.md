@@ -57,14 +57,14 @@ Following a botanical distillery naming theme (*Ex Pluribus Unum*), nodes are pa
 - **Etymology**: From Latin *aperire* ("to open", root of *aperitif*).
 - **Environment**: Oracle Cloud Infrastructure (OCI) Always-Free VM (`Ubuntu 24.04 LTS`).
 - **Internal IP**: `10.10.0.1`
-- **Role**: Edge ingress, automated Let's Encrypt SSL/TLS certificates, WireGuard mesh hub, and Consul Server leader.
+- **Role**: Edge ingress, automated Let's Encrypt SSL/TLS certificates, WireGuard mesh hub, Consul Server leader, and Komodo Periphery telemetry agent.
 - **Provisioning**: Managed via modular Terraform IaC in [`nodes/aperio/terraform/`](nodes/aperio/terraform/).
 
 ### `macerator` (The Local Powerhouse)
 - **Etymology**: From Latin *maceratio* (the steeping/extraction of botanical essence).
 - **Environment**: Bare-metal Dell Inspiron i9, 32GB RAM, local NVMe/SSD storage.
 - **Internal IP**: `10.10.0.2`
-- **Role**: Heavy data storage, machine learning, vector embeddings, relational databases, home automation, and internal developer workspaces.
+- **Role**: Heavy data storage, machine learning, relational databases, Komodo Core fleet operations, Coolify developer PaaS (`*.apps.vlmd.cc`), and internal workspaces.
 - **Orchestration**: Managed via Python node runner in [`nodes/macerator/runner.py`](nodes/macerator/runner.py).
 
 ### The Backbone Mesh
@@ -174,10 +174,20 @@ All persistent application data on `macerator` is strictly centralized under `/o
 ├── authentik/
 │   ├── certs/                 # TLS certificates for Authentik services
 │   ├── custom-templates/      # Branded authentication templates
-│   └── media/                 # Avatars and user media
+├── coolify/                   # Coolify developer PaaS data roots
+│   ├── applications/          # Git cloned application build trees (UID 9999:0)
+│   ├── databases/             # User-provisioned database volumes
+│   ├── db/                    # Coolify internal PostgreSQL 15 database (UID 70:70)
+│   ├── redis/                 # Coolify Redis cache (UID 999:999)
+│   ├── services/              # One-click Docker service configurations
+│   └── ssh/keys/              # Host SSH keys for Docker container management (UID 9999:0)
 ├── home-assistant/            # Configuration files, sqlite db, and custom components
 ├── immich/
 │   └── library/               # Primary photo and video media repository
+├── komodo/                    # Komodo multi-server fleet control plane
+│   ├── backups/               # Automated database and stack backups
+│   ├── keys/                  # Periphery mutual TLS and sync keys
+│   └── mongo/                 # MongoDB 7 persistent collections
 ├── matterjs-server/           # Matter integration state (UID 1000:1000)
 ├── netdata/                   # Netdata telemetry database and cache
 ├── pgadmin/                   # pgAdmin 4 SQLite configuration database (UID 5050:5050)
