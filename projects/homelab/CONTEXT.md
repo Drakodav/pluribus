@@ -30,7 +30,7 @@ A private, self-hosted infrastructure platform engineered for privacy, data sove
                       │  - Redis (Shared Cache)                 │
                       │  - Authentik (SSO & Forward Auth)       │
                       │  - Immich (Photo & Video ML Stack)      │
-                      │  - Home Assistant / Netdata / Cockpit   │
+                      │  - Home Assistant / Mail / Komodo       │
                       │  - Consul Client Agent                  │
                       │  - Unified Storage Root: /opt/homelab/  │
                       └─────────────────────────────────────────┘
@@ -65,7 +65,7 @@ The orchestration convention where every service stack maintains an isolated dir
 _Avoid_: monolithic compose, master script.
 
 **Forward Auth**:
-The security boundary implemented on `aperio` where Traefik delegates incoming requests for internal dashboards (Consul UI, Cockpit, pgAdmin) to Authentik running on `macerator` before allowing traffic through.
+The security boundary implemented on `aperio` where Traefik delegates incoming requests for internal dashboards (Consul UI, Traefik Dashboard) to Authentik running on `macerator` before allowing traffic through.
 _Avoid_: basic auth, gateway security.
 
 ---
@@ -105,7 +105,7 @@ _Avoid_: basic auth, gateway security.
 - [x] WireGuard client endpoint checks and local Consul client agent connectivity (`services/consul/`)
 - [x] Shared data foundation: PostgreSQL (custom Alpine + pgvector) and Redis (`services/postgres/`, `services/redis/`)
 - [x] Centralized identity: Authentik SSO and Traefik forwardAuth middleware (`services/authentik/`)
-- [x] Media & Applications: Immich photo management stack, Home Assistant, Netdata, Cockpit, code-server (`services/`)
+- [x] Media & Applications: Immich photo management stack, Home Assistant, Mail Relay, Komodo, Coolify (`services/`)
 - [x] Storage scaffolding, discovery firewalls, and orchestrator under `/opt/homelab/` (`nodes/macerator/`)
 
 ### Phase 4: Node Onboarding & Backbone Connectivity Connector (Issue #17)

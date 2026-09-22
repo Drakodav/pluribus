@@ -13,7 +13,6 @@ from nodes.macerator.runner import MaceratorRunner
 from nodes.registry import get_node_runner
 from providers.consul import ConsulClient
 from services.base import BaseService
-from services.cockpit.service import CockpitService
 from services.compose_base import ComposeService
 from services.registry import get_all_services, get_service
 
@@ -23,14 +22,11 @@ def test_service_registry_resolution():
     services = get_all_services()
     expected_services = {
         "authentik",
-        "cockpit",
-        "code",
         "consul",
         "coolify",
         "home-assistant",
         "komodo",
         "mail",
-        "netdata",
         "pgadmin",
         "photos",
         "postgres",
@@ -40,8 +36,6 @@ def test_service_registry_resolution():
 
     # Verify alias resolution
     assert get_service("auth").name == "authentik"
-    assert get_service("manage").name == "cockpit"
-    assert get_service("monitor").name == "netdata"
     assert get_service("ha").name == "home-assistant"
     assert get_service("pg-admin").name == "pgadmin"
     assert get_service("immich").name == "photos"
@@ -109,20 +103,13 @@ def test_traefik_tags_generation():
     assert not any("middlewares" in t for t in tags)
 
     # SSO service includes ForwardAuth middleware
-    code = get_service("code")
-    code_tags = code.get_traefik_tags("vlmd.cc")
-    assert "traefik.http.routers.code.middlewares=auth-code@docker" in code_tags
+    consul = get_service("consul")
+    consul_tags = consul.get_traefik_tags("vlmd.cc")
+    assert "traefik.http.routers.consul.middlewares=auth-traefik@docker" in consul_tags
 
     # Internal service generates no Traefik tags
     redis = get_service("redis")
     assert redis.get_traefik_tags("vlmd.cc") == []
-
-    # Cockpit service includes primary manage rule, cockpit alias, and auth-cockpit middleware
-    cockpit = CockpitService(Path("/mock/cockpit"))
-    c_tags = cockpit.get_traefik_tags("vlmd.cc")
-    assert "traefik.http.routers.manage.rule=Host(`manage.vlmd.cc`)" in c_tags
-    assert "traefik.http.routers.manage-alias.rule=Host(`cockpit.vlmd.cc`)" in c_tags
-    assert "traefik.http.routers.manage.middlewares=auth-cockpit@docker" in c_tags
 
 
 def test_consul_mandatory_health_checks():
@@ -163,11 +150,8 @@ def test_all_eight_services_consul_connection():
     client = ConsulClient()
     services_to_verify = [
         ("auth", "auth", 9000, "public", "/-/health/ready/"),
-        ("code", "code", 8443, "sso", "/healthz"),
         ("consul", "consul", 8500, "sso", "/v1/status/leader"),
         ("home-assistant", "home-assistant", 8123, "public", "/manifest.json"),
-        ("manage", "manage", 9090, "sso", "/ping"),
-        ("monitor", "monitor", 19999, "sso", "/api/v1/info"),
         ("pgadmin", "pgadmin", 5050, "public", "/misc/ping"),
         ("photos", "photos", 2283, "public", "/api/server/ping"),
         ("komodo", "komodo", 9120, "public", "/"),
@@ -287,10 +271,7 @@ def test_macerator_runner_registry_and_services():
         "mail",
         "authentik",
         "photos",
-        "cockpit",
         "home-assistant",
-        "netdata",
-        "code",
         "pgadmin",
         "komodo",
         "coolify",

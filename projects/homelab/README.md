@@ -31,7 +31,8 @@ This project implements a **Split-Brain Hybrid Cloud** pattern that pairs a clou
                           │  - Authentik (Central Identity Provider)     │
                           │  - Immich (Photo & Video ML Storage Stack)   │
                           │  - Home Assistant Core & Matter Server       │
-                          │  - Netdata, Cockpit, code-server, pgAdmin    │
+                          │  - Postfix Mail Relay, pgAdmin               │
+                          │  - Komodo Fleet Ops, Coolify PaaS            │
                           │  - Consul Client Agent                       │
                           │  - Unified Storage Root: /opt/homelab/       │
                           └──────────────────────────────────────────────┘
@@ -87,7 +88,7 @@ A key architectural insight in this homelab is the strict separation between ser
    - These services route directly through Traefik with TLS termination, delegating authentication natively to Authentik via standard OIDC authorization flows.
 
 2. **ForwardAuth SSO (`exposure = "sso"`)**:
-   - Services like **Cockpit**, **Netdata**, **code-server**, **Consul UI**, and **Traefik Dashboard** lack robust native multi-user access control.
+   - Services like **Consul UI** and **Traefik Dashboard** lack robust native multi-user access control.
    - Traefik intercepts unauthenticated requests to these subdomains and delegates authentication to Authentik's ForwardAuth Outpost before allowing traffic to proceed.
 
 ### Ingress Routing Matrix
@@ -101,11 +102,9 @@ A key architectural insight in this homelab is the strict separation between ser
 | `komodo.vlmd.cc` | Komodo Fleet Ops | `9120` | `/` | `public` | Native Authentik OIDC (Multi-Server Fleet) |
 | `coolify.vlmd.cc` | Coolify Control Plane | `8000` | `/` | `public` | Native Authentik OIDC (Developer PaaS) |
 | `*.apps.vlmd.cc` | Pluribus Project Previews | `80` | Dynamic | `public` | Coolify Ingress Router (Wildcard Traefik Chaining) |
-| `code.vlmd.cc` | code-server (VS Code) | `8443` | `/healthz` | `sso` | Traefik ForwardAuth (`auth-code`) |
-| `manage.vlmd.cc` | Cockpit Host Admin | `9090` | `/ping` | `sso` | Traefik ForwardAuth (`auth-cockpit`) |
-| `monitor.vlmd.cc` | Netdata Telemetry | `19999`| `/api/v1/info` | `sso` | Traefik ForwardAuth (`auth-traefik`) |
 | `consul.vlmd.cc` | Consul Web UI | `8500` | `/v1/status/leader`| `sso` | Traefik ForwardAuth (`auth-traefik`) |
 | `traefik.vlmd.cc` | Traefik Dashboard | `8080` | `/ping` | `sso` | Traefik ForwardAuth (`auth-traefik`) |
+| *Internal Only* | Postfix Mail Relay | `25` | TCP connect | `internal`| Centralized SMTP Smarthost (`mail_relay`) |
 | *Internal Only* | Shared PostgreSQL | `5432` | TCP `pg_isready` | `internal`| Internal cluster network (`shared_postgres`) |
 | *Internal Only* | Shared Redis | `6379` | TCP `redis-cli ping`| `internal`| Internal cluster network (`shared_redis`) |
 
@@ -138,14 +137,12 @@ projects/homelab/
 ├── services/                   # Modular service stacks (each with isolated compose)
 │   ├── authentik/              # Authentik Server & Worker
 │   ├── base.py                 # BaseService abstract lifecycle class
-│   ├── cockpit/                # Native systemd Cockpit host manager
-│   ├── code/                   # code-server native systemd integration
 │   ├── compose_base.py         # ComposeService Docker Compose lifecycle adapter
 │   ├── consul/                 # Consul client agent
 │   ├── coolify/                # Coolify developer PaaS engine
 │   ├── home-assistant/         # Home Assistant & MatterJS stack
 │   ├── komodo/                 # Komodo multi-server fleet manager
-│   ├── netdata/                # Netdata monitoring container
+│   ├── mail/                   # Postfix transactional SMTP mail relay
 │   ├── photos/                 # Immich server & machine learning
 │   ├── postgres/               # PostgreSQL 16 + pgvector Dockerfile & pgAdmin (port 5050)
 │   ├── redis/                  # Shared Redis cache
@@ -188,8 +185,8 @@ All persistent application data on `macerator` is strictly centralized under `/o
 │   ├── backups/               # Automated database and stack backups
 │   ├── keys/                  # Periphery mutual TLS and sync keys
 │   └── mongo/                 # MongoDB 7 persistent collections
+├── mail/                      # Postfix spool directory (/opt/homelab/mail/spool)
 ├── matterjs-server/           # Matter integration state (UID 1000:1000)
-├── netdata/                   # Netdata telemetry database and cache
 ├── pgadmin/                   # pgAdmin 4 SQLite configuration database (UID 5050:5050)
 └── postgres/                  # PostgreSQL 16 database cluster (UID 70:70)
 ```

@@ -7,13 +7,10 @@ from pathlib import Path
 
 from services.authentik.service import AuthentikService
 from services.base import BaseService
-from services.cockpit.service import CockpitService
-from services.code.service import CodeService
 from services.consul.service import ConsulService
 from services.coolify.service import CoolifyService
 from services.komodo.service import KomodoService
 from services.mail.service import MailRelayService
-from services.netdata.service import NetdataService
 from services.photos.service import PhotosService
 from services.postgres.service import PgAdminService, PostgresService
 from services.redis.service import RedisService
@@ -26,13 +23,10 @@ def _get_home_assistant_class() -> type[BaseService]:
 
 SERVICE_CLASSES: dict[str, type[BaseService]] = {
     "authentik": AuthentikService,
-    "cockpit": CockpitService,
-    "code": CodeService,
     "consul": ConsulService,
     "coolify": CoolifyService,
     "komodo": KomodoService,
     "mail": MailRelayService,
-    "netdata": NetdataService,
     "pgadmin": PgAdminService,
     "photos": PhotosService,
     "postgres": PostgresService,
@@ -41,8 +35,6 @@ SERVICE_CLASSES: dict[str, type[BaseService]] = {
 
 SERVICE_ALIASES: dict[str, str] = {
     "auth": "authentik",
-    "manage": "cockpit",
-    "monitor": "netdata",
     "pg-admin": "pgadmin",
     "ha": "home-assistant",
     "immich": "photos",
