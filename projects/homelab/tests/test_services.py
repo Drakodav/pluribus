@@ -348,3 +348,43 @@ def test_macerator_runner_build_dispatch():
         assert res == {"postgres": True}
         mock_pg.build.assert_called_once()
         mock_redis.build.assert_not_called()
+
+
+def test_coolify_multiport_traefik_tags():
+    """Verify Coolify generates multi-port Traefik tags for UI, realtime, and terminal."""
+    coolify = get_service("coolify")
+    tags = coolify.get_traefik_tags("vlmd.cc")
+
+    # Base UI router & service
+    assert "traefik.enable=true" in tags
+    assert "traefik.http.routers.coolify.rule=Host(`coolify.vlmd.cc`)" in tags
+    assert "traefik.http.routers.coolify.entrypoints=websecure" in tags
+    assert "traefik.http.routers.coolify.tls.certresolver=myresolver" in tags
+    assert "traefik.http.routers.coolify.service=coolify" in tags
+    assert "traefik.http.services.coolify.loadbalancer.server.port=8000" in tags
+
+    # Real-time WebSocket router & service (/app -> Soketi on 6001)
+    assert (
+        "traefik.http.routers.coolify-realtime.rule=Host(`coolify.vlmd.cc`) && PathPrefix(`/app`)"
+        in tags
+    )
+    assert "traefik.http.routers.coolify-realtime.entrypoints=websecure" in tags
+    assert "traefik.http.routers.coolify-realtime.tls.certresolver=myresolver" in tags
+    assert "traefik.http.routers.coolify-realtime.priority=100" in tags
+    assert "traefik.http.routers.coolify-realtime.service=coolify-realtime" in tags
+    assert (
+        "traefik.http.services.coolify-realtime.loadbalancer.server.port=6001" in tags
+    )
+
+    # Web Terminal WebSocket router & service (/terminal/ws -> Terminal on 6002)
+    assert (
+        "traefik.http.routers.coolify-terminal.rule=Host(`coolify.vlmd.cc`) && PathPrefix(`/terminal/ws`)"
+        in tags
+    )
+    assert "traefik.http.routers.coolify-terminal.entrypoints=websecure" in tags
+    assert "traefik.http.routers.coolify-terminal.tls.certresolver=myresolver" in tags
+    assert "traefik.http.routers.coolify-terminal.priority=100" in tags
+    assert "traefik.http.routers.coolify-terminal.service=coolify-terminal" in tags
+    assert (
+        "traefik.http.services.coolify-terminal.loadbalancer.server.port=6002" in tags
+    )
