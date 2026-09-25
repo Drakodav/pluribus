@@ -4,9 +4,9 @@ services:
     container_name: traefik
     restart: always
     network_mode: host
-    # depends_on:
-    #   - error-pages:
-    #       condition: service_healthy
+    depends_on:
+      error-pages:
+        condition: service_healthy
     environment:
       CF_DNS_API_TOKEN: "${GLOBAL_CLOUDFLARE_API_TOKEN}"
     command:
