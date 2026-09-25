@@ -4,6 +4,9 @@ services:
     container_name: traefik
     restart: always
     network_mode: host
+    # depends_on:
+    #   - error-pages:
+    #       condition: service_healthy
     environment:
       CF_DNS_API_TOKEN: "${GLOBAL_CLOUDFLARE_API_TOKEN}"
     command:
@@ -35,31 +38,26 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
-      - "traefik.http.routers.traefik.middlewares=auth-traefik@docker"
+      - "traefik.http.routers.traefik.middlewares=auth-traefik@docker,error-pages-middleware@docker"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
       # Authentik Traefik Middleware
       - "traefik.http.middlewares.auth-traefik.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
       - "traefik.http.middlewares.auth-traefik.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.auth-traefik.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
-      # Authentik Photos Middleware
-      - "traefik.http.middlewares.auth-photos.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
-      - "traefik.http.middlewares.auth-photos.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.auth-photos.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
-      # Authentik pgAdmin Middleware
-      - "traefik.http.middlewares.auth-pgadmin.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
-      - "traefik.http.middlewares.auth-pgadmin.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.auth-pgadmin.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
-      # Authentik Home Assistant Middleware
-      - "traefik.http.middlewares.auth-home-assistant.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
-      - "traefik.http.middlewares.auth-home-assistant.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.auth-home-assistant.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,Authorization,Cookie,Set-Cookie"
       # Coolify Wildcard Apps Ingress (*.apps.${GLOBAL_ROOT_DOMAIN})
       - "traefik.http.routers.coolify-wildcard.rule=HostRegexp(`[a-z0-9-]+\\.apps\\.${GLOBAL_ROOT_DOMAIN}`)"
       - "traefik.http.routers.coolify-wildcard.entrypoints=websecure"
       - "traefik.http.routers.coolify-wildcard.tls.certresolver=myresolver"
       - "traefik.http.routers.coolify-wildcard.tls.domains[0].main=*.apps.${GLOBAL_ROOT_DOMAIN}"
       - "traefik.http.routers.coolify-wildcard.service=coolify-apps-upstream"
+      - "traefik.http.routers.coolify-wildcard.middlewares=error-pages-middleware@docker"
       - "traefik.http.services.coolify-apps-upstream.loadbalancer.server.url=https://${NODE_MACERATOR_BACKBONE_IP}:443"
+      # Catch all unused domains with 404 error pages
+      - "traefik.http.routers.catchall-404.rule=HostRegexp(`[a-z0-9-]+\\.${GLOBAL_ROOT_DOMAIN}`)"
+      - "traefik.http.routers.catchall-404.entrypoints=websecure"
+      - "traefik.http.routers.catchall-404.tls.certresolver=myresolver"
+      - "traefik.http.routers.catchall-404.service=error-pages-service"
+      - "traefik.http.routers.catchall-404.priority=9"
 
   komodo-periphery:
     image: ghcr.io/moghtech/komodo-periphery:2
@@ -97,6 +95,21 @@ services:
       - "traefik.http.routers.consul.middlewares=auth-traefik@docker"
       - "traefik.http.routers.consul.service=consul-server-ui"
       - "traefik.http.services.consul-server-ui.loadbalancer.server.url=http://127.0.0.1:8500"
+
+  error-pages:
+    image: ghcr.io/tarampampam/error-pages:4
+    environment:
+      TEMPLATE_NAME: lost-in-space
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.error-pages-router.rule=HostRegexp(`.+`)"
+      - "traefik.http.routers.error-pages-router.priority=10"
+      - "traefik.http.routers.error-pages-router.entrypoints=web"
+      - "traefik.http.routers.error-pages-router.middlewares=error-pages-middleware"
+      - "traefik.http.middlewares.error-pages-middleware.errors.status=400-599"
+      - "traefik.http.middlewares.error-pages-middleware.errors.service=error-pages-service"
+      - "traefik.http.middlewares.error-pages-middleware.errors.query=/{status}"
+      - "traefik.http.services.error-pages-service.loadbalancer.server.port=8080"
 
 volumes:
   consul-data:
