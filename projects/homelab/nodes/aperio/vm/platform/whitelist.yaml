@@ -1,0 +1,9 @@
+name: homelab/aperio-whitelist
+description: "Whitelist internal mesh network and loopback"
+whitelist:
+  reason: "Operator mesh backbone and localhost trusted traffic"
+  ip:
+    - "127.0.0.1"
+    - "::1"
+  cidr:
+    - "10.10.0.0/24"

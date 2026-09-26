@@ -388,3 +388,40 @@ def test_coolify_multiport_traefik_tags():
     assert (
         "traefik.http.services.coolify-terminal.loadbalancer.server.port=6002" in tags
     )
+
+
+def test_aperio_crowdsec_integration():
+    """Verify Aperio platform compose and configuration includes CrowdSec and Traefik bouncer."""
+    from nodes.aperio.node import AperioNode
+
+    runner = get_node_runner("aperio")
+    assert isinstance(runner, AperioNode)
+    assert runner.name == "aperio"
+    assert runner.role == "gateway"
+    assert runner.crowdsec_bouncer_key is not None
+
+    compose_file = runner.platform_compose
+    assert compose_file.exists()
+    compose_content = compose_file.read_text(encoding="utf-8")
+
+    # Verify CrowdSec service definition
+    assert "crowdsec:" in compose_content
+    assert "crowdsecurity/crowdsec" in compose_content
+    assert "BOUNCER_KEY_traefik" in compose_content
+    assert "127.0.0.1:8085:8080" in compose_content
+
+    # Verify Traefik Bouncer plugin & telemetry accesslog
+    assert "--accesslog=true" in compose_content
+    assert "--accesslog.filepath=/var/log/traefik/access.log" in compose_content
+    assert "crowdsec-bouncer-traefik-plugin" in compose_content
+    assert (
+        "--entrypoints.websecure.http.middlewares=crowdsec-bouncer@docker"
+        in compose_content
+    )
+    assert "crowdsec-bouncer.crowdseclapihost=127.0.0.1:8085" in compose_content
+
+    # Verify acquisition and whitelist files exist
+    acquis_file = compose_file.parent / "acquis.yaml"
+    whitelist_file = compose_file.parent / "whitelist.yaml"
+    assert acquis_file.exists()
+    assert whitelist_file.exists()
