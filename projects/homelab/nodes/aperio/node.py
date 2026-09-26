@@ -54,6 +54,13 @@ class AperioNode(BaseNodeRunner):
         return AppContext().get_required_env("NODE_APERIO_PUBLIC_KEY")
 
     @property
+    def crowdsec_bouncer_key(self) -> str:
+        """CrowdSec Traefik Bouncer API key for Aperio gateway."""
+        from context import AppContext
+
+        return AppContext().get_required_env("NODE_APERIO_CROWDSEC_BOUNCER_KEY")
+
+    @property
     def platform_compose(self) -> Path:
         """Return the path to Aperio platform stack docker-compose.yml."""
         return self.node_dir / "vm" / "platform" / "docker-compose.yml"
@@ -86,7 +93,22 @@ class AperioNode(BaseNodeRunner):
             subprocess.run([*sudo_prefix, "touch", str(acme_file)], check=False)
             subprocess.run([*sudo_prefix, "chmod", "600", str(acme_file)], check=False)
 
-        # 3. WireGuard Directory & Keys
+        # 3. Traefik logs directory for CrowdSec telemetry
+        traefik_logs_dir = self.platform_compose.parent / "traefik-logs"
+        access_log_file = traefik_logs_dir / "access.log"
+        try:
+            traefik_logs_dir.mkdir(parents=True, exist_ok=True)
+            access_log_file.touch(mode=0o644, exist_ok=True)
+        except PermissionError:
+            subprocess.run(
+                [*sudo_prefix, "mkdir", "-p", str(traefik_logs_dir)], check=False
+            )
+            subprocess.run([*sudo_prefix, "touch", str(access_log_file)], check=False)
+            subprocess.run(
+                [*sudo_prefix, "chmod", "644", str(access_log_file)], check=False
+            )
+
+        # 4. WireGuard Directory & Keys
         wg_dir = Path("/etc/wireguard")
         if not wg_dir.exists():
             subprocess.run([*sudo_prefix, "mkdir", "-p", str(wg_dir)], check=False)
@@ -224,6 +246,23 @@ class AperioNode(BaseNodeRunner):
             )
             subprocess.run([*sudo_prefix, "touch", str(acme_file)], check=False)
             subprocess.run([*sudo_prefix, "chmod", "600", str(acme_file)], check=False)
+
+        # Ensure traefik-logs directory and access.log exist
+        traefik_logs_dir = self.platform_compose.parent / "traefik-logs"
+        access_log_file = traefik_logs_dir / "access.log"
+        try:
+            traefik_logs_dir.mkdir(parents=True, exist_ok=True)
+            access_log_file.touch(mode=0o644, exist_ok=True)
+        except PermissionError:
+            use_sudo = not ctx.runtime.is_root
+            sudo_prefix = ["sudo"] if use_sudo else []
+            subprocess.run(
+                [*sudo_prefix, "mkdir", "-p", str(traefik_logs_dir)], check=False
+            )
+            subprocess.run([*sudo_prefix, "touch", str(access_log_file)], check=False)
+            subprocess.run(
+                [*sudo_prefix, "chmod", "644", str(access_log_file)], check=False
+            )
 
         # Pull latest images
         pull_cmd = build_docker_compose_cmd(

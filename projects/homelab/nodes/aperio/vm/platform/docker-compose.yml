@@ -7,11 +7,20 @@ services:
     depends_on:
       error-pages:
         condition: service_healthy
+      crowdsec:
+        condition: service_healthy
     environment:
       CF_DNS_API_TOKEN: "${GLOBAL_CLOUDFLARE_API_TOKEN}"
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
+      # Access Logging for CrowdSec Telemetry
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+      - "--accesslog.format=json"
+      # CrowdSec Bouncer Traefik Plugin
+      - "--experimental.plugins.crowdsec-bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+      - "--experimental.plugins.crowdsec-bouncer.version=v1.4.1"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.consulcatalog=true"
@@ -22,6 +31,7 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.middlewares=crowdsec-bouncer@docker"
       - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
       - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
@@ -32,6 +42,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
+      - "./traefik-logs:/var/log/traefik"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.${GLOBAL_ROOT_DOMAIN}`)"
@@ -40,6 +51,12 @@ services:
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik.middlewares=auth-traefik@docker,error-pages-middleware@docker"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      # CrowdSec Bouncer Plugin Middleware
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.enabled=true"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapihost=127.0.0.1:8085"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapischeme=http"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapikey=${NODE_APERIO_CROWDSEC_BOUNCER_KEY}"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdsecmode=stream"
       # Authentik Traefik Middleware
       - "traefik.http.middlewares.auth-traefik.forwardauth.address=http://${NODE_MACERATOR_BACKBONE_IP}:9000/outpost.goauthentik.io/auth/traefik"
       - "traefik.http.middlewares.auth-traefik.forwardauth.trustForwardHeader=true"
@@ -111,5 +128,30 @@ services:
       - "traefik.http.middlewares.error-pages-middleware.errors.query=/{status}"
       - "traefik.http.services.error-pages-service.loadbalancer.server.port=8080"
 
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    restart: always
+    environment:
+      COLLECTIONS: "crowdsecurity/traefik crowdsecurity/sshd crowdsecurity/linux"
+      BOUNCER_KEY_traefik: "${NODE_APERIO_CROWDSEC_BOUNCER_KEY}"
+    ports:
+      - "127.0.0.1:8085:8080"
+    volumes:
+      - crowdsec-config:/etc/crowdsec
+      - crowdsec-data:/var/lib/crowdsec/data
+      - ./acquis.yaml:/etc/crowdsec/acquis.yaml:ro
+      - ./whitelist.yaml:/etc/crowdsec/parsers/s02-enrich/whitelist.yaml:ro
+      - ./traefik-logs:/var/log/traefik:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+    healthcheck:
+      test: ["CMD", "cscli", "version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   consul-data:
+  crowdsec-config:
+  crowdsec-data:
