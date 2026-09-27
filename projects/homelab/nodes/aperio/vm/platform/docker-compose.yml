@@ -4,6 +4,11 @@ services:
     container_name: traefik
     restart: always
     network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
     depends_on:
       error-pages:
         condition: service_healthy
@@ -82,6 +87,11 @@ services:
     restart: always
     init: true
     network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 64M
     environment:
       PERIPHERY_PORT: 8120
       PERIPHERY_CORE_ADDRESS: http://${NODE_MACERATOR_BACKBONE_IP}:9120
@@ -93,6 +103,11 @@ services:
     image: hashicorp/consul:latest
     container_name: consul-server
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 96M
     volumes:
       - consul-data:/consul/data
     network_mode: host
@@ -116,6 +131,11 @@ services:
 
   error-pages:
     image: ghcr.io/tarampampam/error-pages:4
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 32M
     environment:
       TEMPLATE_NAME: lost-in-space
     labels:
@@ -133,6 +153,11 @@ services:
     image: crowdsecurity/crowdsec:latest
     container_name: crowdsec
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: 160M
     environment:
       COLLECTIONS: "crowdsecurity/traefik crowdsecurity/sshd crowdsecurity/linux"
       BOUNCER_KEY_traefik: "${NODE_APERIO_CROWDSEC_BOUNCER_KEY}"
