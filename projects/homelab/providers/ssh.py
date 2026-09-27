@@ -114,6 +114,8 @@ def build_rsync_command(
         "--exclude=.pytest_cache",
         "--exclude=.ruff_cache",
         "--exclude=letsencrypt",
+        "--exclude=traefik-logs",
+        "--exclude=*.log",
         "-e",
         " ".join(ssh_opts),
         source_dir,

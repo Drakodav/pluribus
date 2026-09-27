@@ -12,7 +12,7 @@ services:
     environment:
       CF_DNS_API_TOKEN: "${GLOBAL_CLOUDFLARE_API_TOKEN}"
     command:
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
       - "--api.dashboard=true"
       # Access Logging for CrowdSec Telemetry
       - "--accesslog=true"
@@ -80,6 +80,7 @@ services:
     image: ghcr.io/moghtech/komodo-periphery:2
     container_name: komodo_periphery_aperio
     restart: always
+    init: true
     network_mode: host
     environment:
       PERIPHERY_PORT: 8120
