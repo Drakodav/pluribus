@@ -1,0 +1,17 @@
+name: ssh_ban_remediation
+filters:
+  - Alert.Remediation == true && Alert.GetScope() == "Ip" && Alert.GetScenario() contains "ssh"
+decisions:
+  - type: ban
+    duration: 4h
+notifications: []
+on_success: break
+---
+name: default_ip_remediation
+filters:
+  - Alert.Remediation == true && Alert.GetScope() == "Ip"
+decisions:
+  - type: captcha
+    duration: 4h
+notifications: []
+on_success: break

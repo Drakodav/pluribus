@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Security Verification - CrowdSec</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://challenges.cloudflare.com" />
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background: #0f172a;
+        color: #f8fafc;
+      }
+      .card {
+        background: #1e293b;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        max-width: 420px;
+        width: 90%;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      p {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+      }
+      .cf-turnstile {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Security Verification</h1>
+      <p>Please complete this verification to access the requested service.</p>
+      <form id="captcha-form" action="" method="POST">
+        <div
+          class="cf-turnstile"
+          data-sitekey="{{ .SiteKey }}"
+          data-callback="captchaCallback"
+          data-theme="dark"
+          data-action="crowdsec-challenge"
+        ></div>
+        <noscript>
+          <button type="submit">Submit</button>
+        </noscript>
+      </form>
+    </div>
+    <script>
+      function captchaCallback() {
+        document.getElementById("captcha-form").submit();
+      }
+    </script>
+  </body>
+</html>

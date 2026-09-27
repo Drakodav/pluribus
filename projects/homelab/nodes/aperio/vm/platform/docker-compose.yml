@@ -48,6 +48,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
       - "./traefik-logs:/var/log/traefik"
+      - "./config/captcha.html:/captcha.html:ro"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.${GLOBAL_ROOT_DOMAIN}`)"
@@ -80,6 +81,12 @@ services:
       - "traefik.http.routers.catchall-404.tls.certresolver=myresolver"
       - "traefik.http.routers.catchall-404.service=error-pages-service"
       - "traefik.http.routers.catchall-404.priority=9"
+      # Crowdsec Captcha Configuration
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchaprovider=turnstile"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchasitekey=${GLOBAL_TURNSTILE_SITE_KEY}"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchasecretkey=${GLOBAL_TURNSTILE_SECRET_KEY}"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchagraceperiodseconds=1800"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchahtmlfilepath=/captcha.html"
 
   komodo-periphery:
     image: ghcr.io/moghtech/komodo-periphery:2
@@ -106,8 +113,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: 96M
+          memory: 128M
     volumes:
       - consul-data:/consul/data
     network_mode: host
@@ -166,8 +172,9 @@ services:
     volumes:
       - crowdsec-config:/etc/crowdsec
       - crowdsec-data:/var/lib/crowdsec/data
-      - ./acquis.yaml:/etc/crowdsec/acquis.yaml:ro
-      - ./whitelist.yaml:/etc/crowdsec/parsers/s02-enrich/whitelist.yaml:ro
+      - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml:ro
+      - ./config/profiles.yaml:/etc/crowdsec/profiles.yaml:ro
+      - ./config/whitelist.yaml:/etc/crowdsec/parsers/s02-enrich/whitelist.yaml:ro
       - ./traefik-logs:/var/log/traefik:ro
       - /var/log/auth.log:/var/log/auth.log:ro
     healthcheck:

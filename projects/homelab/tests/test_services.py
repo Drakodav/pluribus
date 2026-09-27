@@ -421,7 +421,7 @@ def test_aperio_crowdsec_integration():
     assert "crowdsec-bouncer.crowdseclapihost=127.0.0.1:8085" in compose_content
 
     # Verify acquisition and whitelist files exist
-    acquis_file = compose_file.parent / "acquis.yaml"
-    whitelist_file = compose_file.parent / "whitelist.yaml"
+    acquis_file = compose_file.parent / "config" / "acquis.yaml"
+    whitelist_file = compose_file.parent / "config" / "whitelist.yaml"
     assert acquis_file.exists()
     assert whitelist_file.exists()
