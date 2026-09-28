@@ -414,10 +414,9 @@ def test_aperio_crowdsec_integration():
     assert "--accesslog=true" in compose_content
     assert "--accesslog.filepath=/var/log/traefik/access.log" in compose_content
     assert "crowdsec-bouncer-traefik-plugin" in compose_content
-    assert (
-        "--entrypoints.websecure.http.middlewares=crowdsec-bouncer@docker"
-        in compose_content
-    )
+    assert "crowdsec-bouncer@docker" in compose_content
+    assert "coolify-apps" in compose_content
+    assert "coolify-web" in compose_content
     assert "crowdsec-bouncer.crowdseclapihost=127.0.0.1:8085" in compose_content
 
     # Verify acquisition and whitelist files exist

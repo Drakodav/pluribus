@@ -1,9 +1,15 @@
 name: homelab/aperio-whitelist
-description: "Whitelist internal mesh network and loopback"
+description: "Whitelist internal mesh network, loopback, apps domain, and Irish residential HTTP traffic"
 whitelist:
-  reason: "Operator mesh backbone and localhost trusted traffic"
+  reason: "Operator mesh backbone, localhost, apps tier, and IE residential protection"
   ip:
     - "127.0.0.1"
     - "::1"
   cidr:
     - "10.10.0.0/24"
+  expression:
+    # 1. Ignore any HTTP traffic directed to the *.apps. tier (media, streaming, scrapers)
+    - "evt.Meta.http_host contains '.apps.'"
+    # 2. Exempt Irish residential HTTP traffic from false-positive web intrusion alerts
+    - "evt.Enriched.IsoCode == 'IE' && evt.Meta.service == 'http'"
+
