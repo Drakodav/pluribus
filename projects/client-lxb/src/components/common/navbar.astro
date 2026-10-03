@@ -1,0 +1,118 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = Astro.url.pathname } = Astro.props;
+
+const navLinks = [
+  { name: 'Occasions', href: '/occasions' },
+  { name: 'Gallery', href: '/gallery' },
+  { name: 'Pricing & Packages', href: '/pricing' },
+  { name: 'Balloon Care & T&Cs', href: '/balloon-care' },
+  { name: 'Contact', href: '/contact' },
+];
+---
+
+<header class="header">
+  <div class="container nav-container">
+    <a href="/" class="brand-logo" aria-label="Luxe Bear - Balloon Bar Home">
+      <span class="brand-title">LUXE BEAR</span>
+      <span class="brand-subtitle">BALLOON BAR</span>
+    </a>
+
+    <nav class="nav-links">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class={`nav-link ${currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)) ? 'active' : ''}`}
+        >
+          {link.name}
+        </a>
+      ))}
+    </nav>
+
+    <div class="nav-cta">
+      <a href="/book" class="btn-primary">
+        Book an Inquiry
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    background: rgba(251, 241, 240, 0.94);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .brand-logo {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    line-height: 1.1;
+  }
+
+  .brand-title {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-main);
+  }
+
+  .brand-subtitle {
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    color: var(--accent-gold-dark);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-link {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0.5rem 0;
+    position: relative;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--accent-gold-dark);
+  }
+
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--accent-gold);
+    border-radius: 2px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links {
+      display: none;
+    }
+  }
+</style>

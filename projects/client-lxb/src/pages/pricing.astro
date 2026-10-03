@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../layouts/base-layout.astro';
+import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
+---
+
+<BaseLayout
+  title="Pricing & Packages | Luxe Bear - Balloon Bar"
+  description="Transparent starting prices and package estimates for organic balloon arches, customized backdrops, welcome easels, and specialty gift balloons."
+>
+  <div class="pricing-hero">
+    <div class="container text-center">
+      <span class="badge">Transparent Investment</span>
+      <h1 class="page-title">Pricing & Package Estimates</h1>
+      <p class="page-desc">
+        Because every event venue and color palette is unique, we provide transparent baseline estimates below. Final quotes depend on installation scale, customization, and delivery area.
+      </p>
+    </div>
+  </div>
+
+  <section class="pricing-section">
+    <div class="container">
+      <div class="pricing-grid">
+        {DEFAULT_PRODUCTS.map((prod) => (
+          <div class="pricing-card card">
+            <div class="pricing-header">
+              <span class="price-figure">From {prod.starting_price}</span>
+              <span class="price-sub">base estimate</span>
+            </div>
+
+            <h3 class="product-title">{prod.name}</h3>
+            {prod.subtitle && <p class="product-subtitle">{prod.subtitle}</p>}
+            <p class="product-desc">{prod.description}</p>
+
+            {prod.features && (
+              <div class="features-block">
+                <h4>Includes:</h4>
+                <ul class="features-list">
+                  {prod.features.map((feat) => (
+                    <li>✓ {feat}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div class="pricing-action">
+              <a href="/book" class="btn-primary" style="width: 100%; text-align: center;">
+                Inquire For Your Date
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Delivery Fee & Add-ons Explainer -->
+      <div class="pricing-notes card">
+        <h3>How Delivery & Setup Are Calculated</h3>
+        <div class="notes-grid">
+          <div class="note-item">
+            <h4>📍 Local Service Radius</h4>
+            <p>Our standard service hub covers {SITE_METADATA.defaultServiceArea}. Travel within our core zone includes standard delivery and setup.</p>
+          </div>
+          <div class="note-item">
+            <h4>🚚 Extended Travel Tiers</h4>
+            <p>Venues located outside our primary radius are quoted a transparent distance-based travel tier to cover fuel and travel transit time.</p>
+          </div>
+          <div class="note-item">
+            <h4>🎈 Premium Customizations</h4>
+            <p>Custom vinyl decals (names/dates), acrylic easel hire, floral accents, and shimmer wall backdrops are available as tailored add-ons.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pricing-hero {
+    padding: 4rem 0 2rem;
+    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.4) 0%, transparent 65%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .pricing-section {
+    padding: 3rem 0 5rem;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .pricing-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pricing-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .price-figure {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--accent-gold-dark);
+    font-family: var(--font-serif);
+  }
+
+  .price-sub {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .product-title {
+    font-size: 1.45rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .product-subtitle {
+    font-size: 0.85rem;
+    color: var(--accent-rose);
+    margin-bottom: 1rem;
+  }
+
+  .product-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .features-block {
+    background: var(--bg-subtle);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    flex: 1;
+  }
+
+  .features-block h4 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .pricing-action {
+    margin-top: auto;
+  }
+
+  .pricing-notes {
+    padding: 2.5rem;
+    background: #FFFFFF;
+    border: 1px solid var(--border-accent);
+  }
+
+  .pricing-notes h3 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+  }
+
+  .note-item h4 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .note-item p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+</style>

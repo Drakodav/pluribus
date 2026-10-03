@@ -1,0 +1,149 @@
+---
+import type { Occasion } from '../../types/directus';
+
+interface Props {
+  occasions: Occasion[];
+}
+
+const { occasions } = Astro.props;
+---
+
+<section class="occasions-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge">Designed Around Your Event</span>
+      <h2 class="section-title">Shop by Occasion</h2>
+      <p class="section-subtitle">
+        We organize our styling by milestone moments rather than technical arch jargon, so you can easily discover ideas tailored to your exact celebration.
+      </p>
+    </div>
+
+    <div class="occasions-grid">
+      {occasions.map((occasion) => (
+        <a href={`/occasions/${occasion.slug}`} class="occasion-card card">
+          <div class="card-top">
+            {occasion.badge && <span class="badge">{occasion.badge}</span>}
+            {occasion.starting_price && (
+              <span class="card-price">{occasion.starting_price}</span>
+            )}
+          </div>
+
+          <h3 class="card-title">{occasion.title}</h3>
+          <p class="card-desc">{occasion.subtitle}</p>
+
+          {occasion.highlights && (
+            <ul class="card-highlights">
+              {occasion.highlights.map((h) => (
+                <li>&bull; {h}</li>
+              ))}
+            </ul>
+          )}
+
+          <div class="card-footer">
+            <span class="card-link-text">Explore {occasion.title} &rarr;</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .occasions-section {
+    padding: 5rem 0;
+  }
+
+  .section-header {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 3.5rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .occasions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+  }
+
+  .occasion-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    position: relative;
+    background: var(--bg-card);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-price {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-gold-dark);
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-main);
+  }
+
+  .card-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .card-highlights {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .card-footer {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .card-link-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-gold-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .occasion-card:hover .card-link-text {
+    color: var(--accent-rose);
+  }
+
+  @media (max-width: 600px) {
+    .occasions-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

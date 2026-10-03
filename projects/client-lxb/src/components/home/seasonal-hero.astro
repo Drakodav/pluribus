@@ -1,0 +1,126 @@
+---
+import type { SeasonalBanner } from '../../types/directus';
+
+interface Props {
+  banner: SeasonalBanner;
+}
+
+const { banner } = Astro.props;
+---
+
+<section class="seasonal-hero">
+  <div class="container hero-container">
+    <div class="hero-content">
+      {banner.badge && <span class="badge hero-badge">{banner.badge}</span>}
+      <h1 class="hero-title">{banner.headline}</h1>
+      <p class="hero-subtitle">{banner.subhead}</p>
+
+      <div class="hero-actions">
+        <a href={banner.cta_link} class="btn-primary">
+          {banner.cta_text} &rarr;
+        </a>
+        <a href="/occasions" class="btn-secondary">
+          Explore All Occasions
+        </a>
+      </div>
+
+      <div class="hero-highlights">
+        <div class="highlight-item">
+          <span class="highlight-icon">✨</span>
+          <span class="highlight-text">Organic Arches & Demi-Garlands</span>
+        </div>
+        <div class="highlight-item">
+          <span class="highlight-icon">🏷️</span>
+          <span class="highlight-text">Custom Vinyl Acrylic Backdrops</span>
+        </div>
+        <div class="highlight-item">
+          <span class="highlight-icon">🎈</span>
+          <span class="highlight-text">Dual-Layer Pop-Me Reveals</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .seasonal-hero {
+    padding: 5rem 0 4rem;
+    position: relative;
+    background: radial-gradient(circle at 80% 20%, rgba(235, 216, 208, 0.6) 0%, transparent 60%);
+  }
+
+  .hero-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 800px;
+  }
+
+  .hero-badge {
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 3.25rem;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+  }
+
+  .hero-highlights {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+    flex-wrap: wrap;
+  }
+
+  .highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .seasonal-hero {
+      padding: 3.5rem 0 2.5rem;
+    }
+    .hero-title {
+      font-size: 2.3rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+    .hero-highlights {
+      flex-direction: column;
+      gap: 0.85rem;
+      align-items: center;
+    }
+  }
+</style>

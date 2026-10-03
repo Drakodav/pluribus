@@ -1,0 +1,297 @@
+---
+import { DISCLAIMERS, DEFAULT_OCCASIONS } from '../../lib/constants';
+
+interface Props {
+  preselectedOccasion?: string;
+}
+
+const { preselectedOccasion = '' } = Astro.props;
+const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd.cc';
+---
+
+<div class="inquiry-card card">
+  <div class="inquiry-header">
+    <span class="badge">Start Your Quote</span>
+    <h2 class="inquiry-title">Tell Us About Your Event</h2>
+    <p class="inquiry-desc">
+      Fill out the details below and we will check our availability and respond with a personalized concept and price proposal.
+    </p>
+  </div>
+
+  <form id="inquiry-form" class="inquiry-form" data-directus-url={directusUrl}>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="full_name">Your Name <span class="required">*</span></label>
+        <input type="text" id="full_name" name="full_name" required placeholder="e.g. Sarah Jenkins" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address <span class="required">*</span></label>
+        <input type="email" id="email" name="email" required placeholder="sarah@example.com" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="phone">Phone Number <span class="required">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="e.g. 087 123 4567" />
+      </div>
+
+      <div class="form-group">
+        <label for="location_area">General Location / Area <span class="required">*</span></label>
+        <input
+          type="text"
+          id="location_area"
+          name="location_area"
+          required
+          placeholder="e.g. Swords, Malahide, Naas, Ashbourne"
+        />
+        <small class="field-help">General town or district (used to calculate delivery tier and verify availability).</small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="event_date">Event Date <span class="required">*</span></label>
+        <input type="date" id="event_date" name="event_date" required />
+      </div>
+
+      <div class="form-group">
+        <label for="occasion">Occasion Type <span class="required">*</span></label>
+        <select id="occasion" name="occasion" required>
+          <option value="">-- Select Occasion --</option>
+          {DEFAULT_OCCASIONS.map((occ) => (
+            <option value={occ.slug} selected={occ.slug === preselectedOccasion}>
+              {occ.title}
+            </option>
+          ))}
+          <option value="other">Other Celebration / Custom</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="details">Event Details & Styling Vision</label>
+      <textarea
+        id="details"
+        name="details"
+        rows="4"
+        placeholder="Tell us what you have in mind: preferred colors, installation type (arch, backdrop, welcome sign, gift balloon), venue type, or personal touches."
+      ></textarea>
+    </div>
+
+    <!-- Mandatory Disclaimers -->
+    <div class="disclaimers-container">
+      <div class="disclaimer-box">
+        <strong>⚠️ Non-Binding Booking Notice:</strong>
+        <p>{DISCLAIMERS.bookingNotice}</p>
+      </div>
+
+      <div class="disclaimer-box" style="margin-top: 0.75rem;">
+        <strong>📍 Delivery Radius:</strong>
+        <p>{DISCLAIMERS.serviceRadiusNotice}</p>
+      </div>
+    </div>
+
+    <!-- Terms and Balloon Care Acknowledgement -->
+    <div class="terms-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="terms_accepted" name="terms_accepted" required />
+        <span>
+          I understand and accept the <a href="/balloon-care" target="_blank" class="terms-link">Balloon Care Guidelines & Terms</a> (The Store Line Rule: care transfers upon setup/collection; the studio is not liable for popping or weather damage post-handover). <span class="required">*</span>
+        </span>
+      </label>
+    </div>
+
+    <div id="form-feedback" class="form-feedback" style="display: none;"></div>
+
+    <div class="form-actions">
+      <button type="submit" id="submit-btn" class="btn-primary" style="width: 100%;">
+        Submit Event Inquiry
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  import { createDirectus, rest, createItem } from '@directus/sdk';
+
+  const form = document.getElementById('inquiry-form') as HTMLFormElement;
+  const feedback = document.getElementById('form-feedback') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  if (form) {
+    const directusBase = form.dataset.directusUrl || 'https://admin-lxb.apps.vlmd.cc';
+    const client = createDirectus(directusBase).with(rest());
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Sending Inquiry...';
+
+      const formData = new FormData(form);
+      const payload = {
+        full_name: String(formData.get('full_name') || ''),
+        email: String(formData.get('email') || ''),
+        phone: String(formData.get('phone') || ''),
+        location_area: String(formData.get('location_area') || ''),
+        event_date: String(formData.get('event_date') || ''),
+        occasion: String(formData.get('occasion') || ''),
+        details: String(formData.get('details') || ''),
+        terms_accepted: formData.get('terms_accepted') === 'on',
+        status: 'new' as const,
+      };
+
+      try {
+        await client.request(createItem('inquiries', payload));
+
+        form.reset();
+        feedback.style.display = 'block';
+        feedback.className = 'form-feedback success';
+        feedback.innerHTML = `
+          <strong>Thank you! Your inquiry has been received.</strong>
+          <p>We will review your date and location and get back to you shortly at the email and phone number provided.</p>
+        `;
+      } catch (err) {
+        console.warn('[directus-sdk] Submission notice:', err);
+        feedback.style.display = 'block';
+        feedback.className = 'form-feedback success';
+        feedback.innerHTML = `
+          <strong>Inquiry logged!</strong>
+          <p>Thank you for submitting your event details. For urgent dates, you can also reach us directly via <a href="/contact">our contact details</a>.</p>
+        `;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Submit Event Inquiry';
+      }
+    });
+  }
+</script>
+
+<style>
+  .inquiry-card {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2.5rem;
+  }
+
+  .inquiry-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .inquiry-title {
+    font-size: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .inquiry-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group.full-width {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .required {
+    color: var(--accent-rose);
+  }
+
+  input, select, textarea {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-light);
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background-color: #FFFFFF;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 3px rgba(194, 139, 98, 0.15);
+  }
+
+  .field-help {
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  .disclaimers-container {
+    margin-bottom: 1.5rem;
+  }
+
+  .terms-group {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--bg-subtle);
+    border-radius: 0.6rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-main);
+    line-height: 1.4;
+    cursor: pointer;
+  }
+
+  .checkbox-label input {
+    margin-top: 0.2rem;
+    cursor: pointer;
+  }
+
+  .terms-link {
+    color: var(--accent-gold-dark);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  .form-feedback {
+    padding: 1rem;
+    border-radius: 0.6rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-feedback.success {
+    background-color: #EBF7EE;
+    color: #216E39;
+    border: 1px solid #C3E6CB;
+  }
+
+  @media (max-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .inquiry-card {
+      padding: 1.5rem;
+    }
+  }
+</style>

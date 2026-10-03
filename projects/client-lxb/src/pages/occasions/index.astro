@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/base-layout.astro';
+import OccasionGrid from '../../components/home/occasion-grid.astro';
+import { getOccasions } from '../../lib/directus';
+
+const occasions = await getOccasions();
+---
+
+<BaseLayout
+  title="Occasions & Milestones | Luxe Bear - Balloon Bar"
+  description="Explore our curated luxury balloon styling collections categorized by occasion: Birthdays, Communions, Confirmations, Gender Reveals, and Bridal Celebrations."
+>
+  <div class="occasions-header">
+    <div class="container text-center">
+      <span class="badge">Occasion-First Collections</span>
+      <h1 class="page-title">Curated by Milestone</h1>
+      <p class="page-desc">
+        Select your celebration below to see tailored photo inspirations, matching backdrop rentals, and starting package estimates.
+      </p>
+    </div>
+  </div>
+
+  <OccasionGrid occasions={occasions} />
+</BaseLayout>
+
+<style>
+  .occasions-header {
+    padding: 4rem 0 2rem;
+    background: radial-gradient(circle at 50% 0%, rgba(235, 216, 208, 0.4) 0%, transparent 70%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+</style>
