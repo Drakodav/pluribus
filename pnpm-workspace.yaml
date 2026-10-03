@@ -1,7 +1,5 @@
 packages:
-  - 'projects/*'
-  - 'tools/*'
+  - "projects/*"
 
 allowBuilds:
   esbuild: true
-
