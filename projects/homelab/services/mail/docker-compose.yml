@@ -17,3 +17,7 @@ services:
       - POSTFIX_message_size_limit=${SERVICE_MAIL_MESSAGE_SIZE_LIMIT}
     volumes:
       - /opt/homelab/mail/spool:/var/spool/postfix
+
+networks:
+  coolify:
+    external: true
