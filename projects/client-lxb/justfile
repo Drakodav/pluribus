@@ -1,0 +1,56 @@
+# List available recipes
+default:
+    @just --list
+
+# Verify system prerequisites
+doctor:
+    @which node || echo "Node.js not found"
+    @which pnpm || echo "pnpm not found"
+    @which docker || echo "Docker not found (optional for local Directus)"
+
+# Install project dependencies
+setup:
+    pnpm install
+
+# Run Astro development server
+dev:
+    pnpm run dev
+
+# Start local Directus container for offline dev
+dev-cms:
+    docker compose up -d
+
+# Stop local Directus container
+stop-cms:
+    docker compose down
+
+# Build the Astro site for production
+build:
+    pnpm run build
+
+# Preview the production build locally
+preview:
+    pnpm run preview
+
+# Run Astro type check
+check:
+    pnpm run check
+
+# Pre-commit checks required by monorepo orchestration
+pre-commit:
+    @echo "Running client-lxb checks (typecheck & build)..."
+    pnpm run check
+    pnpm run build
+
+# Export Directus schema snapshot to version control
+snapshot-cms:
+    pnpx directus schema snapshot directus/schema.yaml
+
+# Apply Directus schema snapshot to target instance
+apply-cms:
+    pnpx directus schema apply directus/schema.yaml
+
+# Provision and seed collections on the Directus instance
+seed-cms:
+    pnpm exec tsx scripts/seed-directus.ts
+

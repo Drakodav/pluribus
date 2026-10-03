@@ -11,6 +11,10 @@
 		{
 			"name": "└ ☁️-homelab",
 			"path": "projects/homelab"
+		},
+		{
+			"name": "└ 💎 client-lxb",
+			"path": "projects/client-lxb"
 		}
 	],
 	"settings": {

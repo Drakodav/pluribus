@@ -1,0 +1,20 @@
+services:
+  directus:
+    image: directus/directus:latest
+    container_name: lxb-directus-local
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: "2552a441-26c7-43ca-a396-ff88f11c759f"
+      SECRET: "608d0f11-04df-4be8-8547-b286641887e2"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "admin"
+      DB_CLIENT: "sqlite3"
+      DB_FILENAME: "/directus/database/data.db"
+      WEBSOCKETS_ENABLED: "true"
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+    volumes:
+      - ./directus/data:/directus/database
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions

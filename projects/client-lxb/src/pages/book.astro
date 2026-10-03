@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../layouts/base-layout.astro';
+import InquiryForm from '../components/inquiry/inquiry-form.astro';
+import { SITE_METADATA } from '../lib/constants';
+---
+
+<BaseLayout
+  title="Inquire & Book | Luxe Bear - Balloon Bar"
+  description="Submit an event inquiry to check availability and request a personalized styling quote for your birthday, communion, confirmation, or wedding celebration."
+>
+  <div class="book-hero">
+    <div class="container text-center">
+      <span class="badge">Booking Inquiries</span>
+      <h1 class="page-title">Request an Event Proposal</h1>
+      <p class="page-desc">
+        Share your date and celebration vision below. We will review our calendar and reply via email or phone with design recommendations and a customized quote.
+      </p>
+    </div>
+  </div>
+
+  <section class="book-section">
+    <div class="container">
+      <InquiryForm />
+
+      <div class="direct-contact-note text-center">
+        <p>Prefer to speak directly? Give us a call at <a href={`tel:${SITE_METADATA.contactPhone}`}>{SITE_METADATA.contactPhone}</a> or email <a href={`mailto:${SITE_METADATA.contactEmail}`}>{SITE_METADATA.contactEmail}</a>.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .book-hero {
+    padding: 4rem 0 2rem;
+    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.45) 0%, transparent 65%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .book-section {
+    padding: 3rem 0 5rem;
+  }
+
+  .direct-contact-note {
+    margin-top: 3rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .direct-contact-note a {
+    color: var(--accent-gold-dark);
+    font-weight: 600;
+  }
+</style>
