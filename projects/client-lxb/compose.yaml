@@ -5,8 +5,8 @@ services:
     ports:
       - "8055:8055"
     environment:
-      KEY: "2552a441-26c7-43ca-a396-ff88f11c759f"
-      SECRET: "608d0f11-04df-4be8-8547-b286641887e2"
+      KEY: "super_secret_test"
+      SECRET: "super_secret_test"
       ADMIN_EMAIL: "admin@example.com"
       ADMIN_PASSWORD: "admin"
       DB_CLIENT: "sqlite3"
