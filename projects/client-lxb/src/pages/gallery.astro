@@ -1,0 +1,272 @@
+---
+import BaseLayout from '../layouts/base-layout.astro';
+import { DEFAULT_OCCASIONS } from '../lib/constants';
+
+const galleryItems = [
+  {
+    id: 1,
+    title: 'Milestone 30th Shimmer Backdrop',
+    category: 'birthdays',
+    type: 'Organic Half Arch',
+    palette: 'Champagne, Ivory & Rose Gold',
+  },
+  {
+    id: 2,
+    title: 'First Holy Communion Welcome Easel',
+    category: 'communions-confirmations',
+    type: 'Easel Arch Cluster',
+    palette: 'Matte White, Gold Reflex & Eucalyptus',
+  },
+  {
+    id: 3,
+    title: 'Dual-Layer Bubble Gender Reveal',
+    category: 'gender-reveals',
+    type: 'Pop-Me Balloon',
+    palette: 'Blackout Exterior, Baby Pink Interior',
+  },
+  {
+    id: 4,
+    title: 'Hen Party Suite Organic Garland',
+    category: 'bridal',
+    type: 'Organic Arch Installation',
+    palette: 'Pearlescent White & Soft Blush',
+  },
+  {
+    id: 5,
+    title: 'Stuffed Pop-Me Birthday Surprise',
+    category: 'gifts',
+    type: 'Gift Balloon',
+    palette: 'Crystal Clear Bubble with Satin Ribbon',
+  },
+  {
+    id: 6,
+    title: 'Confirmation Arch & Sailboard',
+    category: 'communions-confirmations',
+    type: 'Sailboard & Half Arch',
+    palette: 'Pure White, Sage & Chrome Gold',
+  },
+];
+---
+
+<BaseLayout
+  title="Styling Gallery Portfolio | Luxe Bear - Balloon Bar"
+  description="Explore our balloon styling portfolio across birthdays, communions, confirmations, gender reveals, and bridal party backdrops."
+>
+  <div class="gallery-hero">
+    <div class="container text-center">
+      <span class="badge">Inspiration & Ideas</span>
+      <h1 class="page-title">Styling Portfolio</h1>
+      <p class="page-desc">
+        Browse curated concept aesthetics, balloon palette combinations, and installation styles for your upcoming event.
+      </p>
+    </div>
+  </div>
+
+  <section class="gallery-section">
+    <div class="container">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Styles</button>
+        {DEFAULT_OCCASIONS.map((occ) => (
+          <button class="filter-btn" data-filter={occ.slug}>
+            {occ.title.split('&')[0].trim()}
+          </button>
+        ))}
+      </div>
+
+      <!-- Gallery Grid -->
+      <div class="gallery-grid">
+        {galleryItems.map((item) => (
+          <div class="gallery-card card" data-category={item.category}>
+            <div class="placeholder-visual">
+              <span class="balloon-emoji">🎈</span>
+              <span class="placeholder-tag">{item.type}</span>
+            </div>
+            <div class="card-body">
+              <span class="badge-mini">{item.category}</span>
+              <h3 class="gallery-title">{item.title}</h3>
+              <p class="gallery-palette"><strong>Palette:</strong> {item.palette}</p>
+              <div class="card-action">
+                <a href="/book" class="link-inquire">Request This Look &rarr;</a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="gallery-cta card text-center">
+        <h3>Have a Specific Vision or Pinterest Board?</h3>
+        <p>Send us your moodboard, color swatches, or photos and we will craft a bespoke arrangement.</p>
+        <div style="margin-top: 1.5rem;">
+          <a href="/book" class="btn-primary">Send Custom Inquiry</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.gallery-card');
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.getAttribute('data-filter');
+
+      cards.forEach((card) => {
+        const category = card.getAttribute('data-category');
+        if (filter === 'all' || category === filter) {
+          (card as HTMLElement).style.display = 'flex';
+        } else {
+          (card as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .gallery-hero {
+    padding: 4rem 0 2rem;
+    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.4) 0%, transparent 65%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+  }
+
+  .gallery-section {
+    padding: 3rem 0 5rem;
+  }
+
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+  }
+
+  .filter-btn {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent-gold);
+    color: #FFFFFF;
+    border-color: var(--accent-gold);
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .gallery-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .placeholder-visual {
+    background: linear-gradient(135deg, #F5EAE7 0%, #EBD8D0 100%);
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .balloon-emoji {
+    font-size: 3.5rem;
+  }
+
+  .placeholder-tag {
+    position: absolute;
+    bottom: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.3rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .badge-mini {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent-rose);
+    margin-bottom: 0.5rem;
+  }
+
+  .gallery-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .gallery-palette {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    flex: 1;
+  }
+
+  .link-inquire {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-gold-dark);
+  }
+
+  .gallery-cta {
+    background: #FFFFFF;
+    border: 1px solid var(--border-accent);
+    padding: 3rem;
+  }
+
+  .gallery-cta h3 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .gallery-cta p {
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+</style>

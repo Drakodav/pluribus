@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../layouts/base-layout.astro';
+import { SITE_METADATA } from '../lib/constants';
+---
+
+<BaseLayout
+  title="Contact Us | Luxe Bear - Balloon Bar"
+  description="Get in touch with Luxe Bear Studio for custom balloon installations, urgent event dates, and bespoke styling consultations."
+>
+  <div class="contact-hero">
+    <div class="container text-center">
+      <span class="badge">Direct Communication</span>
+      <h1 class="page-title">Get in Touch</h1>
+      <p class="page-desc">
+        Have questions about balloon sizing, color matching, or an upcoming event date? Reach out to us directly or submit an online inquiry.
+      </p>
+    </div>
+  </div>
+
+  <section class="contact-section">
+    <div class="container contact-container">
+      <div class="contact-grid">
+        <div class="contact-card card">
+          <span class="card-icon">📞</span>
+          <h3>Call or WhatsApp</h3>
+          <p class="contact-detail">
+            <a href={`tel:${SITE_METADATA.contactPhone}`}>{SITE_METADATA.contactPhone}</a>
+          </p>
+          <p class="card-note">Available Mon – Sat, 9:00 AM – 6:00 PM for inquiries and consultations.</p>
+        </div>
+
+        <div class="contact-card card">
+          <span class="card-icon">✉️</span>
+          <h3>Email Direct</h3>
+          <p class="contact-detail">
+            <a href={`mailto:${SITE_METADATA.contactEmail}`}>{SITE_METADATA.contactEmail}</a>
+          </p>
+          <p class="card-note">Send us your event date, moodboards, or Pinterest inspiration photos.</p>
+        </div>
+
+        <div class="contact-card card">
+          <span class="card-icon">📍</span>
+          <h3>Service Hub & Delivery</h3>
+          <p class="contact-detail">{SITE_METADATA.defaultServiceArea}</p>
+          <p class="card-note">On-site delivery and installation across Leinster; collection options also available.</p>
+        </div>
+      </div>
+
+      <div class="online-inquiry-box card text-center">
+        <h3>Ready to Book Your Date?</h3>
+        <p>Our online form captures everything we need to prepare an exact proposal for your occasion.</p>
+        <div style="margin-top: 1.5rem;">
+          <a href="/book" class="btn-primary">Fill Out Online Inquiry Form</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-hero {
+    padding: 4rem 0 2rem;
+    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.45) 0%, transparent 65%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .contact-section {
+    padding: 3rem 0 5rem;
+  }
+
+  .contact-container {
+    max-width: 950px;
+    margin: 0 auto;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .contact-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .contact-card h3 {
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .contact-detail {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent-gold-dark);
+    margin-bottom: 0.75rem;
+  }
+
+  .contact-detail a:hover {
+    text-decoration: underline;
+  }
+
+  .card-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .online-inquiry-box {
+    background: #FFFFFF;
+    border: 1px solid var(--border-accent);
+    padding: 3rem;
+  }
+
+  .online-inquiry-box h3 {
+    font-size: 1.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .online-inquiry-box p {
+    color: var(--text-muted);
+  }
+</style>

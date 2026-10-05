@@ -1,0 +1,235 @@
+---
+import BaseLayout from '../layouts/base-layout.astro';
+import { SITE_METADATA } from '../lib/constants';
+---
+
+<BaseLayout
+  title="Balloon Care Guide & Terms | Luxe Bear - Balloon Bar"
+  description="Essential balloon care instructions, environmental warnings, and The Store Line Rule liability terms for installations and collections."
+>
+  <div class="care-hero">
+    <div class="container text-center">
+      <span class="badge">Important Client Information</span>
+      <h1 class="page-title">Balloon Care & Terms and Conditions</h1>
+      <p class="page-desc">
+        We use only premium, 100% biodegradable professional-grade latex and high-durability balloons. To ensure your display remains pristine, please read our care guidance and handoff policy below.
+      </p>
+    </div>
+  </div>
+
+  <section class="care-content">
+    <div class="container care-container">
+      <!-- The Store Line Rule Notice -->
+      <div class="store-line-card card">
+        <div class="store-badge">Core Policy</div>
+        <h2>The Store Line Rule (Handoff of Liability)</h2>
+        <p class="lead-rule">
+          Much like purchasing a delicate electronic item from a shop — once an item crosses the store line, responsibility for its safety rests with the owner.
+        </p>
+        <p>
+          Once your balloons leave our physical hands (upon customer collection, handover, or once on-site event installation is completed and signed off), <strong>care, safety, and environmental responsibility transfer entirely to the client</strong>.
+        </p>
+        <p>
+          Luxe Bear Studio cannot be held liable or responsible for balloons popping, deflating, oxidizing, or suffering damage caused by heat, pets, rough handling, sharp objects, weather, or improper transport after handover.
+        </p>
+      </div>
+
+      <!-- Critical Environmental Factors -->
+      <div class="care-grid">
+        <div class="care-box card">
+          <span class="box-icon">☀️</span>
+          <h3>Sunlight & Heat Sensitivity</h3>
+          <p>
+            Latex balloons are naturally sensitive to heat and direct UV sunlight. Heat causes air and helium to rapidly expand, which can cause balloons to pop. Keep all displays away from direct sunlight, sunny windows, radiators, hot cars, and spotlights.
+          </p>
+        </div>
+
+        <div class="care-box card">
+          <span class="box-icon">❄️</span>
+          <h3>Cold Temperatures & Air Conditioning</h3>
+          <p>
+            Cold air causes helium and air particles to contract, making balloons appear slightly soft or wrinkled. This is completely normal! Once returned to comfortable room temperature (approx. 20°C / 68°F), they will regain their original firmness.
+          </p>
+        </div>
+
+        <div class="care-box card">
+          <span class="box-icon">🌬️</span>
+          <h3>Outdoor Installation Policy</h3>
+          <p>
+            Outdoor displays are stunning but inherently exposed to unpredictable elements like wind, brickwork, branches, and temperature fluctuations. While we anchor securely, outdoor installations are undertaken strictly at the client's own risk.
+          </p>
+        </div>
+
+        <div class="care-box card">
+          <span class="box-icon">🚗</span>
+          <h3>Transport & Collection Protocol</h3>
+          <p>
+            When collecting displays or gift balloons: ensure your vehicle boot and back seats are clean and 100% free of sharp objects, groceries, or pet hair. Run your air conditioning on warm days before placing balloons inside, and never leave balloons in a parked vehicle.
+          </p>
+        </div>
+      </div>
+
+      <!-- Pop-Me & Specialty Safety -->
+      <div class="safety-card card">
+        <h3>Specialty Pop-Me & Gender Reveal Balloons</h3>
+        <p>
+          Our Pop-Me Gender Reveal and Stuffed Gift Balloons are supplied with a dedicated popping pin. 
+          Please keep the popping pin out of reach of infants and small children at all times until the exact moment of the celebration. When popping, stand at arm's length and aim for the center of the balloon.
+        </p>
+      </div>
+
+      <!-- Consent Confirmation CTA -->
+      <div class="care-cta card text-center">
+        <h3>Ready to Plan Your Celebration?</h3>
+        <p>By submitting an inquiry form, you acknowledge that you have reviewed and agree to these Balloon Care guidelines.</p>
+        <div style="margin-top: 1.5rem;">
+          <a href="/book" class="btn-primary">Proceed to Booking Inquiry</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .care-hero {
+    padding: 4rem 0 2rem;
+    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.45) 0%, transparent 65%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .care-content {
+    padding: 3rem 0 5rem;
+  }
+
+  .care-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .store-line-card {
+    background: #FFFFFF;
+    border: 2px solid var(--accent-gold);
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+
+  .store-badge {
+    position: absolute;
+    top: -12px;
+    right: 2rem;
+    background: var(--accent-gold);
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.85rem;
+    border-radius: 9999px;
+  }
+
+  .store-line-card h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .lead-rule {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+  }
+
+  .store-line-card p {
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .care-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .care-box {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+  }
+
+  .box-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .care-box h3 {
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .care-box p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .safety-card {
+    background: var(--bg-subtle);
+    padding: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .safety-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .safety-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .care-cta {
+    background: #FFFFFF;
+    border: 1px solid var(--border-accent);
+    padding: 3rem;
+  }
+
+  .care-cta h3 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .care-cta p {
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 600px) {
+    .care-grid {
+      grid-template-columns: 1fr;
+    }
+    .store-line-card {
+      padding: 1.75rem;
+    }
+  }
+</style>

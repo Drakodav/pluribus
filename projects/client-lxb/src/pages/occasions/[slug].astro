@@ -1,0 +1,282 @@
+---
+import BaseLayout from '../../layouts/base-layout.astro';
+import InquiryForm from '../../components/inquiry/inquiry-form.astro';
+import { getOccasions, getProducts } from '../../lib/directus';
+import type { Occasion, Product } from '../../types/directus';
+
+export async function getStaticPaths() {
+  const occasions = await getOccasions();
+  const allProducts = await getProducts();
+
+  return occasions.map((occasion) => {
+    const products = allProducts.filter(
+      (p) => !p.occasion_slugs || p.occasion_slugs.includes(occasion.slug)
+    );
+    return {
+      params: { slug: occasion.slug },
+      props: { occasion, products },
+    };
+  });
+}
+
+interface Props {
+  occasion: Occasion;
+  products: Product[];
+}
+
+const { occasion, products } = Astro.props;
+---
+
+<BaseLayout
+  title={`${occasion.title} Balloon Decor | Luxe Bear Studio`}
+  description={occasion.description}
+>
+  <div class="occasion-hero">
+    <div class="container text-center">
+      <div class="breadcrumbs">
+        <a href="/">Home</a> &rarr; <a href="/occasions">Occasions</a> &rarr; <span>{occasion.title}</span>
+      </div>
+      {occasion.badge && <span class="badge occasion-badge">{occasion.badge}</span>}
+      <h1 class="hero-title">{occasion.title}</h1>
+      <p class="hero-subtitle">{occasion.subtitle}</p>
+      {occasion.starting_price && (
+        <p class="starting-tag">Package estimates starting from {occasion.starting_price}</p>
+      )}
+    </div>
+  </div>
+
+  <!-- Occasion Description & Highlights -->
+  <section class="occasion-details">
+    <div class="container details-container">
+      <div class="details-card card">
+        <h2>Styling & Concept Overview</h2>
+        <p class="details-text">{occasion.description}</p>
+
+        {occasion.highlights && occasion.highlights.length > 0 && (
+          <div class="highlights-box">
+            <h3>Featured Elements for {occasion.title}</h3>
+            <ul class="highlights-list">
+              {occasion.highlights.map((item) => (
+                <li>
+                  <span class="icon">✨</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Curated Products for this Occasion -->
+  {products.length > 0 && (
+    <section class="occasion-products">
+      <div class="container">
+        <div class="section-title-wrap text-center">
+          <h2>Popular Installations for This Celebration</h2>
+          <p class="subtitle">Customizable color palettes and sizes tailored to your venue.</p>
+        </div>
+
+        <div class="products-grid">
+          {products.map((product) => (
+            <div class="product-item card">
+              <span class="price-pill">{product.starting_price}</span>
+              <h3>{product.name}</h3>
+              {product.subtitle && <p class="product-sub">{product.subtitle}</p>}
+              <p class="product-desc">{product.description}</p>
+              {product.features && (
+                <ul class="product-features">
+                  {product.features.map((f) => (
+                    <li>✓ {f}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Occasion Inquiry Form -->
+  <section class="occasion-inquiry">
+    <div class="container">
+      <div class="inquiry-intro text-center">
+        <h2>Reserve Your Date for {occasion.title}</h2>
+        <p>Check availability for your celebration date below.</p>
+      </div>
+      <InquiryForm preselectedOccasion={occasion.slug} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .occasion-hero {
+    padding: 4rem 0 3rem;
+    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.45) 0%, transparent 65%);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto;
+  }
+
+  .breadcrumbs {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--accent-gold-dark);
+  }
+
+  .occasion-badge {
+    margin-bottom: 1rem;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .starting-tag {
+    font-weight: 600;
+    color: var(--accent-gold-dark);
+    font-size: 1.05rem;
+  }
+
+  .occasion-details {
+    padding: 3rem 0;
+  }
+
+  .details-container {
+    max-width: 800px;
+  }
+
+  .details-card h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .details-text {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 2rem;
+  }
+
+  .highlights-box {
+    background: var(--bg-subtle);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .highlights-box h3 {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+  }
+
+  .highlights-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .highlights-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-main);
+  }
+
+  .occasion-products {
+    padding: 4rem 0;
+    background-color: var(--bg-subtle);
+  }
+
+  .section-title-wrap {
+    margin-bottom: 3rem;
+  }
+
+  .section-title-wrap h2 {
+    font-size: 2.25rem;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-item {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .price-pill {
+    align-self: flex-start;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-gold-dark);
+    margin-bottom: 0.75rem;
+  }
+
+  .product-item h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .product-sub {
+    font-size: 0.85rem;
+    color: var(--accent-rose);
+    margin-bottom: 0.75rem;
+  }
+
+  .product-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    flex: 1;
+  }
+
+  .product-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+  }
+
+  .occasion-inquiry {
+    padding: 5rem 0;
+  }
+
+  .inquiry-intro {
+    margin-bottom: 3rem;
+  }
+
+  .inquiry-intro h2 {
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .hero-title {
+      font-size: 2.2rem;
+    }
+  }
+</style>

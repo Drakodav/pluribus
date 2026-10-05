@@ -1,0 +1,208 @@
+---
+import BaseLayout from "../layouts/base-layout.astro";
+import SeasonalHero from "../components/home/seasonal-hero.astro";
+import OccasionGrid from "../components/home/occasion-grid.astro";
+import { getOccasions, getSeasonalBanner, getProducts } from "../lib/directus";
+
+const banner = await getSeasonalBanner();
+const occasions = await getOccasions();
+const featuredProducts = await getProducts();
+---
+
+<BaseLayout>
+  <!-- 1. Seasonal Spotlight Banner -->
+  <SeasonalHero banner={banner} />
+
+  <!-- 2. Occasion-First Browsing Hub -->
+  <OccasionGrid occasions={occasions} />
+
+  <!-- 3. Signature Offerings Showcase -->
+  <section class="offerings-preview">
+    <div class="container">
+      <div class="section-heading text-center">
+        <span class="badge">Bespoke Styling</span>
+        <h2>Signature Installations & Specialty Balloons</h2>
+        <p class="subtitle">
+          Every piece is handcrafted using biodegradable, premium professional
+          latex and custom vinyl typography.
+        </p>
+      </div>
+
+      <div class="offerings-grid">
+        {
+          featuredProducts.slice(0, 4).map((product) => (
+            <div class="offering-card card">
+              <div class="offering-header">
+                <span class="offering-price">
+                  Starting from {product.starting_price}
+                </span>
+              </div>
+              <h3 class="offering-title">{product.name}</h3>
+              {product.subtitle && (
+                <p class="offering-subtitle">{product.subtitle}</p>
+              )}
+              <p class="offering-desc">{product.description}</p>
+              {product.features && (
+                <ul class="offering-features">
+                  {product.features.map((feature) => (
+                    <li>✓ {feature}</li>
+                  ))}
+                </ul>
+              )}
+              <div class="offering-footer">
+                <a
+                  href="/book"
+                  class="btn-secondary"
+                  style="width: 100%; text-align: center;"
+                >
+                  Inquire About This Style
+                </a>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. The Store Line Rule & Trust Banner -->
+  <section class="trust-banner">
+    <div class="container trust-container">
+      <div class="trust-card card">
+        <div class="trust-content">
+          <span class="badge">Peace of Mind</span>
+          <h3>Professional Care & Transparency</h3>
+          <p>
+            We pride ourselves on using durable, professional-grade styling
+            techniques. Review our comprehensive{" "}
+            <a href="/balloon-care" class="trust-link"
+              >Balloon Care Guide & The Store Line Rule</a
+            > to ensure your installation looks flawless throughout your event.
+          </p>
+        </div>
+        <div class="trust-action">
+          <a href="/balloon-care" class="btn-secondary">
+            Read Care Guide &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .offerings-preview {
+    padding: 5rem 0;
+    background-color: var(--bg-subtle);
+  }
+
+  .text-center {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 3.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+
+  .offerings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .offering-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .offering-header {
+    margin-bottom: 1rem;
+  }
+
+  .offering-price {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent-gold-dark);
+    letter-spacing: 0.03em;
+  }
+
+  .offering-title {
+    font-size: 1.35rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .offering-subtitle {
+    font-size: 0.85rem;
+    color: var(--accent-rose);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  .offering-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .offering-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-main);
+  }
+
+  .offering-footer {
+    margin-top: auto;
+  }
+
+  .trust-banner {
+    padding: 4rem 0;
+  }
+
+  .trust-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    background: #ffffff;
+    border: 1px solid var(--border-accent);
+  }
+
+  .trust-content {
+    max-width: 700px;
+  }
+
+  .trust-content h3 {
+    font-size: 1.75rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .trust-content p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .trust-link {
+    color: var(--accent-gold-dark);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .trust-card {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+</style>

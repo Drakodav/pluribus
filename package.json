@@ -1,0 +1,15 @@
+{
+  "name": "pluribus",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": ">=12.9.1",
+      "onFail": "download"
+    }
+  }
+}

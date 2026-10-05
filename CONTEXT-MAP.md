@@ -4,8 +4,10 @@
 
 - [Git History CV Extractor](./projects/git-history-cv-extractor/CONTEXT.md) — extracts and compiles personal code contribution metrics from Git repositories to generate structured resume summaries.
 - [Homelab](./projects/homelab/CONTEXT.md) — split-brain hybrid cloud infrastructure combining an Oracle Cloud VPS gateway (aperio) with an on-premises powerhouse compute/storage node (macerator).
+- [Luxe Bear - Balloon Bar](./projects/client-lxb/CONTEXT.md) — luxury event balloon styling and party decor showcase website with occasion-first browsing and Directus-backed inquiry capture.
 
 ## Relationships
 
 - **Git History CV Extractor**: Operates as an independent developer utility within the Pluribus workspace.
 - **Homelab**: Operates as an independent personal cloud and self-hosted infrastructure platform within the Pluribus workspace.
+- **Luxe Bear - Balloon Bar**: Independent client website project with headless Directus CMS backend and Astro frontend.
