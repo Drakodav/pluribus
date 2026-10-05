@@ -92,7 +92,7 @@ services:
       - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchaprovider=turnstile"
       - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchasitekey=${GLOBAL_TURNSTILE_SITE_KEY}"
       - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchasecretkey=${GLOBAL_TURNSTILE_SECRET_KEY}"
-      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchagraceperiodseconds=1800"
+      - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchagraceperiodseconds=604800"
       - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchahtmlfilepath=/captcha.html"
 
   komodo-periphery:

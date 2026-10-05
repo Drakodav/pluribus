@@ -12,6 +12,6 @@ filters:
   - Alert.Remediation == true && Alert.GetScope() == "Ip"
 decisions:
   - type: captcha
-    duration: 4h
+    duration: 1h
 notifications: []
 on_success: break
