@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/base-layout.astro';
-import SeasonalHero from '../components/home/seasonal-hero.astro';
-import OccasionGrid from '../components/home/occasion-grid.astro';
-import { getOccasions, getSeasonalBanner, getProducts } from '../lib/directus';
+import BaseLayout from "../layouts/base-layout.astro";
+import SeasonalHero from "../components/home/seasonal-hero.astro";
+import OccasionGrid from "../components/home/occasion-grid.astro";
+import { getOccasions, getSeasonalBanner, getProducts } from "../lib/directus";
 
 const banner = await getSeasonalBanner();
 const occasions = await getOccasions();
@@ -23,33 +23,44 @@ const featuredProducts = await getProducts();
         <span class="badge">Bespoke Styling</span>
         <h2>Signature Installations & Specialty Balloons</h2>
         <p class="subtitle">
-          Every piece is handcrafted using biodegradable, premium professional latex and custom vinyl typography.
+          Every piece is handcrafted using biodegradable, premium professional
+          latex and custom vinyl typography.
         </p>
       </div>
 
       <div class="offerings-grid">
-        {featuredProducts.slice(0, 4).map((product) => (
-          <div class="offering-card card">
-            <div class="offering-header">
-              <span class="offering-price">Starting from {product.starting_price}</span>
+        {
+          featuredProducts.slice(0, 4).map((product) => (
+            <div class="offering-card card">
+              <div class="offering-header">
+                <span class="offering-price">
+                  Starting from {product.starting_price}
+                </span>
+              </div>
+              <h3 class="offering-title">{product.name}</h3>
+              {product.subtitle && (
+                <p class="offering-subtitle">{product.subtitle}</p>
+              )}
+              <p class="offering-desc">{product.description}</p>
+              {product.features && (
+                <ul class="offering-features">
+                  {product.features.map((feature) => (
+                    <li>✓ {feature}</li>
+                  ))}
+                </ul>
+              )}
+              <div class="offering-footer">
+                <a
+                  href="/book"
+                  class="btn-secondary"
+                  style="width: 100%; text-align: center;"
+                >
+                  Inquire About This Style
+                </a>
+              </div>
             </div>
-            <h3 class="offering-title">{product.name}</h3>
-            {product.subtitle && <p class="offering-subtitle">{product.subtitle}</p>}
-            <p class="offering-desc">{product.description}</p>
-            {product.features && (
-              <ul class="offering-features">
-                {product.features.map((feature) => (
-                  <li>✓ {feature}</li>
-                ))}
-              </ul>
-            )}
-            <div class="offering-footer">
-              <a href="/book" class="btn-secondary" style="width: 100%; text-align: center;">
-                Inquire About This Style
-              </a>
-            </div>
-          </div>
-        ))}
+          ))
+        }
       </div>
     </div>
   </section>
@@ -62,8 +73,11 @@ const featuredProducts = await getProducts();
           <span class="badge">Peace of Mind</span>
           <h3>Professional Care & Transparency</h3>
           <p>
-            We pride ourselves on using durable, professional-grade styling techniques. Review our comprehensive 
-            <a href="/balloon-care" class="trust-link">Balloon Care Guide & The Store Line Rule</a> to ensure your installation looks flawless throughout your event.
+            We pride ourselves on using durable, professional-grade styling
+            techniques. Review our comprehensive{" "}
+            <a href="/balloon-care" class="trust-link"
+              >Balloon Care Guide & The Store Line Rule</a
+            > to ensure your installation looks flawless throughout your event.
           </p>
         </div>
         <div class="trust-action">
@@ -160,7 +174,7 @@ const featuredProducts = await getProducts();
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    background: #FFFFFF;
+    background: #ffffff;
     border: 1px solid var(--border-accent);
   }
 
