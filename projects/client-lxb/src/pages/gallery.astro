@@ -1,49 +1,51 @@
 ---
-import BaseLayout from '../layouts/base-layout.astro';
-import { DEFAULT_OCCASIONS } from '../lib/constants';
+import BaseLayout from "@/layouts/base-layout.astro";
+import { dClient } from "@/lib/directus";
+
+const occasions = await dClient.getOccasions();
 
 const galleryItems = [
   {
     id: 1,
-    title: 'Milestone 30th Shimmer Backdrop',
-    category: 'birthdays',
-    type: 'Organic Half Arch',
-    palette: 'Champagne, Ivory & Rose Gold',
+    title: "Milestone 30th Shimmer Backdrop",
+    category: "birthdays",
+    type: "Organic Half Arch",
+    palette: "Champagne, Ivory & Rose Gold",
   },
   {
     id: 2,
-    title: 'First Holy Communion Welcome Easel',
-    category: 'communions-confirmations',
-    type: 'Easel Arch Cluster',
-    palette: 'Matte White, Gold Reflex & Eucalyptus',
+    title: "First Holy Communion Welcome Easel",
+    category: "communions-confirmations",
+    type: "Easel Arch Cluster",
+    palette: "Matte White, Gold Reflex & Eucalyptus",
   },
   {
     id: 3,
-    title: 'Dual-Layer Bubble Gender Reveal',
-    category: 'gender-reveals',
-    type: 'Pop-Me Balloon',
-    palette: 'Blackout Exterior, Baby Pink Interior',
+    title: "Dual-Layer Bubble Gender Reveal",
+    category: "gender-reveals",
+    type: "Pop-Me Balloon",
+    palette: "Blackout Exterior, Baby Pink Interior",
   },
   {
     id: 4,
-    title: 'Hen Party Suite Organic Garland',
-    category: 'bridal',
-    type: 'Organic Arch Installation',
-    palette: 'Pearlescent White & Soft Blush',
+    title: "Hen Party Suite Organic Garland",
+    category: "bridal",
+    type: "Organic Arch Installation",
+    palette: "Pearlescent White & Soft Blush",
   },
   {
     id: 5,
-    title: 'Stuffed Pop-Me Birthday Surprise',
-    category: 'gifts',
-    type: 'Gift Balloon',
-    palette: 'Crystal Clear Bubble with Satin Ribbon',
+    title: "Stuffed Pop-Me Birthday Surprise",
+    category: "gifts",
+    type: "Gift Balloon",
+    palette: "Crystal Clear Bubble with Satin Ribbon",
   },
   {
     id: 6,
-    title: 'Confirmation Arch & Sailboard',
-    category: 'communions-confirmations',
-    type: 'Sailboard & Half Arch',
-    palette: 'Pure White, Sage & Chrome Gold',
+    title: "Confirmation Arch & Sailboard",
+    category: "communions-confirmations",
+    type: "Sailboard & Half Arch",
+    palette: "Pure White, Sage & Chrome Gold",
   },
 ];
 ---
@@ -57,7 +59,8 @@ const galleryItems = [
       <span class="badge">Inspiration & Ideas</span>
       <h1 class="page-title">Styling Portfolio</h1>
       <p class="page-desc">
-        Browse curated concept aesthetics, balloon palette combinations, and installation styles for your upcoming event.
+        Browse curated concept aesthetics, balloon palette combinations, and
+        installation styles for your upcoming event.
       </p>
     </div>
   </div>
@@ -67,36 +70,47 @@ const galleryItems = [
       <!-- Filter Bar -->
       <div class="filter-bar">
         <button class="filter-btn active" data-filter="all">All Styles</button>
-        {DEFAULT_OCCASIONS.map((occ) => (
-          <button class="filter-btn" data-filter={occ.slug}>
-            {occ.title.split('&')[0].trim()}
-          </button>
-        ))}
+        {
+          occasions.map((occ) => (
+            <button class="filter-btn" data-filter={occ.slug}>
+              {(occ?.title ?? "").split("&")[0].trim()}
+            </button>
+          ))
+        }
       </div>
 
       <!-- Gallery Grid -->
       <div class="gallery-grid">
-        {galleryItems.map((item) => (
-          <div class="gallery-card card" data-category={item.category}>
-            <div class="placeholder-visual">
-              <span class="balloon-emoji">🎈</span>
-              <span class="placeholder-tag">{item.type}</span>
-            </div>
-            <div class="card-body">
-              <span class="badge-mini">{item.category}</span>
-              <h3 class="gallery-title">{item.title}</h3>
-              <p class="gallery-palette"><strong>Palette:</strong> {item.palette}</p>
-              <div class="card-action">
-                <a href="/book" class="link-inquire">Request This Look &rarr;</a>
+        {
+          galleryItems.map((item) => (
+            <div class="gallery-card card" data-category={item.category}>
+              <div class="placeholder-visual">
+                <span class="balloon-emoji">🎈</span>
+                <span class="placeholder-tag">{item.type}</span>
+              </div>
+              <div class="card-body">
+                <span class="badge-mini">{item.category}</span>
+                <h3 class="gallery-title">{item.title}</h3>
+                <p class="gallery-palette">
+                  <strong>Palette:</strong> {item.palette}
+                </p>
+                <div class="card-action">
+                  <a href="/book" class="link-inquire">
+                    Request This Look &rarr;
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        }
       </div>
 
       <div class="gallery-cta card text-center">
         <h3>Have a Specific Vision or Pinterest Board?</h3>
-        <p>Send us your moodboard, color swatches, or photos and we will craft a bespoke arrangement.</p>
+        <p>
+          Send us your moodboard, color swatches, or photos and we will craft a
+          bespoke arrangement.
+        </p>
         <div style="margin-top: 1.5rem;">
           <a href="/book" class="btn-primary">Send Custom Inquiry</a>
         </div>
@@ -106,22 +120,22 @@ const galleryItems = [
 </BaseLayout>
 
 <script>
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const cards = document.querySelectorAll('.gallery-card');
+  const filterBtns = document.querySelectorAll(".filter-btn");
+  const cards = document.querySelectorAll(".gallery-card");
 
   filterBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
+    btn.addEventListener("click", () => {
+      filterBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
 
-      const filter = btn.getAttribute('data-filter');
+      const filter = btn.getAttribute("data-filter");
 
       cards.forEach((card) => {
-        const category = card.getAttribute('data-category');
-        if (filter === 'all' || category === filter) {
-          (card as HTMLElement).style.display = 'flex';
+        const category = card.getAttribute("data-category");
+        if (filter === "all" || category === filter) {
+          (card as HTMLElement).style.display = "flex";
         } else {
-          (card as HTMLElement).style.display = 'none';
+          (card as HTMLElement).style.display = "none";
         }
       });
     });
@@ -131,7 +145,11 @@ const galleryItems = [
 <style>
   .gallery-hero {
     padding: 4rem 0 2rem;
-    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.4) 0%, transparent 65%);
+    background: radial-gradient(
+      circle at 50% 10%,
+      rgba(235, 216, 208, 0.4) 0%,
+      transparent 65%
+    );
   }
 
   .text-center {
@@ -164,7 +182,7 @@ const galleryItems = [
   }
 
   .filter-btn {
-    background: #FFFFFF;
+    background: #ffffff;
     border: 1px solid var(--border-light);
     padding: 0.6rem 1.25rem;
     border-radius: 9999px;
@@ -174,9 +192,10 @@ const galleryItems = [
     transition: all 0.2s ease;
   }
 
-  .filter-btn:hover, .filter-btn.active {
+  .filter-btn:hover,
+  .filter-btn.active {
     background: var(--accent-gold);
-    color: #FFFFFF;
+    color: #ffffff;
     border-color: var(--accent-gold);
   }
 
@@ -195,7 +214,7 @@ const galleryItems = [
   }
 
   .placeholder-visual {
-    background: linear-gradient(135deg, #F5EAE7 0%, #EBD8D0 100%);
+    background: linear-gradient(135deg, #f5eae7 0%, #ebd8d0 100%);
     height: 240px;
     display: flex;
     flex-direction: column;
@@ -255,7 +274,7 @@ const galleryItems = [
   }
 
   .gallery-cta {
-    background: #FFFFFF;
+    background: #ffffff;
     border: 1px solid var(--border-accent);
     padding: 3rem;
   }

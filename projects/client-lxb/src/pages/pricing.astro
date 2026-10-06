@@ -1,6 +1,9 @@
 ---
-import BaseLayout from '../layouts/base-layout.astro';
-import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
+import BaseLayout from "@/layouts/base-layout.astro";
+import { dClient } from "@/lib/directus";
+
+const products = await dClient.getProducts();
+const siteSettings = await dClient.getSiteSettings();
 ---
 
 <BaseLayout
@@ -12,7 +15,9 @@ import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
       <span class="badge">Transparent Investment</span>
       <h1 class="page-title">Pricing & Package Estimates</h1>
       <p class="page-desc">
-        Because every event venue and color palette is unique, we provide transparent baseline estimates below. Final quotes depend on installation scale, customization, and delivery area.
+        Because every event venue and color palette is unique, we provide
+        transparent baseline estimates below. Final quotes depend on
+        installation scale, customization, and delivery area.
       </p>
     </div>
   </div>
@@ -20,35 +25,41 @@ import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
   <section class="pricing-section">
     <div class="container">
       <div class="pricing-grid">
-        {DEFAULT_PRODUCTS.map((prod) => (
-          <div class="pricing-card card">
-            <div class="pricing-header">
-              <span class="price-figure">From {prod.starting_price}</span>
-              <span class="price-sub">base estimate</span>
-            </div>
-
-            <h3 class="product-title">{prod.name}</h3>
-            {prod.subtitle && <p class="product-subtitle">{prod.subtitle}</p>}
-            <p class="product-desc">{prod.description}</p>
-
-            {prod.features && (
-              <div class="features-block">
-                <h4>Includes:</h4>
-                <ul class="features-list">
-                  {prod.features.map((feat) => (
-                    <li>✓ {feat}</li>
-                  ))}
-                </ul>
+        {
+          products.map((prod) => (
+            <div class="pricing-card card">
+              <div class="pricing-header">
+                <span class="price-figure">From {prod.starting_price}</span>
+                <span class="price-sub">base estimate</span>
               </div>
-            )}
 
-            <div class="pricing-action">
-              <a href="/book" class="btn-primary" style="width: 100%; text-align: center;">
-                Inquire For Your Date
-              </a>
+              <h3 class="product-title">{prod.name}</h3>
+              {prod.subtitle && <p class="product-subtitle">{prod.subtitle}</p>}
+              <p class="product-desc">{prod.description}</p>
+
+              {prod.features && (
+                <div class="features-block">
+                  <h4>Includes:</h4>
+                  <ul class="features-list">
+                    {prod.features.map((feat) => (
+                      <li>✓ {feat}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div class="pricing-action">
+                <a
+                  href="/book"
+                  class="btn-primary"
+                  style="width: 100%; text-align: center;"
+                >
+                  Inquire For Your Date
+                </a>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        }
       </div>
 
       <!-- Delivery Fee & Add-ons Explainer -->
@@ -57,15 +68,25 @@ import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
         <div class="notes-grid">
           <div class="note-item">
             <h4>📍 Local Service Radius</h4>
-            <p>Our standard service hub covers {SITE_METADATA.defaultServiceArea}. Travel within our core zone includes standard delivery and setup.</p>
+            <p>
+              Our standard service hub covers {siteSettings?.service_area}.
+              Travel within our core zone includes standard delivery and setup.
+            </p>
           </div>
           <div class="note-item">
             <h4>🚚 Extended Travel Tiers</h4>
-            <p>Venues located outside our primary radius are quoted a transparent distance-based travel tier to cover fuel and travel transit time.</p>
+            <p>
+              Venues located outside our primary radius are quoted a transparent
+              distance-based travel tier to cover fuel and travel transit time.
+            </p>
           </div>
           <div class="note-item">
             <h4>🎈 Premium Customizations</h4>
-            <p>Custom vinyl decals (names/dates), acrylic easel hire, floral accents, and shimmer wall backdrops are available as tailored add-ons.</p>
+            <p>
+              Custom vinyl decals (names/dates), acrylic easel hire, floral
+              accents, and shimmer wall backdrops are available as tailored
+              add-ons.
+            </p>
           </div>
         </div>
       </div>
@@ -76,7 +97,11 @@ import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
 <style>
   .pricing-hero {
     padding: 4rem 0 2rem;
-    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.4) 0%, transparent 65%);
+    background: radial-gradient(
+      circle at 50% 10%,
+      rgba(235, 216, 208, 0.4) 0%,
+      transparent 65%
+    );
   }
 
   .text-center {
@@ -183,7 +208,7 @@ import { DEFAULT_PRODUCTS, SITE_METADATA } from '../lib/constants';
 
   .pricing-notes {
     padding: 2.5rem;
-    background: #FFFFFF;
+    background: #ffffff;
     border: 1px solid var(--border-accent);
   }
 

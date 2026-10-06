@@ -1,5 +1,8 @@
 ---
-import { SITE_METADATA } from '../../lib/constants';
+import { dClient } from "@/lib/directus";
+
+const siteSettings = await dClient.getSiteSettings();
+const occasions = await dClient.getOccasions();
 ---
 
 <footer class="footer">
@@ -8,21 +11,24 @@ import { SITE_METADATA } from '../../lib/constants';
       <div class="footer-col brand-col">
         <h3 class="footer-logo">LUXE BEAR</h3>
         <p class="brand-tagline">
-          Elevating every milestone with bespoke organic balloon installations, custom acrylic backdrops, and specialty reveal moments.
+          Elevating every milestone with bespoke organic balloon installations,
+          custom acrylic backdrops, and specialty reveal moments.
         </p>
         <p class="umbrella-tag">
-          A division of <strong>{SITE_METADATA.brandName}</strong>
+          A division of <strong>{siteSettings?.site_brand_name}</strong>
         </p>
       </div>
 
       <div class="footer-col">
         <h4 class="footer-heading">Occasions</h4>
         <ul class="footer-links">
-          <li><a href="/occasions/birthdays">Birthdays & Milestones</a></li>
-          <li><a href="/occasions/communions-confirmations">Communions & Confirmations</a></li>
-          <li><a href="/occasions/gender-reveals">Gender Reveals & Showers</a></li>
-          <li><a href="/occasions/bridal">Bridal Era & Weddings</a></li>
-          <li><a href="/occasions/gifts">Pop-Me Gift Balloons</a></li>
+          {
+            occasions.map((occasion) => (
+              <li>
+                <a href={`/occasions/${occasion.slug}`}>{occasion.title}</a>
+              </li>
+            ))
+          }
         </ul>
       </div>
 
@@ -40,20 +46,26 @@ import { SITE_METADATA } from '../../lib/constants';
       <div class="footer-col">
         <h4 class="footer-heading">Service Coverage</h4>
         <p class="footer-info">
-          Serving: {SITE_METADATA.defaultServiceArea}
+          Serving: {siteSettings?.service_area}
         </p>
         <p class="footer-info" style="margin-top: 0.5rem;">
-          Email: <a href={`mailto:${SITE_METADATA.contactEmail}`}>{SITE_METADATA.contactEmail}</a>
+          Email: <a href={`mailto:${siteSettings?.site_contact_email}`}
+            >{siteSettings?.site_contact_email}</a
+          >
         </p>
         <p class="footer-info">
-          Phone: <a href={`tel:${SITE_METADATA.contactPhone}`}>{SITE_METADATA.contactPhone}</a>
+          Phone: <a href={`tel:${siteSettings?.site_contact_phone}`}
+            >{siteSettings?.site_contact_phone}</a
+          >
         </p>
       </div>
     </div>
 
     <div class="footer-bottom">
       <p class="copyright">
-        &copy; {new Date().getFullYear()} {SITE_METADATA.brandName} - {SITE_METADATA.divisionName}. All rights reserved.
+        &copy; {new Date().getFullYear()}
+        {siteSettings?.site_brand_name} - {siteSettings?.division_name}. All
+        rights reserved.
       </p>
       <div class="legal-links">
         <a href="/balloon-care">The Store Line Rule (Balloon Care)</a>
@@ -66,8 +78,8 @@ import { SITE_METADATA } from '../../lib/constants';
 
 <style>
   .footer {
-    background-color: #211D1D;
-    color: #EBD8D0;
+    background-color: #211d1d;
+    color: #ebd8d0;
     padding-top: 4rem;
     padding-bottom: 2.5rem;
     margin-top: 5rem;
@@ -80,7 +92,7 @@ import { SITE_METADATA } from '../../lib/constants';
   }
 
   .footer-logo {
-    color: #FFFFFF;
+    color: #ffffff;
     font-size: 1.5rem;
     letter-spacing: 0.1em;
     margin-bottom: 0.75rem;
@@ -88,7 +100,7 @@ import { SITE_METADATA } from '../../lib/constants';
 
   .brand-tagline {
     font-size: 0.9rem;
-    color: #C0B0A8;
+    color: #c0b0a8;
     line-height: 1.6;
     margin-bottom: 1rem;
   }
@@ -99,7 +111,7 @@ import { SITE_METADATA } from '../../lib/constants';
   }
 
   .footer-heading {
-    color: #FFFFFF;
+    color: #ffffff;
     font-size: 0.95rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -114,7 +126,7 @@ import { SITE_METADATA } from '../../lib/constants';
   }
 
   .footer-links a {
-    color: #C0B0A8;
+    color: #c0b0a8;
     font-size: 0.9rem;
   }
 
@@ -124,7 +136,7 @@ import { SITE_METADATA } from '../../lib/constants';
 
   .footer-info {
     font-size: 0.9rem;
-    color: #C0B0A8;
+    color: #c0b0a8;
     line-height: 1.5;
   }
 
@@ -140,7 +152,7 @@ import { SITE_METADATA } from '../../lib/constants';
     justify-content: space-between;
     align-items: center;
     font-size: 0.85rem;
-    color: #9E8F88;
+    color: #9e8f88;
   }
 
   .legal-links {
@@ -150,11 +162,11 @@ import { SITE_METADATA } from '../../lib/constants';
   }
 
   .legal-links a {
-    color: #C0B0A8;
+    color: #c0b0a8;
   }
 
   .legal-links a:hover {
-    color: #FFFFFF;
+    color: #ffffff;
   }
 
   @media (max-width: 900px) {

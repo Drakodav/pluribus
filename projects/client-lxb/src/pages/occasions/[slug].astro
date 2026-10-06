@@ -1,22 +1,32 @@
 ---
-import BaseLayout from '../../layouts/base-layout.astro';
-import InquiryForm from '../../components/inquiry/inquiry-form.astro';
-import { getOccasions, getProducts } from '../../lib/directus';
-import type { Occasion, Product } from '../../types/directus';
+import BaseLayout from "@/layouts/base-layout.astro";
+import InquiryForm from "@/components/inquiry/inquiry-form.astro";
+import { dClient } from "@/lib/directus";
+import type { Occasion, Product } from "@/types/directus";
 
 export async function getStaticPaths() {
-  const occasions = await getOccasions();
-  const allProducts = await getProducts();
+  const occasions = await dClient.getOccasions();
+  const allProducts = await dClient.getProducts();
 
-  return occasions.map((occasion) => {
-    const products = allProducts.filter(
-      (p) => !p.occasion_slugs || p.occasion_slugs.includes(occasion.slug)
-    );
-    return {
+  // return occasions.map((occasion) => {
+  // const products = allProducts.filter(
+  //   (p) => !p.occasion_slugs || p.occasion_slugs.includes(occasion.slug),
+  // );
+  // const products = allProducts;
+  // return {
+  //   params: { slug: occasion.slug as string },
+  //   props: { occasion, products },
+  // };
+  // });
+
+  return occasions
+    .filter((occasion): occasion is Occasion & { slug: string } =>
+      Boolean(occasion.slug),
+    )
+    .map((occasion) => ({
       params: { slug: occasion.slug },
-      props: { occasion, products },
-    };
-  });
+      props: { occasion, products: allProducts },
+    }));
 }
 
 interface Props {
@@ -34,14 +44,24 @@ const { occasion, products } = Astro.props;
   <div class="occasion-hero">
     <div class="container text-center">
       <div class="breadcrumbs">
-        <a href="/">Home</a> &rarr; <a href="/occasions">Occasions</a> &rarr; <span>{occasion.title}</span>
+        <a href="/">Home</a> &rarr; <a href="/occasions">Occasions</a> &rarr; <span
+          >{occasion.title}</span
+        >
       </div>
-      {occasion.badge && <span class="badge occasion-badge">{occasion.badge}</span>}
+      {
+        occasion.badge && (
+          <span class="badge occasion-badge">{occasion.badge}</span>
+        )
+      }
       <h1 class="hero-title">{occasion.title}</h1>
       <p class="hero-subtitle">{occasion.subtitle}</p>
-      {occasion.starting_price && (
-        <p class="starting-tag">Package estimates starting from {occasion.starting_price}</p>
-      )}
+      {
+        occasion.starting_price && (
+          <p class="starting-tag">
+            Package estimates starting from {occasion.starting_price}
+          </p>
+        )
+      }
     </div>
   </div>
 
@@ -52,52 +72,60 @@ const { occasion, products } = Astro.props;
         <h2>Styling & Concept Overview</h2>
         <p class="details-text">{occasion.description}</p>
 
-        {occasion.highlights && occasion.highlights.length > 0 && (
-          <div class="highlights-box">
-            <h3>Featured Elements for {occasion.title}</h3>
-            <ul class="highlights-list">
-              {occasion.highlights.map((item) => (
-                <li>
-                  <span class="icon">✨</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {
+          occasion.highlights && occasion.highlights.length > 0 && (
+            <div class="highlights-box">
+              <h3>Featured Elements for {occasion.title}</h3>
+              <ul class="highlights-list">
+                {occasion.highlights.map((item) => (
+                  <li>
+                    <span class="icon">✨</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
       </div>
     </div>
   </section>
 
   <!-- Curated Products for this Occasion -->
-  {products.length > 0 && (
-    <section class="occasion-products">
-      <div class="container">
-        <div class="section-title-wrap text-center">
-          <h2>Popular Installations for This Celebration</h2>
-          <p class="subtitle">Customizable color palettes and sizes tailored to your venue.</p>
-        </div>
+  {
+    products.length > 0 && (
+      <section class="occasion-products">
+        <div class="container">
+          <div class="section-title-wrap text-center">
+            <h2>Popular Installations for This Celebration</h2>
+            <p class="subtitle">
+              Customizable color palettes and sizes tailored to your venue.
+            </p>
+          </div>
 
-        <div class="products-grid">
-          {products.map((product) => (
-            <div class="product-item card">
-              <span class="price-pill">{product.starting_price}</span>
-              <h3>{product.name}</h3>
-              {product.subtitle && <p class="product-sub">{product.subtitle}</p>}
-              <p class="product-desc">{product.description}</p>
-              {product.features && (
-                <ul class="product-features">
-                  {product.features.map((f) => (
-                    <li>✓ {f}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+          <div class="products-grid">
+            {products.map((product) => (
+              <div class="product-item card">
+                <span class="price-pill">{product.starting_price}</span>
+                <h3>{product.name}</h3>
+                {product.subtitle && (
+                  <p class="product-sub">{product.subtitle}</p>
+                )}
+                <p class="product-desc">{product.description}</p>
+                {product.features && (
+                  <ul class="product-features">
+                    {product.features.map((f) => (
+                      <li>✓ {f}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   <!-- Occasion Inquiry Form -->
   <section class="occasion-inquiry">
@@ -114,7 +142,11 @@ const { occasion, products } = Astro.props;
 <style>
   .occasion-hero {
     padding: 4rem 0 3rem;
-    background: radial-gradient(circle at 50% 10%, rgba(235, 216, 208, 0.45) 0%, transparent 65%);
+    background: radial-gradient(
+      circle at 50% 10%,
+      rgba(235, 216, 208, 0.45) 0%,
+      transparent 65%
+    );
   }
 
   .text-center {

@@ -1,12 +1,15 @@
 ---
-import { DISCLAIMERS, DEFAULT_OCCASIONS } from '../../lib/constants';
+import { dClient } from "@/lib/directus";
+import { DISCLAIMERS } from "@/lib/constants";
 
 interface Props {
-  preselectedOccasion?: string;
+  preselectedOccasion?: string | null;
 }
 
-const { preselectedOccasion = '' } = Astro.props;
-const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd.cc';
+const { preselectedOccasion = "" } = Astro.props;
+const directusUrl =
+  import.meta.env.DIRECTUS_URL || "https://admin-lxb.apps.vlmd.cc";
+const occasions = await dClient.getOccasions();
 ---
 
 <div class="inquiry-card card">
@@ -14,7 +17,8 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
     <span class="badge">Start Your Quote</span>
     <h2 class="inquiry-title">Tell Us About Your Event</h2>
     <p class="inquiry-desc">
-      Fill out the details below and we will check our availability and respond with a personalized concept and price proposal.
+      Fill out the details below and we will check our availability and respond
+      with a personalized concept and price proposal.
     </p>
   </div>
 
@@ -22,23 +26,43 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
     <div class="form-row">
       <div class="form-group">
         <label for="full_name">Your Name <span class="required">*</span></label>
-        <input type="text" id="full_name" name="full_name" required placeholder="e.g. Sarah Jenkins" />
+        <input
+          type="text"
+          id="full_name"
+          name="full_name"
+          required
+          placeholder="e.g. Sarah Jenkins"
+        />
       </div>
 
       <div class="form-group">
         <label for="email">Email Address <span class="required">*</span></label>
-        <input type="email" id="email" name="email" required placeholder="sarah@example.com" />
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          placeholder="sarah@example.com"
+        />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label for="phone">Phone Number <span class="required">*</span></label>
-        <input type="tel" id="phone" name="phone" required placeholder="e.g. 087 123 4567" />
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          required
+          placeholder="e.g. 087 123 4567"
+        />
       </div>
 
       <div class="form-group">
-        <label for="location_area">General Location / Area <span class="required">*</span></label>
+        <label for="location_area"
+          >General Location / Area <span class="required">*</span></label
+        >
         <input
           type="text"
           id="location_area"
@@ -46,25 +70,37 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
           required
           placeholder="e.g. Swords, Malahide, Naas, Ashbourne"
         />
-        <small class="field-help">General town or district (used to calculate delivery tier and verify availability).</small>
+        <small class="field-help"
+          >General town or district (used to calculate delivery tier and verify
+          availability).</small
+        >
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label for="event_date">Event Date <span class="required">*</span></label>
+        <label for="event_date"
+          >Event Date <span class="required">*</span></label
+        >
         <input type="date" id="event_date" name="event_date" required />
       </div>
 
       <div class="form-group">
-        <label for="occasion">Occasion Type <span class="required">*</span></label>
+        <label for="occasion"
+          >Occasion Type <span class="required">*</span></label
+        >
         <select id="occasion" name="occasion" required>
           <option value="">-- Select Occasion --</option>
-          {DEFAULT_OCCASIONS.map((occ) => (
-            <option value={occ.slug} selected={occ.slug === preselectedOccasion}>
-              {occ.title}
-            </option>
-          ))}
+          {
+            occasions.map((occ) => (
+              <option
+                value={occ.slug}
+                selected={occ.slug === preselectedOccasion}
+              >
+                {occ.title}
+              </option>
+            ))
+          }
           <option value="other">Other Celebration / Custom</option>
         </select>
       </div>
@@ -96,9 +132,21 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
     <!-- Terms and Balloon Care Acknowledgement -->
     <div class="terms-group">
       <label class="checkbox-label">
-        <input type="checkbox" id="terms_accepted" name="terms_accepted" required />
+        <input
+          type="checkbox"
+          id="terms_accepted"
+          name="terms_accepted"
+          required
+        />
         <span>
-          I understand and accept the <a href="/balloon-care" target="_blank" class="terms-link">Balloon Care Guidelines & Terms</a> (The Store Line Rule: care transfers upon setup/collection; the studio is not liable for popping or weather damage post-handover). <span class="required">*</span>
+          I understand and accept the <a
+            href="/balloon-care"
+            target="_blank"
+            class="terms-link">Balloon Care Guidelines & Terms</a
+          > (The Store Line Rule: care transfers upon setup/collection; the studio
+          is not liable for popping or weather damage post-handover). <span
+            class="required">*</span
+          >
         </span>
       </label>
     </div>
@@ -106,7 +154,12 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
     <div id="form-feedback" class="form-feedback" style="display: none;"></div>
 
     <div class="form-actions">
-      <button type="submit" id="submit-btn" class="btn-primary" style="width: 100%;">
+      <button
+        type="submit"
+        id="submit-btn"
+        class="btn-primary"
+        style="width: 100%;"
+      >
         Submit Event Inquiry
       </button>
     </div>
@@ -114,55 +167,56 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
 </div>
 
 <script>
-  import { createDirectus, rest, createItem } from '@directus/sdk';
+  import { createDirectus, rest, createItem } from "@directus/sdk";
 
-  const form = document.getElementById('inquiry-form') as HTMLFormElement;
-  const feedback = document.getElementById('form-feedback') as HTMLDivElement;
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const form = document.getElementById("inquiry-form") as HTMLFormElement;
+  const feedback = document.getElementById("form-feedback") as HTMLDivElement;
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
 
   if (form) {
-    const directusBase = form.dataset.directusUrl || 'https://admin-lxb.apps.vlmd.cc';
+    const directusBase =
+      form.dataset.directusUrl || "https://admin-lxb.apps.vlmd.cc";
     const client = createDirectus(directusBase).with(rest());
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       submitBtn.disabled = true;
-      submitBtn.innerText = 'Sending Inquiry...';
+      submitBtn.innerText = "Sending Inquiry...";
 
       const formData = new FormData(form);
       const payload = {
-        full_name: String(formData.get('full_name') || ''),
-        email: String(formData.get('email') || ''),
-        phone: String(formData.get('phone') || ''),
-        location_area: String(formData.get('location_area') || ''),
-        event_date: String(formData.get('event_date') || ''),
-        occasion: String(formData.get('occasion') || ''),
-        details: String(formData.get('details') || ''),
-        terms_accepted: formData.get('terms_accepted') === 'on',
-        status: 'new' as const,
+        full_name: String(formData.get("full_name") || ""),
+        email: String(formData.get("email") || ""),
+        phone: String(formData.get("phone") || ""),
+        location_area: String(formData.get("location_area") || ""),
+        event_date: String(formData.get("event_date") || ""),
+        occasion: String(formData.get("occasion") || ""),
+        details: String(formData.get("details") || ""),
+        terms_accepted: formData.get("terms_accepted") === "on",
+        status: "new" as const,
       };
 
       try {
-        await client.request(createItem('inquiries', payload));
+        await client.request(createItem("inquiries", payload));
 
         form.reset();
-        feedback.style.display = 'block';
-        feedback.className = 'form-feedback success';
+        feedback.style.display = "block";
+        feedback.className = "form-feedback success";
         feedback.innerHTML = `
           <strong>Thank you! Your inquiry has been received.</strong>
           <p>We will review your date and location and get back to you shortly at the email and phone number provided.</p>
         `;
       } catch (err) {
-        console.warn('[directus-sdk] Submission notice:', err);
-        feedback.style.display = 'block';
-        feedback.className = 'form-feedback success';
+        console.warn("[directus-sdk] Submission notice:", err);
+        feedback.style.display = "block";
+        feedback.className = "form-feedback success";
         feedback.innerHTML = `
           <strong>Inquiry logged!</strong>
           <p>Thank you for submitting your event details. For urgent dates, you can also reach us directly via <a href="/contact">our contact details</a>.</p>
         `;
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerText = 'Submit Event Inquiry';
+        submitBtn.innerText = "Submit Event Inquiry";
       }
     });
   }
@@ -218,17 +272,23 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
     color: var(--accent-rose);
   }
 
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     padding: 0.8rem 1rem;
     border: 1px solid var(--border-light);
     border-radius: 0.6rem;
     font-size: 0.95rem;
     font-family: inherit;
-    background-color: #FFFFFF;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #ffffff;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
-  input:focus, select:focus, textarea:focus {
+  input:focus,
+  select:focus,
+  textarea:focus {
     outline: none;
     border-color: var(--accent-gold);
     box-shadow: 0 0 0 3px rgba(194, 139, 98, 0.15);
@@ -280,9 +340,9 @@ const directusUrl = import.meta.env.DIRECTUS_URL || 'https://admin-lxb.apps.vlmd
   }
 
   .form-feedback.success {
-    background-color: #EBF7EE;
-    color: #216E39;
-    border: 1px solid #C3E6CB;
+    background-color: #ebf7ee;
+    color: #216e39;
+    border: 1px solid #c3e6cb;
   }
 
   @media (max-width: 600px) {
