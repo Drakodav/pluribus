@@ -18,6 +18,13 @@ export type Inquiry = {
   user_updated: string | DirectusUser<Schema> | null;
   date_updated: "datetime" | null;
   email: string | null;
+  full_name: string | null;
+  phone: string | null;
+  location_area: string | null;
+  event_date: string | null;
+  occasion: string | null;
+  details: string | null;
+  status: "new" | "contacted" | "booked" | "archived" | null;
 }
 
 export type Occasion = {
