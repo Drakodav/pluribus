@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { createDirectus, rest, createItem } from "@directus/sdk";
-import type { Inquiry, Schema } from "@/types/directus";
+import type { Inquiry } from "@/types/directus";
 import { DISCLAIMERS } from "@/lib/constants";
 import "./inquiry-form.css";
 
@@ -85,20 +84,20 @@ export function InquiryForm({
       onSubmit: inquirySchema,
     },
     onSubmit: async ({ value }) => {
-      const client = createDirectus<Schema>(directusUrl).with(rest());
-      const payload: InquiryPayload = {
-        full_name: value.fullName.trim(),
-        email: value.email.trim(),
-        phone: value.phone.trim(),
-        location_area: value.locationArea.trim(),
-        event_date: value.eventDate,
-        occasion: value.occasion,
-        details: value.details.trim() || null,
-        status: "new",
-      };
-
       try {
-        await client.request(createItem("inquiry", payload));
+        const response = await fetch("/api/inquiry", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(value),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || errData.error || "Submission failed");
+        }
+
         setFeedback({
           type: "success",
           title: "Thank you! Your inquiry has been received.",
@@ -107,7 +106,7 @@ export function InquiryForm({
         });
         form.reset();
       } catch (err) {
-        console.warn("[directus-sdk] Submission notice:", err);
+        console.warn("[inquiry-form] Submission notice:", err);
         setFeedback({
           type: "notice",
           title: "Inquiry logged!",
