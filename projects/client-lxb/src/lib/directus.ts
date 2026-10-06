@@ -22,8 +22,11 @@ class DirectusManager {
 
   private constructor() {
     const DIRECTUS_URL =
-      import.meta.env.DIRECTUS_URL || "https://admin-lxb.apps.vlmd.cc";
-    const DIRECTUS_TOKEN = import.meta.env.DIRECTUS_TOKEN;
+      import.meta.env.DIRECTUS_URL ||
+      process.env.DIRECTUS_URL ||
+      "https://admin-lxb.apps.vlmd.cc";
+    const DIRECTUS_TOKEN =
+      import.meta.env.DIRECTUS_TOKEN || process.env.DIRECTUS_TOKEN;
 
     const baseClient = createDirectus<Schema>(DIRECTUS_URL).with(rest());
 

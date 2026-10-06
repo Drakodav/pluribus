@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@astrojs/ts-content-mapper": "^0.2.0",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "oxc-transform-react": "^0.153.0",
