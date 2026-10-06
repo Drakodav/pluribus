@@ -1,0 +1,169 @@
+.inquiry-card {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2.5rem;
+}
+
+.inquiry-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.inquiry-title {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.inquiry-desc {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group.full-width {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.form-group .required {
+  color: var(--accent-rose);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(194, 139, 98, 0.15);
+}
+
+.form-group input.has-error,
+.form-group select.has-error,
+.form-group textarea.has-error {
+  border-color: var(--accent-rose, #e06c75);
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: var(--accent-rose, #d32f2f);
+  margin-top: 0.15rem;
+  font-weight: 500;
+}
+
+.field-help {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.disclaimers-container {
+  margin-bottom: 1.5rem;
+}
+
+.disclaimer-box {
+  padding: 0.9rem 1.1rem;
+  background: var(--bg-subtle, #fdfbf9);
+  border: 1px solid var(--border-light, #f0e6e1);
+  border-radius: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.disclaimer-box strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+
+.disclaimer-box p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.terms-group {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--bg-subtle);
+  border-radius: 0.6rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-main);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  margin-top: 0.2rem;
+  cursor: pointer;
+}
+
+.terms-link {
+  color: var(--accent-gold-dark, #b8860b);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.form-feedback {
+  padding: 1rem;
+  border-radius: 0.6rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.form-feedback.success {
+  background-color: #ebf7ee;
+  color: #216e39;
+  border: 1px solid #c3e6cb;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: stretch;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .inquiry-card {
+    padding: 1.5rem;
+  }
+}
