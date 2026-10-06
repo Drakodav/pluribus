@@ -23,7 +23,7 @@ const occasions = await dClient.getOccasions();
         <h4 class="footer-heading">Occasions</h4>
         <ul class="footer-links">
           {
-            occasions.map((occasion) => (
+            occasions.slice(0, 5).map((occasion) => (
               <li>
                 <a href={`/occasions/${occasion.slug}`}>{occasion.title}</a>
               </li>
