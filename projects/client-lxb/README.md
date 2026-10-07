@@ -1,3 +1,5 @@
+LXB - Luxe Bear Studio
+
 # Astro Starter Kit: Minimal
 
 ```sh
