@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { flattenError } from "zod";
 import { createItem } from "@directus/sdk";
 import { dClient } from "@/lib/directus";
 import {
@@ -17,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(
         JSON.stringify({
           error: "Validation failed",
-          details: parseResult.error.flatten().fieldErrors,
+          details: flattenError(parseResult.error).fieldErrors,
         }),
         {
           status: 400,
