@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 1. In-memory burst protection (prevent rapid-fire double-submits)
     const burst = checkRateLimit(`burst:${normalizedEmail}`, {
-      maxRequests: 2,
+      maxRequests: 1,
       windowSeconds: 30,
     });
     if (!burst.allowed) {
