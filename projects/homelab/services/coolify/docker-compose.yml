@@ -6,6 +6,8 @@ services:
     working_dir: /var/www/html
     ports:
       - "8000:8080"
+      - "6001:6001"
+      - "6002:6002"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
@@ -25,7 +27,7 @@ services:
       PUSHER_APP_ID: ${SERVICE_COOLIFY_PUSHER_ID}
       PUSHER_APP_KEY: ${SERVICE_COOLIFY_PUSHER_KEY}
       PUSHER_APP_SECRET: ${SERVICE_COOLIFY_PUSHER_SECRET}
-      PUSHER_BACKEND_HOST: coolify-realtime
+      PUSHER_BACKEND_HOST: 127.0.0.1
       PUSHER_BACKEND_PORT: 6001
       PUSHER_SCHEME: http
     volumes:
@@ -41,8 +43,6 @@ services:
         condition: service_healthy
       coolify-redis:
         condition: service_healthy
-      coolify-realtime:
-        condition: service_started
     networks:
       - coolify
     healthcheck:
@@ -84,23 +84,7 @@ services:
       timeout: 5s
       retries: 5
 
-  coolify-realtime:
-    image: coollabsio/coolify-realtime:latest
-    container_name: coolify-realtime
-    restart: always
-    ports:
-      - "6001:6001"
-      - "6002:6002"
-    environment:
-      SOKETI_DEBUG: "0"
-      SOKETI_DEFAULT_APP_ID: ${SERVICE_COOLIFY_PUSHER_ID}
-      SOKETI_DEFAULT_APP_KEY: ${SERVICE_COOLIFY_PUSHER_KEY}
-      SOKETI_DEFAULT_APP_SECRET: ${SERVICE_COOLIFY_PUSHER_SECRET}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - coolify
-
 networks:
   coolify:
     name: coolify
+    external: true
