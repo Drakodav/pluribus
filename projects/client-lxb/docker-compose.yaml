@@ -11,17 +11,6 @@ services:
       - emdash_db:${EM_DATA_PATH:-/app/data}
       - emdash_uploads:${EM_DATA_PATH:-/app/data}/uploads
 
-  sqlite-admin:
-    image: dbeaver/cloudbeaver:latest
-    restart: unless-stopped
-    profiles:
-      - debug
-    ports:
-      - "8978:8978"
-    volumes:
-      - emdash_db:/opt/cloudbeaver/workspace/data
-
 volumes:
   emdash_db:
-    driver: local
   emdash_uploads:
