@@ -1,7 +1,8 @@
 services:
   emdash-cms:
     build:
-      context: .
+      context: ../..
+      dockerfile: projects/client-lxb/Dockerfile
       args:
         - EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}
     restart: unless-stopped

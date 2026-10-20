@@ -8,16 +8,26 @@ WORKDIR /app
 ARG EMDASH_ENCRYPTION_KEY
 ENV EMDASH_ENCRYPTION_KEY=$EMDASH_ENCRYPTION_KEY
 
-# Install dependencies first so this layer is cached across source changes
-COPY --chown=vp:vp package.json pnpm-lock.yaml* pnpm-workspace.yaml* .node-version* ./
-RUN if [ -f pnpm-lock.yaml ]; then vp install --frozen-lockfile; else vp install; fi
+# Copy root monorepo files and lockfile for frozen installation
+COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --chown=vp:vp projects/client-lxb/package.json projects/client-lxb/.node-version* ./projects/client-lxb/
+
+# Install client-lxb dependencies using the frozen monorepo lockfile
+RUN vp install --frozen-lockfile
+
+# Copy client-lxb source code
+COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
 
 # Build the Astro site (fails if EMDASH_ENCRYPTION_KEY is missing)
-COPY --chown=vp:vp . .
+WORKDIR /app/projects/client-lxb
 RUN vp run build
 
 # Export the exact resolved Node.js binary for the runtime stage
 RUN cp "$(vp env which node | head -1)" /tmp/node
+
+# Deploy isolated production-only dependencies
+WORKDIR /app
+RUN pnpm --filter client-lxb --prod deploy /app/pruned
 
 # --- runtime stage: minimal glibc debian runtime ---
 FROM debian:bookworm-slim AS runtime
@@ -33,9 +43,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # The exact Node.js binary resolved by Vite+ from .node-version
 COPY --from=build /tmp/node /usr/local/bin/node
 
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./
+COPY --from=build /app/projects/client-lxb/dist ./dist
+COPY --from=build /app/pruned/node_modules ./node_modules
+COPY --from=build /app/projects/client-lxb/package.json ./
 
 ENV HOST=0.0.0.0
 ENV PORT=4321
