@@ -8,9 +8,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 
+if (typeof process.loadEnvFile === "function" && fs.existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   EM_DATA_PATH: z.string().default(".emdash/data"),
+  EMDASH_ENCRYPTION_KEY: z
+    .string({
+      required_error: "EMDASH_ENCRYPTION_KEY is required",
+      invalid_type_error: "EMDASH_ENCRYPTION_KEY must be a string",
+    })
+    .min(1, "EMDASH_ENCRYPTION_KEY cannot be empty"),
 });
 
 const env = envSchema.parse(process.env);

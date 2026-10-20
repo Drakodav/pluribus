@@ -4,39 +4,49 @@
 FROM ghcr.io/voidzero-dev/vite-plus:latest AS build
 WORKDIR /app
 
-# Install dependencies first so this layer is cached across source changes
-COPY --chown=vp:vp package.json pnpm-lock.yaml* pnpm-workspace.yaml* .node-version* ./
-RUN if [ -f pnpm-lock.yaml ]; then vp install --frozen-lockfile; else vp install; fi
+# Forward encryption key to build stage so astro build validates its presence
+ARG EMDASH_ENCRYPTION_KEY
+ENV EMDASH_ENCRYPTION_KEY=$EMDASH_ENCRYPTION_KEY
 
-# Build the Astro site
-COPY --chown=vp:vp . .
+# Copy root monorepo files and lockfile for frozen installation
+COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --chown=vp:vp projects/client-lxb/package.json projects/client-lxb/.node-version* ./projects/client-lxb/
+
+# Install client-lxb dependencies using the frozen monorepo lockfile
+RUN vp install --frozen-lockfile
+
+# Copy client-lxb source code
+COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
+
+# Build the Astro site (fails if EMDASH_ENCRYPTION_KEY is missing)
+WORKDIR /app/projects/client-lxb
 RUN vp run build
 
 # Export the exact resolved Node.js binary for the runtime stage
 RUN cp "$(vp env which node | head -1)" /tmp/node
 
-# --- deps stage: production-only dependencies ---
-FROM ghcr.io/voidzero-dev/vite-plus:latest AS deps
+# Deploy isolated production-only dependencies for client-lxb
 WORKDIR /app
-COPY --chown=vp:vp package.json pnpm-lock.yaml* pnpm-workspace.yaml* .node-version* ./
-RUN if [ -f pnpm-lock.yaml ]; then vp install --frozen-lockfile --prod; else vp install --prod; fi
+RUN pnpm --filter client-lxb --prod deploy /app/pruned
 
 # --- runtime stage: minimal glibc debian runtime ---
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
-# Install libc++ and ca-certificates (required for workerd plugin sandbox & outbound HTTPS)
+# Install libc++, libatomic, ca-certificates, and curl (required for workerd plugin sandbox, Node.js, HTTPS, and healthchecks)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libc++1 \
+    libatomic1 \
     ca-certificates \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # The exact Node.js binary resolved by Vite+ from .node-version
 COPY --from=build /tmp/node /usr/local/bin/node
 
-COPY --from=build /app/dist ./dist
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./
+COPY --from=build /app/projects/client-lxb/dist ./dist
+COPY --from=build /app/pruned/node_modules ./node_modules
+COPY --from=build /app/projects/client-lxb/package.json ./
 
 ENV HOST=0.0.0.0
 ENV PORT=4321
