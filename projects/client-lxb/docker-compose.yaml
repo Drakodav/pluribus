@@ -1,10 +1,14 @@
 services:
   emdash-cms:
-    build: .
+    build:
+      context: .
+      args:
+        - EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}
     restart: unless-stopped
     environment:
       - "NODE_ENV=${NODE_ENV:-production}"
       - "EM_DATA_PATH=${EM_DATA_PATH:-/app/data}"
+      - "EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}"
     volumes:
       - "emdash_db:/app/data"
       - "emdash_uploads:/app/data/uploads"
