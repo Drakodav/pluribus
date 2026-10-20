@@ -25,7 +25,7 @@ RUN vp run build
 # Export the exact resolved Node.js binary for the runtime stage
 RUN cp "$(vp env which node | head -1)" /tmp/node
 
-# Deploy isolated production-only dependencies
+# Deploy isolated production-only dependencies for client-lxb
 WORKDIR /app
 RUN pnpm --filter client-lxb --prod deploy /app/pruned
 
@@ -33,9 +33,10 @@ RUN pnpm --filter client-lxb --prod deploy /app/pruned
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
-# Install libc++, ca-certificates, and curl (required for workerd plugin sandbox, HTTPS, and healthchecks)
+# Install libc++, libatomic, ca-certificates, and curl (required for workerd plugin sandbox, Node.js, HTTPS, and healthchecks)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libc++1 \
+    libatomic1 \
     ca-certificates \
     curl \
     && rm -rf /var/lib/apt/lists/*
