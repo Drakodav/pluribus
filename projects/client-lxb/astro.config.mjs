@@ -5,19 +5,30 @@ import { defineConfig } from "astro/config";
 import emdash, { local, memoryCache } from "emdash/astro";
 import { sqlite } from "emdash/db";
 import fs from "node:fs";
+import path from "node:path";
+import { z } from "zod";
 
-const CONSTANTS = {
-  EM_DATA_DIR: ".emdash/data",
-};
+const envSchema = z.object({
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  EM_DATA_PATH: z.string().default(".emdash/data"),
+});
 
-const isProd = process.env.NODE_ENV === "production";
+const env = envSchema.parse(process.env);
 
-if (!isProd) {
-  const path = `./${CONSTANTS.EM_DATA_DIR}`;
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path, { recursive: true });
-  }
+const isDbFile = env.EM_DATA_PATH.endsWith(".db");
+const dataDir = isDbFile ? path.dirname(env.EM_DATA_PATH) : env.EM_DATA_PATH;
+const dbFile = isDbFile ? env.EM_DATA_PATH : path.join(env.EM_DATA_PATH, "data.db");
+const uploadsDir = path.join(dataDir, "uploads");
+
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
 }
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const sqliteUrl = `file:${dbFile.startsWith("/") ? "" : "./"}${dbFile.replace(/^\.\//, "")}`;
+const storageDir = uploadsDir.startsWith("/") ? uploadsDir : `./${uploadsDir.replace(/^\.\//, "")}`;
 
 export default defineConfig({
   output: "server",
@@ -37,9 +48,9 @@ export default defineConfig({
     react({ compiler: true }),
     emdash({
       updateCheck: true,
-      database: sqlite({ url: `file:./${CONSTANTS.EM_DATA_DIR}/data.db` }),
+      database: sqlite({ url: sqliteUrl }),
       storage: local({
-        directory: `./${CONSTANTS.EM_DATA_DIR}/uploads`,
+        directory: storageDir,
         baseUrl: "/_emdash/api/media/file",
       }),
       objectCache: memoryCache(),
