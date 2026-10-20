@@ -10,21 +10,30 @@
     "build": "astro build",
     "preview": "astro preview",
     "start": "astro preview --host 0.0.0.0 --port 4321",
-    "check": "tsc --noEmit",
+    "check": "tsc --noEmit --runExternalCode",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",
     "@astrojs/partytown": "^2.1.8",
+    "@astrojs/react": "^7.0.0",
     "@directus/sdk": "^26.0.0",
-    "astro": "^7.3.5"
+    "@tanstack/react-form": "^1.33.5",
+    "astro": "^7.3.6",
+    "react": "^19.3.0",
+    "react-compiler-runtime": "^1.0.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
   },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "@astrojs/ts-content-mapper": "^0.2.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "oxc-transform-react": "^0.153.0",
+    "typescript": "^7.1.0-dev.20261005.1"
   }
 }

@@ -1,3 +1,5 @@
+set dotenv-load
+
 # List available recipes
 default:
     @just --list
@@ -27,6 +29,10 @@ preview:
 # Run Astro type check
 check:
     pnpm run check
+
+# Generate types from Directus,
+directus-types:
+    pnpm dlx directus-ts-typegen --directus-host "${DIRECTUS_URL}" --directus-token "${DIRECTUS_ADMIN_TOKEN}" --type-style type > ./src/types/directus.ts
 
 # Pre-commit checks required by monorepo orchestration
 pre-commit:

@@ -1,5 +1,5 @@
 ---
-import type { Occasion } from '../../types/directus';
+import type { Occasion } from "../../types/directus";
 
 interface Props {
   occasions: Occasion[];
@@ -14,36 +14,42 @@ const { occasions } = Astro.props;
       <span class="badge">Designed Around Your Event</span>
       <h2 class="section-title">Shop by Occasion</h2>
       <p class="section-subtitle">
-        We organize our styling by milestone moments rather than technical arch jargon, so you can easily discover ideas tailored to your exact celebration.
+        We organize our styling by milestone moments rather than technical arch
+        jargon, so you can easily discover ideas tailored to your exact
+        celebration.
       </p>
     </div>
 
     <div class="occasions-grid">
-      {occasions.map((occasion) => (
-        <a href={`/occasions/${occasion.slug}`} class="occasion-card card">
-          <div class="card-top">
-            {occasion.badge && <span class="badge">{occasion.badge}</span>}
-            {occasion.starting_price && (
-              <span class="card-price">{occasion.starting_price}</span>
+      {
+        occasions.map((occasion) => (
+          <a href={`/occasions/${occasion.slug}`} class="occasion-card card">
+            <div class="card-top">
+              {occasion.badge && <span class="badge">{occasion.badge}</span>}
+              {occasion.starting_price && (
+                <span class="card-price">{occasion.starting_price}</span>
+              )}
+            </div>
+
+            <h3 class="card-title">{occasion.title}</h3>
+            <p class="card-desc">{occasion.subtitle}</p>
+
+            {occasion.highlights && (
+              <ul class="card-highlights">
+                {occasion.highlights.map((h) => (
+                  <li>&bull; {h}</li>
+                ))}
+              </ul>
             )}
-          </div>
 
-          <h3 class="card-title">{occasion.title}</h3>
-          <p class="card-desc">{occasion.subtitle}</p>
-
-          {occasion.highlights && (
-            <ul class="card-highlights">
-              {occasion.highlights.map((h) => (
-                <li>&bull; {h}</li>
-              ))}
-            </ul>
-          )}
-
-          <div class="card-footer">
-            <span class="card-link-text">Explore {occasion.title} &rarr;</span>
-          </div>
-        </a>
-      ))}
+            <div class="card-footer">
+              <span class="card-link-text">
+                Explore {occasion.title} &rarr;
+              </span>
+            </div>
+          </a>
+        ))
+      }
     </div>
   </div>
 </section>

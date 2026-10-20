@@ -1,5 +1,5 @@
 ---
-import type { SeasonalBanner } from '../../types/directus';
+import type { SeasonalBanner } from "../../types/directus";
 
 interface Props {
   banner: SeasonalBanner;
@@ -12,16 +12,14 @@ const { banner } = Astro.props;
   <div class="container hero-container">
     <div class="hero-content">
       {banner.badge && <span class="badge hero-badge">{banner.badge}</span>}
-      <h1 class="hero-title">{banner.headline}</h1>
-      <p class="hero-subtitle">{banner.subhead}</p>
+      <h1 class="hero-title">{banner.title}</h1>
+      <p class="hero-subtitle">{banner.sub_title}</p>
 
       <div class="hero-actions">
-        <a href={banner.cta_link} class="btn-primary">
+        <a href={"#"} class="btn-primary">
           {banner.cta_text} &rarr;
         </a>
-        <a href="/occasions" class="btn-secondary">
-          Explore All Occasions
-        </a>
+        <a href="/occasions" class="btn-secondary"> Explore All Occasions </a>
       </div>
 
       <div class="hero-highlights">
@@ -46,7 +44,11 @@ const { banner } = Astro.props;
   .seasonal-hero {
     padding: 5rem 0 4rem;
     position: relative;
-    background: radial-gradient(circle at 80% 20%, rgba(235, 216, 208, 0.6) 0%, transparent 60%);
+    background: radial-gradient(
+      circle at 80% 20%,
+      rgba(235, 216, 208, 0.6) 0%,
+      transparent 60%
+    );
   }
 
   .hero-container {

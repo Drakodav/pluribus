@@ -2,19 +2,23 @@
 import BaseLayout from "../layouts/base-layout.astro";
 import SeasonalHero from "../components/home/seasonal-hero.astro";
 import OccasionGrid from "../components/home/occasion-grid.astro";
-import { getOccasions, getSeasonalBanner, getProducts } from "../lib/directus";
+import { dClient } from "@/lib/directus";
+import type { Occasion } from "@/types/directus";
+import type { SeasonalBanner } from "@/types/directus";
 
-const banner = await getSeasonalBanner();
-const occasions = await getOccasions();
-const featuredProducts = await getProducts();
+const banners = await dClient.getSeasonalBanners();
+const banner = !!banners.length ? banners[0] : undefined;
+
+const occasions = await dClient.getOccasions();
+const featuredProducts = await dClient.getProducts();
 ---
 
 <BaseLayout>
   <!-- 1. Seasonal Spotlight Banner -->
-  <SeasonalHero banner={banner} />
+  {banner && <SeasonalHero banner={banner as SeasonalBanner} />}
 
   <!-- 2. Occasion-First Browsing Hub -->
-  <OccasionGrid occasions={occasions} />
+  <OccasionGrid occasions={occasions as Occasion[]} />
 
   <!-- 3. Signature Offerings Showcase -->
   <section class="offerings-preview">
@@ -34,7 +38,7 @@ const featuredProducts = await getProducts();
             <div class="offering-card card">
               <div class="offering-header">
                 <span class="offering-price">
-                  Starting from {product.starting_price}
+                  Starting from {product?.starting_price}
                 </span>
               </div>
               <h3 class="offering-title">{product.name}</h3>

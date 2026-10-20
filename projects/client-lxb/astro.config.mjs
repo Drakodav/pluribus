@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 
 import partytown from '@astrojs/partytown';
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
@@ -18,5 +19,5 @@ export default defineConfig({
     mode: 'standalone',
   }),
 
-  integrations: [partytown()],
+  integrations: [partytown(), react({compiler: true})],
 });

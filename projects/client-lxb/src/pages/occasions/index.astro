@@ -1,9 +1,10 @@
 ---
-import BaseLayout from '../../layouts/base-layout.astro';
-import OccasionGrid from '../../components/home/occasion-grid.astro';
-import { getOccasions } from '../../lib/directus';
+import BaseLayout from "@/layouts/base-layout.astro";
+import OccasionGrid from "@/components/home/occasion-grid.astro";
+import { dClient } from "@/lib/directus";
+import type { Occasion } from "@/types/directus";
 
-const occasions = await getOccasions();
+const occasions = await dClient.getOccasions();
 ---
 
 <BaseLayout
@@ -15,18 +16,23 @@ const occasions = await getOccasions();
       <span class="badge">Occasion-First Collections</span>
       <h1 class="page-title">Curated by Milestone</h1>
       <p class="page-desc">
-        Select your celebration below to see tailored photo inspirations, matching backdrop rentals, and starting package estimates.
+        Select your celebration below to see tailored photo inspirations,
+        matching backdrop rentals, and starting package estimates.
       </p>
     </div>
   </div>
 
-  <OccasionGrid occasions={occasions} />
+  <OccasionGrid occasions={occasions as Occasion[]} />
 </BaseLayout>
 
 <style>
   .occasions-header {
     padding: 4rem 0 2rem;
-    background: radial-gradient(circle at 50% 0%, rgba(235, 216, 208, 0.4) 0%, transparent 70%);
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(235, 216, 208, 0.4) 0%,
+      transparent 70%
+    );
   }
 
   .text-center {

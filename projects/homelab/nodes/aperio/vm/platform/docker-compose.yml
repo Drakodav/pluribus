@@ -169,8 +169,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.35"
-          memory: 160M
+          cpus: "0.75"
+          memory: 256M
     environment:
       COLLECTIONS: "crowdsecurity/traefik crowdsecurity/sshd crowdsecurity/linux"
       BOUNCER_KEY_traefik: "${NODE_APERIO_CROWDSEC_BOUNCER_KEY}"
