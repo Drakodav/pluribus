@@ -8,7 +8,7 @@ default:
 doctor:
     @which node || echo "Node.js not found"
     @which pnpm || echo "pnpm not found"
-    @which docker || echo "Docker not found (optional for local Directus)"
+    @which docker || echo "Docker not found"
 
 # Install project dependencies
 setup:
@@ -28,15 +28,15 @@ preview:
 
 # Run Astro type check
 check:
-    pnpm run check
-
-# Generate types from Directus,
-directus-types:
-    pnpm dlx directus-ts-typegen --directus-host "${DIRECTUS_URL}" --directus-token "${DIRECTUS_ADMIN_TOKEN}" --type-style type > ./src/types/directus.ts
+    vp check
 
 # Pre-commit checks required by monorepo orchestration
 pre-commit:
     @echo "Running client-lxb checks (typecheck & build)..."
-    pnpm run check
-    pnpm run build
+    vp lint
+    vp format
+    
+
+emdash *args="":
+    pnpm dlx emdash {{args}}
 

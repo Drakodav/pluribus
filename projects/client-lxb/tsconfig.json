@@ -1,13 +1,15 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "src/**/*"],
+  "include": [".astro/types.d.ts", "**/*", "emdash-env.d.ts"],
   "exclude": ["dist", "scripts", "node_modules"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@emdash-cms/types": ["./.emdash/types.ts"]
     }
   },
   "contentMappers": [

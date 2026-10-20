@@ -7,9 +7,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Protect inquiry submission endpoint against rapid IP floods
   if (pathname === "/api/inquiry" && context.request.method === "POST") {
     const forwarded = context.request.headers.get("x-forwarded-for");
-    const ip = forwarded
-      ? forwarded.split(",")[0].trim()
-      : context.clientAddress || "anonymous";
+    const ip = forwarded ? forwarded.split(",")[0].trim() : context.clientAddress || "anonymous";
 
     const limit = checkRateLimit(`ip:${ip}`, {
       maxRequests: 5,
