@@ -3,13 +3,17 @@ services:
     build: .
     restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - EM_DATA_PATH=${EM_DATA_PATH:-/app/data}
-    ports:
-      - "${PORT:-4321}:4321"
+      - "NODE_ENV=${NODE_ENV:-production}"
+      - "EM_DATA_PATH=${EM_DATA_PATH:-/app/data}"
     volumes:
-      - emdash_db:${EM_DATA_PATH:-/app/data}
-      - emdash_uploads:${EM_DATA_PATH:-/app/data}/uploads
+      - "emdash_db:${EM_DATA_PATH:-/app/data}"
+      - "emdash_uploads:${EM_DATA_PATH:-/app/data}/uploads"
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4321/api/health"]
+    #   interval: 1m30s
+    #   timeout: 30s
+    #   retries: 5
+    #   start_period: 30s
 
 volumes:
   emdash_db:
