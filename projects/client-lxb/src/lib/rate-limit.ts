@@ -43,10 +43,7 @@ if (typeof setInterval !== "undefined") {
  * @param key Unique identifier (e.g. `ip:127.0.0.1` or `email:user@example.com`)
  * @param options maxRequests and windowSeconds
  */
-export function checkRateLimit(
-  key: string,
-  options: RateLimitOptions = {},
-): RateLimitResult {
+export function checkRateLimit(key: string, options: RateLimitOptions = {}): RateLimitResult {
   const maxRequests = options.maxRequests ?? 5;
   const windowSeconds = options.windowSeconds ?? 60;
   const now = Date.now();
