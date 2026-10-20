@@ -6,14 +6,14 @@ services:
       - "NODE_ENV=${NODE_ENV:-production}"
       - "EM_DATA_PATH=${EM_DATA_PATH:-/app/data}"
     volumes:
-      - "emdash_db:${EM_DATA_PATH:-/app/data}"
-      - "emdash_uploads:${EM_DATA_PATH:-/app/data}/uploads"
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:4321/api/health"]
-    #   interval: 1m30s
-    #   timeout: 30s
-    #   retries: 5
-    #   start_period: 30s
+      - "emdash_db:/app/data"
+      - "emdash_uploads:/app/data/uploads"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
 volumes:
   emdash_db:
