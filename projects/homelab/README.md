@@ -32,7 +32,7 @@ This project implements a **Split-Brain Hybrid Cloud** pattern that pairs a clou
                           │  - Immich (Photo & Video ML Storage Stack)   │
                           │  - Home Assistant Core & Matter Server       │
                           │  - Postfix Mail Relay, pgAdmin               │
-                          │  - Komodo Fleet Ops, Coolify PaaS            │
+                          │  - Coolify PaaS                              │
                           │  - Consul Client Agent                       │
                           │  - Unified Storage Root: /opt/homelab/       │
                           └──────────────────────────────────────────────┘
@@ -58,14 +58,14 @@ Following a botanical distillery naming theme (*Ex Pluribus Unum*), nodes are pa
 - **Etymology**: From Latin *aperire* ("to open", root of *aperitif*).
 - **Environment**: Oracle Cloud Infrastructure (OCI) Always-Free VM (`Ubuntu 24.04 LTS`).
 - **Internal IP**: `10.10.0.1`
-- **Role**: Edge ingress, automated Let's Encrypt SSL/TLS certificates, WireGuard mesh hub, Consul Server leader, and Komodo Periphery telemetry agent.
+- **Role**: Edge ingress, automated Let's Encrypt SSL/TLS certificates, WireGuard mesh hub, Consul Server leader.
 - **Provisioning**: Managed via modular Terraform IaC in [`nodes/aperio/terraform/`](nodes/aperio/terraform/).
 
 ### `macerator` (The Local Powerhouse)
 - **Etymology**: From Latin *maceratio* (the steeping/extraction of botanical essence).
 - **Environment**: Bare-metal Dell Inspiron i9, 32GB RAM, local NVMe/SSD storage.
 - **Internal IP**: `10.10.0.2`
-- **Role**: Heavy data storage, machine learning, relational databases, Komodo Core fleet operations, Coolify developer PaaS (`*.apps.vlmd.cc`), and internal workspaces.
+- **Role**: Heavy data storage, machine learning, relational databases, Coolify developer PaaS (`*.apps.vlmd.cc`), and internal workspaces.
 - **Orchestration**: Managed via Python node runner in [`nodes/macerator/runner.py`](nodes/macerator/runner.py).
 
 ### The Backbone Mesh
@@ -99,7 +99,6 @@ A key architectural insight in this homelab is the strict separation between ser
 | `photos.vlmd.cc` | Immich Web & API | `2283` | `/api/server/ping` | `public` | Native Authentik OAuth2 (Web + Mobile App) |
 | `home-assistant.vlmd.cc` | Home Assistant Core | `8123` | `/manifest.json` | `public` | Native OpenID Connect (Web + Mobile App) |
 | `pgadmin.vlmd.cc` | pgAdmin 4 Web | `5050` | `/misc/ping` | `public` | Native Authentik OAuth2 (`ProxyFix` enabled) |
-| `komodo.vlmd.cc` | Komodo Fleet Ops | `9120` | `/` | `public` | Native Authentik OIDC (Multi-Server Fleet) |
 | `coolify.vlmd.cc` | Coolify Control Plane | `8000` | `/` | `public` | Native Authentik OIDC (Developer PaaS) |
 | `*.apps.vlmd.cc` | Pluribus Project Previews | `80` | Dynamic | `public` | Coolify Ingress Router (Wildcard Traefik Chaining) |
 | `consul.vlmd.cc` | Consul Web UI | `8500` | `/v1/status/leader`| `sso` | Traefik ForwardAuth (`auth-traefik`) |
@@ -141,7 +140,6 @@ projects/homelab/
 │   ├── consul/                 # Consul client agent
 │   ├── coolify/                # Coolify developer PaaS engine
 │   ├── home-assistant/         # Home Assistant & MatterJS stack
-│   ├── komodo/                 # Komodo multi-server fleet manager
 │   ├── mail/                   # Postfix transactional SMTP mail relay
 │   ├── photos/                 # Immich server & machine learning
 │   ├── postgres/               # PostgreSQL 16 + pgvector Dockerfile & pgAdmin (port 5050)
@@ -181,10 +179,6 @@ All persistent application data on `macerator` is strictly centralized under `/o
 ├── home-assistant/            # Configuration files, sqlite db, and custom components
 ├── immich/
 │   └── library/               # Primary photo and video media repository
-├── komodo/                    # Komodo multi-server fleet control plane
-│   ├── backups/               # Automated database and stack backups
-│   ├── keys/                  # Periphery mutual TLS and sync keys
-│   └── mongo/                 # MongoDB 7 persistent collections
 ├── mail/                      # Postfix spool directory (/opt/homelab/mail/spool)
 ├── matterjs-server/           # Matter integration state (UID 1000:1000)
 ├── pgadmin/                   # pgAdmin 4 SQLite configuration database (UID 5050:5050)

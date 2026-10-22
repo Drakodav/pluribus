@@ -20,7 +20,6 @@ ORDERED_SERVICES = [
     "photos",
     "home-assistant",
     "pgadmin",
-    "komodo",
     "coolify",
 ]
 

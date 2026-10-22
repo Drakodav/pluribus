@@ -9,7 +9,6 @@ from services.authentik.service import AuthentikService
 from services.base import BaseService
 from services.consul.service import ConsulService
 from services.coolify.service import CoolifyService
-from services.komodo.service import KomodoService
 from services.mail.service import MailRelayService
 from services.photos.service import PhotosService
 from services.postgres.service import PgAdminService, PostgresService
@@ -25,7 +24,6 @@ SERVICE_CLASSES: dict[str, type[BaseService]] = {
     "authentik": AuthentikService,
     "consul": ConsulService,
     "coolify": CoolifyService,
-    "komodo": KomodoService,
     "mail": MailRelayService,
     "pgadmin": PgAdminService,
     "photos": PhotosService,
@@ -38,7 +36,6 @@ SERVICE_ALIASES: dict[str, str] = {
     "pg-admin": "pgadmin",
     "ha": "home-assistant",
     "immich": "photos",
-    "fleet": "komodo",
     "paas": "coolify",
     "relay": "mail",
     "smtp": "mail",

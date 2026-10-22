@@ -30,7 +30,7 @@ A private, self-hosted infrastructure platform engineered for privacy, data sove
                       │  - Redis (Shared Cache)                 │
                       │  - Authentik (SSO & Forward Auth)       │
                       │  - Immich (Photo & Video ML Stack)      │
-                      │  - Home Assistant / Mail / Komodo       │
+                      │  - Home Assistant / Mail       │
                       │  - Consul Client Agent                  │
                       │  - Unified Storage Root: /opt/homelab/  │
                       └─────────────────────────────────────────┘
@@ -105,7 +105,7 @@ _Avoid_: basic auth, gateway security.
 - [x] WireGuard client endpoint checks and local Consul client agent connectivity (`services/consul/`)
 - [x] Shared data foundation: PostgreSQL (custom Alpine + pgvector) and Redis (`services/postgres/`, `services/redis/`)
 - [x] Centralized identity: Authentik SSO and Traefik forwardAuth middleware (`services/authentik/`)
-- [x] Media & Applications: Immich photo management stack, Home Assistant, Mail Relay, Komodo, Coolify (`services/`)
+- [x] Media & Applications: Immich photo management stack, Home Assistant, Mail Relay, Coolify (`services/`)
 - [x] Storage scaffolding, discovery firewalls, and orchestrator under `/opt/homelab/` (`nodes/macerator/`)
 
 ### Phase 4: Node Onboarding & Backbone Connectivity Connector (Issue #17)
@@ -126,9 +126,8 @@ _Avoid_: basic auth, gateway security.
 ### Phase 6: Multi-Server Fleet Operations & Developer PaaS (Issue #20)
 
 - [x] Relocate pgAdmin from port 80 to port 5050 to free host port 80 on `macerator`
-- [x] Deploy Komodo Core on `macerator` with Periphery agent on `aperio` for multi-server fleet monitoring
 - [x] Deploy Coolify developer PaaS on `macerator` for automated Git builds and preview environments
 - [x] Configure two-tier ingress on `aperio` Traefik with wildcard proxy for `*.apps.vlmd.cc`
-- [x] Model Komodo and Coolify as first-class Python services with Consul catalog registration
-- [x] Manual verification of Authentik OIDC authentication, Sentinel telemetry sync, and Komodo multi-server fleet connections
+- [x] Coolify as first-class Python services with Consul catalog registration
+- [x] Manual verification of Authentik OIDC authentication, Sentinel telemetry sync
 

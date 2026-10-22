@@ -95,24 +95,6 @@ services:
       - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchagraceperiodseconds=604800"
       - "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.captchahtmlfilepath=/captcha.html"
 
-  komodo-periphery:
-    image: ghcr.io/moghtech/komodo-periphery:2
-    container_name: komodo_periphery_aperio
-    restart: always
-    init: true
-    network_mode: host
-    deploy:
-      resources:
-        limits:
-          cpus: "0.20"
-          memory: 64M
-    environment:
-      PERIPHERY_PORT: 8120
-      PERIPHERY_CORE_ADDRESS: http://${NODE_MACERATOR_BACKBONE_IP}:9120
-      PERIPHERY_CONNECT_AS: aperio
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
   consul-server:
     image: hashicorp/consul:latest
     container_name: consul-server
