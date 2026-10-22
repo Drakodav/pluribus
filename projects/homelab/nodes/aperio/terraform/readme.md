@@ -39,7 +39,7 @@ With OCI Always Free, you can run **up to 4 VMs simultaneously for $0.00/month**
 
 ## Quickstart & Task Runner (`just`)
 
-A local [`justfile`](file:///Users/znglyvlad/Desktop/vlad/drakodav/pluribus/projects/homelab/gateway/terraform/justfile) is provided for easy management:
+A local justfile is provided for easy management:
 
 ```bash
 # View all available commands
