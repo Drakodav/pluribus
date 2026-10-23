@@ -45,8 +45,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libatomic1 \
     ca-certificates \
     curl \
-    sqlite3 \
-    tini
+    sqlite3
 
 # The exact Node.js binary resolved by Vite+ from .node-version
 COPY --from=build /tmp/node /usr/local/bin/node
@@ -64,6 +63,4 @@ RUN mkdir -p /app/data /app/data/uploads
 
 EXPOSE 4321
 
-# Tini: lightweight PID 1 to properly reap zombie processes -> stop node from hanging when receiving signals (SIGTERM/SIGINT)
-ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["node", "./dist/server/entry.mjs"]
