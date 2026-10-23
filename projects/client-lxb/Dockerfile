@@ -13,7 +13,8 @@ COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --chown=vp:vp projects/client-lxb/package.json projects/client-lxb/.node-version* ./projects/client-lxb/
 
 # Install client-lxb dependencies using the frozen monorepo lockfile
-RUN vp install --filter client-lxb --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/home/vp/.local/share/pnpm/store,uid=1000,gid=1000 \
+    vp install --filter client-lxb --frozen-lockfile
 
 # Copy client-lxb source code
 COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
@@ -27,20 +28,23 @@ RUN cp "$(vp env which node | head -1)" /tmp/node
 
 # Deploy isolated production-only dependencies for client-lxb
 WORKDIR /app
-RUN pnpm --filter client-lxb --prod deploy /app/pruned
+# Create a new app from the pnpm monorepo to create a production-only mirror of the app
+# PNPM_CONFIG_MINIMUM_RELEASE_AGE=0 skips verification of package release dates 
+RUN PNPM_CONFIG_MINIMUM_RELEASE_AGE=0 pnpm --filter client-lxb --prod deploy /app/pruned
 
 # --- runtime stage: minimal glibc debian runtime ---
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
 # Install libc++, libatomic, ca-certificates, curl, and sqlite3 (for workerd sandbox, Node.js, HTTPS, healthchecks, and DB inspection)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
     libc++1 \
     libatomic1 \
     ca-certificates \
     curl \
-    sqlite3 \
-    && rm -rf /var/lib/apt/lists/*
+    sqlite3
 
 # The exact Node.js binary resolved by Vite+ from .node-version
 COPY --from=build /tmp/node /usr/local/bin/node
