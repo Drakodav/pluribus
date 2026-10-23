@@ -13,7 +13,7 @@ COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --chown=vp:vp projects/client-lxb/package.json projects/client-lxb/.node-version* ./projects/client-lxb/
 
 # Install client-lxb dependencies using the frozen monorepo lockfile
-RUN vp install --frozen-lockfile
+RUN vp install --filter client-lxb --frozen-lockfile
 
 # Copy client-lxb source code
 COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
@@ -33,12 +33,13 @@ RUN pnpm --filter client-lxb --prod deploy /app/pruned
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
-# Install libc++, libatomic, ca-certificates, and curl (required for workerd plugin sandbox, Node.js, HTTPS, and healthchecks)
+# Install libc++, libatomic, ca-certificates, curl, and sqlite3 (for workerd sandbox, Node.js, HTTPS, healthchecks, and DB inspection)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libc++1 \
     libatomic1 \
     ca-certificates \
     curl \
+    sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
 # The exact Node.js binary resolved by Vite+ from .node-version
