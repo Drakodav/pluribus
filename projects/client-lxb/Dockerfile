@@ -64,5 +64,6 @@ RUN mkdir -p /app/data /app/data/uploads
 
 EXPOSE 4321
 
+# Tini: lightweight PID 1 to properly reap zombie processes -> stop node from hanging when receiving signals (SIGTERM/SIGINT)
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["node", "./dist/server/entry.mjs"]
