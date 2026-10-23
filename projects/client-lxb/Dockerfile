@@ -30,7 +30,8 @@ RUN cp "$(vp env which node | head -1)" /tmp/node
 WORKDIR /app
 # Create a new app from the pnpm monorepo to create a production-only mirror of the app
 # PNPM_CONFIG_MINIMUM_RELEASE_AGE=0 skips verification of package release dates 
-RUN PNPM_CONFIG_MINIMUM_RELEASE_AGE=0 pnpm --filter client-lxb --prod deploy /app/pruned
+RUN --mount=type=cache,id=pnpm-store,target=/home/vp/.local/share/pnpm/store,uid=1000,gid=1000 \
+    PNPM_CONFIG_MINIMUM_RELEASE_AGE=0 pnpm --filter client-lxb --prod deploy /app/pruned
 
 # --- runtime stage: minimal glibc debian runtime ---
 FROM debian:bookworm-slim AS runtime
@@ -44,7 +45,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libatomic1 \
     ca-certificates \
     curl \
-    sqlite3
+    sqlite3 \
+    tini
 
 # The exact Node.js binary resolved by Vite+ from .node-version
 COPY --from=build /tmp/node /usr/local/bin/node
@@ -61,4 +63,6 @@ ENV EM_DATA_PATH=/app/data
 RUN mkdir -p /app/data /app/data/uploads
 
 EXPOSE 4321
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["node", "./dist/server/entry.mjs"]
