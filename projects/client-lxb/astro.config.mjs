@@ -14,9 +14,6 @@ if (typeof process.loadEnvFile === "function" && fs.existsSync(".env")) {
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  EM_DATA_PATH: z.string().optional(),
-  EM_DB_PATH: z.string().optional(),
-  EM_UPLOADS_PATH: z.string().optional(),
   EMDASH_SITE_URL: z.string().optional(),
   SITE_URL: z.string().optional(),
   COOLIFY_URL: z.string().optional(),
@@ -36,8 +33,7 @@ const rawDbPath = isProd ? "/app/db" : ".emdash/data";
 const isDbFile = rawDbPath.endsWith(".db");
 const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;
 const dbFile = isDbFile ? rawDbPath : path.join(rawDbPath, "data.db");
-const defaultUploadsDir = isProd ? "/app/uploads" : path.join(dataDir, "uploads");
-const uploadsDir = env.EM_UPLOADS_PATH || defaultUploadsDir;
+const uploadsDir = isProd ? "/app/uploads" : path.join(dataDir, "uploads");
 
 const candidateUrl = [
   env.EMDASH_SITE_URL,
