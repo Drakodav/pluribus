@@ -12,6 +12,7 @@ services:
       - "EM_DATA_PATH=${EM_DATA_PATH:-/app/db}"
       - "EM_UPLOADS_PATH=${EM_UPLOADS_PATH:-/app/uploads}"
       - "EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}"
+      - "EMDASH_SITE_URL=${EMDASH_SITE_URL:-${SITE_URL:-${COOLIFY_URL:-}}}"
     volumes:
       - "emdash_db:/app/db"
       - "emdash_uploads:/app/uploads"

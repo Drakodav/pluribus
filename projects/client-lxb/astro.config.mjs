@@ -17,6 +17,10 @@ const envSchema = z.object({
   EM_DATA_PATH: z.string().optional(),
   EM_DB_PATH: z.string().optional(),
   EM_UPLOADS_PATH: z.string().optional(),
+  EMDASH_SITE_URL: z.string().optional(),
+  SITE_URL: z.string().optional(),
+  COOLIFY_URL: z.string().optional(),
+  COOLIFY_FQDN: z.string().optional(),
   EMDASH_ENCRYPTION_KEY: z
     .string({
       required_error: "EMDASH_ENCRYPTION_KEY is required",
@@ -32,6 +36,17 @@ const isDbFile = rawDbPath.endsWith(".db");
 const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;
 const dbFile = isDbFile ? rawDbPath : path.join(rawDbPath, "data.db");
 const uploadsDir = env.EM_UPLOADS_PATH || path.join(dataDir, "uploads");
+
+const rawSiteUrl =
+  env.EMDASH_SITE_URL ||
+  env.SITE_URL ||
+  env.COOLIFY_URL ||
+  (env.COOLIFY_FQDN ? `https://${env.COOLIFY_FQDN}` : undefined);
+const siteUrl = rawSiteUrl
+  ? rawSiteUrl.startsWith("http")
+    ? rawSiteUrl
+    : `https://${rawSiteUrl}`
+  : undefined;
 
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -63,6 +78,7 @@ export default defineConfig({
     partytown(),
     react({ compiler: true }),
     emdash({
+      siteUrl,
       updateCheck: true,
       database: sqlite({ url: sqliteUrl }),
       storage: local({
