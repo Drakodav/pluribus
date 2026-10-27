@@ -48,11 +48,13 @@ const siteUrl = candidateUrl
   ? (candidateUrl.startsWith("http") ? candidateUrl : `https://${candidateUrl}`).replace(/\/+$/, "")
   : undefined;
 
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+if (!isProd) {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 }
 
 const sqliteUrl = `file:${dbFile.startsWith("/") ? "" : "./"}${dbFile.replace(/^\.\//, "")}`;
