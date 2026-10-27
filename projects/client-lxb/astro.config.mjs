@@ -1,7 +1,7 @@
 import node from "@astrojs/node";
 import partytown from "@astrojs/partytown";
 import react from "@astrojs/react";
-import { defineConfig } from "astro/config";
+import { defineConfig, memoryCache as astroCache } from "astro/config";
 import emdash, { local, memoryCache } from "emdash/astro";
 import { sqlite } from "emdash/db";
 import fs from "node:fs";
@@ -45,6 +45,9 @@ const storageDir = uploadsDir.startsWith("/") ? uploadsDir : `./${uploadsDir.rep
 
 export default defineConfig({
   output: "server",
+  cache: {
+    provider: astroCache(),
+  },
   server: {
     host: "0.0.0.0",
     port: 4321,
