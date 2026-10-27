@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 
+ARG NODE_VERSION=26
+
 # --- build stage: the official Vite+ toolchain image ---
 FROM ghcr.io/voidzero-dev/vite-plus:latest AS build
 WORKDIR /app
@@ -23,9 +25,6 @@ COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
 WORKDIR /app/projects/client-lxb
 RUN vp run build
 
-# Export the exact resolved Node.js binary for the runtime stage
-RUN cp "$(vp env which node | head -1)" /tmp/node
-
 # Deploy isolated production-only dependencies for client-lxb
 WORKDIR /app
 # Create a new app from the pnpm monorepo to create a production-only mirror of the app
@@ -33,8 +32,8 @@ WORKDIR /app
 RUN --mount=type=cache,id=pnpm-store,target=/home/vp/.local/share/pnpm/store,uid=1000,gid=1000 \
     PNPM_CONFIG_MINIMUM_RELEASE_AGE=0 pnpm --filter client-lxb --prod deploy /app/pruned
 
-# --- runtime stage: minimal glibc debian runtime ---
-FROM debian:bookworm-slim AS runtime
+# --- runtime stage: official node slim runtime (matches .node-version) ---
+FROM node:${NODE_VERSION}-slim AS runtime
 WORKDIR /app
 
 # Install libc++, libatomic, ca-certificates, curl, and sqlite3 (for workerd sandbox, Node.js, HTTPS, healthchecks, and DB inspection)
@@ -46,9 +45,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ca-certificates \
     curl \
     sqlite3
-
-# The exact Node.js binary resolved by Vite+ from .node-version
-COPY --from=build /tmp/node /usr/local/bin/node
 
 COPY --from=build /app/projects/client-lxb/dist ./dist
 COPY --from=build /app/pruned/node_modules ./node_modules

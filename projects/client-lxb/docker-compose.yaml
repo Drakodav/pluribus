@@ -5,6 +5,7 @@ services:
       dockerfile: projects/client-lxb/Dockerfile
       args:
         - EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}
+        - NODE_VERSION=${NODE_VERSION:-26}
     restart: unless-stopped
     environment:
       - "NODE_ENV=${NODE_ENV:-production}"
