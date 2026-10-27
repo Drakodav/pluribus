@@ -31,11 +31,14 @@ const envSchema = z.object({
 
 const env = envSchema.parse(process.env);
 
-const rawDbPath = env.EM_DB_PATH || env.EM_DATA_PATH || ".emdash/data";
+const isProd = env.NODE_ENV === "production";
+const defaultDbPath = isProd ? "/app/db" : ".emdash/data";
+const rawDbPath = env.EM_DB_PATH || env.EM_DATA_PATH || defaultDbPath;
 const isDbFile = rawDbPath.endsWith(".db");
 const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;
 const dbFile = isDbFile ? rawDbPath : path.join(rawDbPath, "data.db");
-const uploadsDir = env.EM_UPLOADS_PATH || path.join(dataDir, "uploads");
+const defaultUploadsDir = isProd ? "/app/uploads" : path.join(dataDir, "uploads");
+const uploadsDir = env.EM_UPLOADS_PATH || defaultUploadsDir;
 
 const candidateUrl = [
   env.EMDASH_SITE_URL,
