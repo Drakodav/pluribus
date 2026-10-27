@@ -37,15 +37,17 @@ const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;
 const dbFile = isDbFile ? rawDbPath : path.join(rawDbPath, "data.db");
 const uploadsDir = env.EM_UPLOADS_PATH || path.join(dataDir, "uploads");
 
-const rawSiteUrl =
-  env.EMDASH_SITE_URL ||
-  env.SITE_URL ||
-  env.COOLIFY_URL ||
-  (env.COOLIFY_FQDN ? `https://${env.COOLIFY_FQDN}` : undefined);
-const siteUrl = rawSiteUrl
-  ? rawSiteUrl.startsWith("http")
-    ? rawSiteUrl
-    : `https://${rawSiteUrl}`
+const candidateUrl = [
+  env.EMDASH_SITE_URL,
+  env.SITE_URL,
+  env.COOLIFY_URL,
+  env.COOLIFY_FQDN ? `https://${env.COOLIFY_FQDN}` : undefined,
+]
+  .map((url) => url?.trim())
+  .find(Boolean);
+
+const siteUrl = candidateUrl
+  ? (candidateUrl.startsWith("http") ? candidateUrl : `https://${candidateUrl}`).replace(/\/+$/, "")
   : undefined;
 
 if (!fs.existsSync(dataDir)) {
