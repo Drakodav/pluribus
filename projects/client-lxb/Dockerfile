@@ -6,6 +6,9 @@ ARG NODE_VERSION=26
 FROM ghcr.io/voidzero-dev/vite-plus:latest AS build
 WORKDIR /app
 
+# Ensure devDependencies (TypeScript, build plugins, types) are always installed during build
+ENV NODE_ENV=development
+
 # Forward encryption key to build stage so astro build validates its presence
 ARG EMDASH_ENCRYPTION_KEY
 ENV EMDASH_ENCRYPTION_KEY=$EMDASH_ENCRYPTION_KEY
