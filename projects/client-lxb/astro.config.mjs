@@ -32,8 +32,7 @@ if (!isBuild && env.NODE_ENV === "production" && !env.EMDASH_ENCRYPTION_KEY) {
 }
 
 const isProd = env.NODE_ENV === "production";
-const defaultDbPath = isProd ? "/app/db" : ".emdash/data";
-const rawDbPath = env.EM_DB_PATH || env.EM_DATA_PATH || defaultDbPath;
+const rawDbPath = isProd ? "/app/db" : ".emdash/data";
 const isDbFile = rawDbPath.endsWith(".db");
 const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;
 const dbFile = isDbFile ? rawDbPath : path.join(rawDbPath, "data.db");

@@ -7,8 +7,6 @@ services:
     environment:
       - EMDASH_ENCRYPTION_KEY
       - EMDASH_SITE_URL
-      - EM_DATA_PATH
-      - EM_UPLOADS_PATH
     volumes:
       - "emdash_db:/app/db"
       - "emdash_uploads:/app/uploads"

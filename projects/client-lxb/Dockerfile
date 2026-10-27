@@ -20,8 +20,9 @@ RUN --mount=type=cache,id=pnpm-store,target=/home/vp/.local/share/pnpm/store,uid
 # Copy client-lxb source code
 COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
 
-# Build the Astro site
+# Build the Astro site for production
 WORKDIR /app/projects/client-lxb
+ENV NODE_ENV=production
 RUN vp run build
 
 # Deploy isolated production-only dependencies for client-lxb
@@ -48,6 +49,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 COPY --from=build /app/projects/client-lxb/dist ./dist
 COPY --from=build /app/pruned/node_modules ./node_modules
 COPY --from=build /app/projects/client-lxb/package.json ./
+
+RUN mkdir -p /app/db /app/uploads
 
 ENV HOST=0.0.0.0 \
     PORT=4321 \
