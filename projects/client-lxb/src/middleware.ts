@@ -1,6 +1,19 @@
 import { defineMiddleware } from "astro:middleware";
 import { checkRateLimit } from "@/lib/rate-limit";
 
+// Ensure EMDASH_SITE_URL is populated at container runtime from Coolify/generic env vars
+if (!process.env.EMDASH_SITE_URL?.trim()) {
+  const fallback =
+    process.env.SITE_URL?.trim() ||
+    process.env.COOLIFY_URL?.trim() ||
+    (process.env.COOLIFY_FQDN?.trim() ? `https://${process.env.COOLIFY_FQDN.trim()}` : undefined);
+  if (fallback) {
+    process.env.EMDASH_SITE_URL = (
+      fallback.startsWith("http") ? fallback : `https://${fallback}`
+    ).replace(/\/+$/, "");
+  }
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 

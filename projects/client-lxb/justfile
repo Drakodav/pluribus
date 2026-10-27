@@ -30,9 +30,48 @@ preview:
 check:
     vp check
 
+# Build Docker image from monorepo root (ensuring workspace packages and Coolify compatibility)
+docker-build:
+    #!/usr/bin/env sh
+    set -eu
+    ROOT_DIR="$(git rev-parse --show-toplevel)"
+    ENV_ARG=""
+    if [ -f "$ROOT_DIR/projects/client-lxb/.env" ]; then
+        ENV_ARG="--env-file $ROOT_DIR/projects/client-lxb/.env"
+    fi
+    echo "==> Building Docker image from monorepo root ($ROOT_DIR)..."
+    docker compose $ENV_ARG --project-directory "$ROOT_DIR" -f "$ROOT_DIR/projects/client-lxb/docker-compose.yaml" build
+
+# Check Docker compilation (ensures image builds cleanly from root)
+docker-check: docker-build
+
+# Run a full local Docker test (build, start container, wait for healthy status, and clean up)
+docker-test:
+    #!/usr/bin/env sh
+    set -eu
+    ROOT_DIR="$(git rev-parse --show-toplevel)"
+    ENV_ARG=""
+    if [ -f "$ROOT_DIR/projects/client-lxb/.env" ]; then
+        ENV_ARG="--env-file $ROOT_DIR/projects/client-lxb/.env"
+    fi
+    COMPOSE_FILE="$ROOT_DIR/projects/client-lxb/docker-compose.yaml"
+    cleanup() {
+        echo "==> Tearing down test container..."
+        docker compose $ENV_ARG --project-directory "$ROOT_DIR" -f "$COMPOSE_FILE" down -v >/dev/null 2>&1 || true
+    }
+    trap cleanup EXIT
+    echo "==> Building Docker image..."
+    docker compose $ENV_ARG --project-directory "$ROOT_DIR" -f "$COMPOSE_FILE" build
+    echo "==> Starting container and waiting for healthcheck (/api/health)..."
+    docker compose $ENV_ARG --project-directory "$ROOT_DIR" -f "$COMPOSE_FILE" up -d --wait --wait-timeout 60
+    echo "==> Verification: querying healthcheck inside container..."
+    docker compose $ENV_ARG --project-directory "$ROOT_DIR" -f "$COMPOSE_FILE" exec -T emdash-cms curl -sf http://localhost:4321/api/health
+    echo ""
+    echo "==> Docker local test passed successfully!"
+
 # Pre-commit checks required by monorepo orchestration
 pre-commit:
-    @echo "Running client-lxb checks (typecheck & build)..."
+    @echo "Running client-lxb checks..."
     vp lint
     vp format
     
