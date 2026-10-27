@@ -21,15 +21,15 @@ const envSchema = z.object({
   SITE_URL: z.string().optional(),
   COOLIFY_URL: z.string().optional(),
   COOLIFY_FQDN: z.string().optional(),
-  EMDASH_ENCRYPTION_KEY: z
-    .string({
-      required_error: "EMDASH_ENCRYPTION_KEY is required",
-      invalid_type_error: "EMDASH_ENCRYPTION_KEY must be a string",
-    })
-    .min(1, "EMDASH_ENCRYPTION_KEY cannot be empty"),
+  EMDASH_ENCRYPTION_KEY: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
+
+const isBuild = process.env.npm_lifecycle_event === "build" || process.argv.includes("build");
+if (!isBuild && env.NODE_ENV === "production" && !env.EMDASH_ENCRYPTION_KEY) {
+  throw new Error("EMDASH_ENCRYPTION_KEY is required in production");
+}
 
 const isProd = env.NODE_ENV === "production";
 const defaultDbPath = isProd ? "/app/db" : ".emdash/data";

@@ -3,16 +3,12 @@ services:
     build:
       context: .
       dockerfile: projects/client-lxb/Dockerfile
-      args:
-        - EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}
-        - NODE_VERSION=${NODE_VERSION:-26}
     restart: unless-stopped
     environment:
-      - "NODE_ENV=${NODE_ENV:-production}"
-      - "EM_DATA_PATH=${EM_DATA_PATH:-/app/db}"
-      - "EM_UPLOADS_PATH=${EM_UPLOADS_PATH:-/app/uploads}"
-      - "EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}"
-      - "EMDASH_SITE_URL=${EMDASH_SITE_URL:-${SITE_URL:-${COOLIFY_URL:-}}}"
+      - EMDASH_ENCRYPTION_KEY
+      - EMDASH_SITE_URL
+      - EM_DATA_PATH
+      - EM_UPLOADS_PATH
     volumes:
       - "emdash_db:/app/db"
       - "emdash_uploads:/app/uploads"

@@ -9,10 +9,6 @@ WORKDIR /app
 # Ensure devDependencies (TypeScript, build plugins, types) are always installed during build
 ENV NODE_ENV=development
 
-# Forward encryption key to build stage so astro build validates its presence
-ARG EMDASH_ENCRYPTION_KEY
-ENV EMDASH_ENCRYPTION_KEY=$EMDASH_ENCRYPTION_KEY
-
 # Copy root monorepo files and lockfile for frozen installation
 COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --chown=vp:vp projects/client-lxb/package.json projects/client-lxb/.node-version* ./projects/client-lxb/
@@ -24,7 +20,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/home/vp/.local/share/pnpm/store,uid
 # Copy client-lxb source code
 COPY --chown=vp:vp projects/client-lxb ./projects/client-lxb
 
-# Build the Astro site (fails if EMDASH_ENCRYPTION_KEY is missing)
+# Build the Astro site
 WORKDIR /app/projects/client-lxb
 RUN vp run build
 
@@ -53,13 +49,9 @@ COPY --from=build /app/projects/client-lxb/dist ./dist
 COPY --from=build /app/pruned/node_modules ./node_modules
 COPY --from=build /app/projects/client-lxb/package.json ./
 
-ENV HOST=0.0.0.0
-ENV PORT=4321
-ENV NODE_ENV=production
-ENV EM_DATA_PATH=/app/db
-ENV EM_UPLOADS_PATH=/app/uploads
-
-RUN mkdir -p /app/db /app/uploads /app/data
+ENV HOST=0.0.0.0 \
+    PORT=4321 \
+    NODE_ENV=production
 
 EXPOSE 4321
 
