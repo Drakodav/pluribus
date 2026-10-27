@@ -53,9 +53,10 @@ COPY --from=build /app/projects/client-lxb/package.json ./
 ENV HOST=0.0.0.0
 ENV PORT=4321
 ENV NODE_ENV=production
-ENV EM_DATA_PATH=/app/data
+ENV EM_DATA_PATH=/app/db
+ENV EM_UPLOADS_PATH=/app/uploads
 
-RUN mkdir -p /app/data /app/data/uploads
+RUN mkdir -p /app/db /app/uploads /app/data
 
 EXPOSE 4321
 

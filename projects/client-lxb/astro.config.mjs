@@ -14,7 +14,9 @@ if (typeof process.loadEnvFile === "function" && fs.existsSync(".env")) {
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  EM_DATA_PATH: z.string().default(".emdash/data"),
+  EM_DATA_PATH: z.string().optional(),
+  EM_DB_PATH: z.string().optional(),
+  EM_UPLOADS_PATH: z.string().optional(),
   EMDASH_ENCRYPTION_KEY: z
     .string({
       required_error: "EMDASH_ENCRYPTION_KEY is required",
@@ -25,10 +27,11 @@ const envSchema = z.object({
 
 const env = envSchema.parse(process.env);
 
-const isDbFile = env.EM_DATA_PATH.endsWith(".db");
-const dataDir = isDbFile ? path.dirname(env.EM_DATA_PATH) : env.EM_DATA_PATH;
-const dbFile = isDbFile ? env.EM_DATA_PATH : path.join(env.EM_DATA_PATH, "data.db");
-const uploadsDir = path.join(dataDir, "uploads");
+const rawDbPath = env.EM_DB_PATH || env.EM_DATA_PATH || ".emdash/data";
+const isDbFile = rawDbPath.endsWith(".db");
+const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;
+const dbFile = isDbFile ? rawDbPath : path.join(rawDbPath, "data.db");
+const uploadsDir = env.EM_UPLOADS_PATH || path.join(dataDir, "uploads");
 
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });

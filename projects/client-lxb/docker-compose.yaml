@@ -9,11 +9,12 @@ services:
     restart: unless-stopped
     environment:
       - "NODE_ENV=${NODE_ENV:-production}"
-      - "EM_DATA_PATH=${EM_DATA_PATH:-/app/data}"
+      - "EM_DATA_PATH=${EM_DATA_PATH:-/app/db}"
+      - "EM_UPLOADS_PATH=${EM_UPLOADS_PATH:-/app/uploads}"
       - "EMDASH_ENCRYPTION_KEY=${EMDASH_ENCRYPTION_KEY}"
     volumes:
-      - "emdash_db:/app/data"
-      - "emdash_uploads:/app/data/uploads"
+      - "emdash_db:/app/db"
+      - "emdash_uploads:/app/uploads"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4321/api/health"]
       interval: 10s
