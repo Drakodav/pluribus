@@ -3,6 +3,7 @@ import { getEmDashCollection, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
 import Base from "../layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
+import { LandingPage } from "@/components/landing-page";
 
 const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
   orderBy: { published_at: "desc" },
@@ -15,7 +16,8 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 ---
 
 <Base title={siteTitle} description={siteTagline}>
-  <h1>Recent Posts</h1>
+  <LandingPage/>
+  <!-- <h1>Recent Posts</h1>
 
   {
     posts.length === 0 ? (
@@ -50,5 +52,5 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
         ))}
       </ul>
     )
-  }
+  } -->
 </Base>

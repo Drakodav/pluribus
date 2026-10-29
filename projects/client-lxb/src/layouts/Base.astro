@@ -2,7 +2,7 @@
 import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
 import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
-import LiveSearch from "emdash/ui/search";
+import { NavigationMenu } from "@/components/nav-menu";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 
 interface Props {
@@ -68,35 +68,7 @@ const pageCtx = createPublicPageContext({
 
     <EmDashBodyStart page={pageCtx} />
 
-    <header>
-      <nav>
-        <a href="/">
-          {
-            siteLogo ? (
-              <img
-                src={siteLogo.url}
-                alt={siteLogo.alt || siteTitle}
-                style="height:48px;width:auto;margin:-8px 0;display:block;"
-              />
-            ) : (
-              siteTitle
-            )
-          }
-        </a>
-        {
-          menu?.items.map((item) => (
-            <a
-              href={item.url}
-              target={item.target}
-              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-            >
-              {item.label}
-            </a>
-          ))
-        }
-        <LiveSearch placeholder="Search..." collections={["posts", "pages"]} />
-      </nav>
-    </header>
+    <NavigationMenu siteTitle={siteTitle} siteLogo={siteLogo} menu={menu} />
 
     <main>
       <slot />
