@@ -77,11 +77,15 @@ pre-commit:
     
 
 emdash *args="":
-    pnpm dlx emdash {{args}}
+    pnpm exec emdash {{args}}
 
 generate-types:
     just emdash types
 
-export-seed:
-    just emdash export-seed --with-content=pages,occasions -d ./.emdash/data/data.db > seed/seed.json
+export-seed-dev:
+    just emdash export-seed --with-content=pages,occasions,products,campaigns -d ./.emdash/data/data.db > seed/seed.json
+
+import-seed-dev:
+    just emdash seed seed/seed.json -d ./.emdash/data/data.db --on-conflict=update
+
 

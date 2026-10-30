@@ -1,9 +1,92 @@
 {
   "collections": [
     {
+      "slug": "campaigns",
+      "label": "Seasonal Campaigns",
+      "labelSingular": "Campaign",
+      "supports": ["drafts", "revisions", "search", "preview"],
+      "hidden": false,
+      "fields": [
+        {
+          "slug": "season_name",
+          "label": "Season Name",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "slug": "badge_text",
+          "label": "Badge Text",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "headline",
+          "label": "Hero Headline",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "description",
+          "label": "Hero Description",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "target_occasion",
+          "label": "Target Occasion",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "campaign_occasion",
+            "relationSide": "parent",
+            "targetCollection": "occasions"
+          }
+        },
+        {
+          "slug": "promoted_products",
+          "label": "Promoted Offerings",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "campaign_products",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "products"
+          }
+        },
+        {
+          "slug": "banner_image",
+          "label": "Banner Image",
+          "type": "image",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "promo_code",
+          "label": "Promo / Discount Code",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "is_active",
+          "label": "Is Active?",
+          "type": "boolean",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
       "slug": "gallerys",
-      "label": "Gallerys",
-      "labelSingular": "Gallery",
+      "label": "Gallery",
+      "labelSingular": "Gallery Item",
       "supports": ["drafts", "revisions", "preview", "search"],
       "hidden": false,
       "fields": [
@@ -20,16 +103,213 @@
               "image/gif",
               "image/webp",
               "image/avif",
-              "image/jxl",
-              "video/"
+              "image/jxl"
             ]
-          },
-          "options": {}
+          }
         },
         {
           "slug": "caption",
           "label": "Caption",
           "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "occasion",
+          "label": "Occasion",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "occasion_gallery",
+            "relationSide": "child",
+            "targetCollection": "occasions"
+          }
+        },
+        {
+          "slug": "product",
+          "label": "Product / Service",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "product_gallery",
+            "relationSide": "child",
+            "targetCollection": "products"
+          }
+        },
+        {
+          "slug": "color_palette",
+          "label": "Color Palette",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "is_featured_home",
+          "label": "Featured on Homepage?",
+          "type": "boolean",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
+      "slug": "inquiries",
+      "label": "Inquiries & Orders",
+      "labelSingular": "Inquiry / Order",
+      "supports": ["search"],
+      "hidden": false,
+      "fields": [
+        {
+          "slug": "customer_name",
+          "label": "Customer Name",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "slug": "email",
+          "label": "Email Address",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "slug": "phone",
+          "label": "Phone Number",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "slug": "location",
+          "label": "Location / Town",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "fulfillment_type",
+          "label": "Fulfillment Type",
+          "type": "select",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "options": ["delivery", "pickup"]
+          }
+        },
+        {
+          "slug": "event_date",
+          "label": "Event Date",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "event_time",
+          "label": "Delivery / Pickup Window",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "occasion",
+          "label": "Event Occasion",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "inquiry_occasion",
+            "relationSide": "parent",
+            "targetCollection": "occasions"
+          }
+        },
+        {
+          "slug": "requested_products",
+          "label": "Requested Products",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "inquiry_products",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "products"
+          }
+        },
+        {
+          "slug": "booking_status",
+          "label": "Booking Status",
+          "type": "select",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "options": [
+              "new_inquiry",
+              "quoted",
+              "deposit_paid",
+              "in_production",
+              "ready_for_pickup",
+              "out_for_delivery",
+              "completed",
+              "cancelled"
+            ]
+          }
+        },
+        {
+          "slug": "quoted_price",
+          "label": "Quoted Price",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "delivery_fee",
+          "label": "Delivery Fee",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "deposit_amount",
+          "label": "Deposit Amount",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "balance_due",
+          "label": "Balance Due",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "balloon_colors",
+          "label": "Requested Color Palette",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "custom_lettering",
+          "label": "Personalized Lettering / Message",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "customer_notes",
+          "label": "Customer Event Details & Notes",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "internal_notes",
+          "label": "Internal Admin Notes",
+          "type": "text",
           "required": false,
           "unique": false
         }
@@ -47,6 +327,67 @@
           "label": "Title",
           "type": "string",
           "required": true,
+          "unique": false
+        },
+        {
+          "slug": "subtitle",
+          "label": "Subtitle / Tagline",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "hero_badge",
+          "label": "Hero Badge",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "hero_image",
+          "label": "Hero Showcase Image",
+          "type": "image",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "intro_text",
+          "label": "Introduction & Package Details",
+          "type": "portableText",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "featured_products",
+          "label": "Featured Offerings",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "occasion_products",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "products"
+          }
+        },
+        {
+          "slug": "gallery_items",
+          "label": "Gallery Showcase",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "occasion_gallery",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "gallerys"
+          }
+        },
+        {
+          "slug": "sort_order",
+          "label": "Display Order Priority",
+          "type": "integer",
+          "required": false,
           "unique": false
         }
       ]
@@ -110,7 +451,106 @@
           "unique": false
         }
       ]
+    },
+    {
+      "slug": "products",
+      "label": "Products & Offerings",
+      "labelSingular": "Product / Offering",
+      "supports": ["drafts", "revisions", "search", "preview"],
+      "hidden": false,
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Product Name",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "slug": "starting_price",
+          "label": "Starting Price / Quote",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "featured_image",
+          "label": "Featured Image",
+          "type": "image",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "description",
+          "label": "Description",
+          "type": "portableText",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "gallery_items",
+          "label": "Photo Showcase",
+          "type": "reference",
+          "required": false,
+          "unique": false,
+          "validation": {
+            "relation": "product_gallery",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "gallerys"
+          }
+        },
+        {
+          "slug": "is_customizable",
+          "label": "Customizable Vinyl Backing/Name",
+          "type": "boolean",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "supports_gift_insert",
+          "label": "Supports Gift Insert (Pop-Me)",
+          "type": "boolean",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "included_features",
+          "label": "What is Included / Highlights",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "dimensions_note",
+          "label": "Dimensions & Constraint Notes",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "lead_time_days",
+          "label": "Lead Time (Days)",
+          "type": "integer",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "is_featured",
+          "label": "Featured in Catalog Highlight",
+          "type": "boolean",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "sort_order",
+          "label": "Display Order Priority",
+          "type": "integer",
+          "required": false,
+          "unique": false
+        }
+      ]
     }
   ],
-  "version": "2c0038d3eba19180"
+  "version": "ca54b0cb8cdfbc5b"
 }

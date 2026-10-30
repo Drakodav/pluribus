@@ -3,7 +3,65 @@
 
 /// <reference types="emdash/locals" />
 
-import type { BylineSummary, ContentBylineCredit, TaxonomyTerm, PortableTextBlock } from "emdash";
+import type {
+  BylineSummary,
+  ContentBylineCredit,
+  TaxonomyTerm,
+  PortableTextBlock,
+  ReferencePage,
+} from "emdash";
+
+export interface Campaign {
+  id: string;
+  slug: string | null;
+  status: string;
+  season_name: string;
+  badge_text?: string;
+  headline?: string;
+  description?: string;
+  banner_image?: {
+    id: string;
+    src?: string;
+    alt?: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+    filename?: string;
+    mimeType?: string;
+    blurhash?: string;
+    dominantColor?: string;
+    focalX?: number;
+    focalY?: number;
+    provider?: string;
+    previewUrl?: string;
+    meta?: Record<string, unknown>;
+    darkVariant?: {
+      id: string;
+      src?: string;
+      alt?: string;
+      caption?: string;
+      width?: number;
+      height?: number;
+      filename?: string;
+      mimeType?: string;
+      blurhash?: string;
+      dominantColor?: string;
+      focalX?: number;
+      focalY?: number;
+      provider?: string;
+      previewUrl?: string;
+      meta?: Record<string, unknown>;
+    };
+  };
+  promo_code?: string;
+  is_active?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
 
 export interface Gallery {
   id: string;
@@ -44,6 +102,44 @@ export interface Gallery {
     };
   };
   caption?: string;
+  color_palette?: string;
+  is_featured_home?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
+export interface Inquiry {
+  id: string;
+  slug: string | null;
+  status: string;
+  customer_name: string;
+  email: string;
+  phone: string;
+  location?: string;
+  fulfillment_type?: "delivery" | "pickup";
+  event_date?: string;
+  event_time?: string;
+  booking_status?:
+    | "new_inquiry"
+    | "quoted"
+    | "deposit_paid"
+    | "in_production"
+    | "ready_for_pickup"
+    | "out_for_delivery"
+    | "completed"
+    | "cancelled";
+  quoted_price?: string;
+  delivery_fee?: string;
+  deposit_amount?: string;
+  balance_due?: string;
+  balloon_colors?: string;
+  custom_lettering?: string;
+  customer_notes?: string;
+  internal_notes?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;
@@ -57,6 +153,44 @@ export interface Occasion {
   slug: string | null;
   status: string;
   title: string;
+  subtitle?: string;
+  hero_badge?: string;
+  hero_image?: {
+    id: string;
+    src?: string;
+    alt?: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+    filename?: string;
+    mimeType?: string;
+    blurhash?: string;
+    dominantColor?: string;
+    focalX?: number;
+    focalY?: number;
+    provider?: string;
+    previewUrl?: string;
+    meta?: Record<string, unknown>;
+    darkVariant?: {
+      id: string;
+      src?: string;
+      alt?: string;
+      caption?: string;
+      width?: number;
+      height?: number;
+      filename?: string;
+      mimeType?: string;
+      blurhash?: string;
+      dominantColor?: string;
+      focalX?: number;
+      focalY?: number;
+      provider?: string;
+      previewUrl?: string;
+      meta?: Record<string, unknown>;
+    };
+  };
+  intro_text?: PortableTextBlock[];
+  sort_order?: number;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;
@@ -128,11 +262,101 @@ export interface Post {
   terms?: Record<string, TaxonomyTerm[]>;
 }
 
+export interface Product {
+  id: string;
+  slug: string | null;
+  status: string;
+  title: string;
+  starting_price?: string;
+  featured_image?: {
+    id: string;
+    src?: string;
+    alt?: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+    filename?: string;
+    mimeType?: string;
+    blurhash?: string;
+    dominantColor?: string;
+    focalX?: number;
+    focalY?: number;
+    provider?: string;
+    previewUrl?: string;
+    meta?: Record<string, unknown>;
+    darkVariant?: {
+      id: string;
+      src?: string;
+      alt?: string;
+      caption?: string;
+      width?: number;
+      height?: number;
+      filename?: string;
+      mimeType?: string;
+      blurhash?: string;
+      dominantColor?: string;
+      focalX?: number;
+      focalY?: number;
+      provider?: string;
+      previewUrl?: string;
+      meta?: Record<string, unknown>;
+    };
+  };
+  description?: PortableTextBlock[];
+  is_customizable?: boolean;
+  supports_gift_insert?: boolean;
+  included_features?: string;
+  dimensions_note?: string;
+  lead_time_days?: number;
+  is_featured?: boolean;
+  sort_order?: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
+export interface CampaignReferences {
+  target_occasion: ReferencePage<Occasion>;
+  promoted_products: ReferencePage<Product>;
+}
+
+export interface GalleryReferences {
+  occasion: ReferencePage<Occasion>;
+  product: ReferencePage<Product>;
+}
+
+export interface InquiryReferences {
+  occasion: ReferencePage<Occasion>;
+  requested_products: ReferencePage<Product>;
+}
+
+export interface OccasionReferences {
+  featured_products: ReferencePage<Product>;
+  gallery_items: ReferencePage<Gallery>;
+}
+
+export interface ProductReferences {
+  gallery_items: ReferencePage<Gallery>;
+}
+
 declare module "emdash" {
   interface EmDashCollections {
+    campaigns: Campaign;
     gallerys: Gallery;
+    inquiries: Inquiry;
     occasions: Occasion;
     pages: Page;
     posts: Post;
+    products: Product;
+  }
+  interface EmDashCollectionReferences {
+    campaigns: CampaignReferences;
+    gallerys: GalleryReferences;
+    inquiries: InquiryReferences;
+    occasions: OccasionReferences;
+    products: ProductReferences;
   }
 }
