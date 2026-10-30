@@ -79,3 +79,9 @@ pre-commit:
 emdash *args="":
     pnpm dlx emdash {{args}}
 
+generate-types:
+    just emdash types
+
+export-seed:
+    just emdash export-seed -d ./.emdash/data/data.db > seed/seed.json
+

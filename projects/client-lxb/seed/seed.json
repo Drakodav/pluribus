@@ -2,21 +2,59 @@
   "$schema": "https://emdashcms.com/seed.schema.json",
   "version": "1",
   "meta": {
-    "name": "Starter",
-    "description": "A minimal EmDash starter with posts and pages",
-    "author": "EmDash"
+    "name": "Exported Seed",
+    "description": "Exported from existing EmDash database"
   },
   "settings": {
-    "title": "My Site",
-    "tagline": "Built with EmDash"
+    "tagline": "Built with EmDash",
+    "title": "LuxeBear Balloon Bar"
   },
+  "blockTypes": [],
   "collections": [
+    {
+      "slug": "occasions",
+      "label": "Occasions",
+      "labelSingular": "Occasion",
+      "supports": ["drafts", "revisions", "search", "preview"],
+      "group": "luxe",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        }
+      ]
+    },
+    {
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "supports": ["drafts", "revisions", "preview", "search", "seo"],
+      "urlPattern": "/{slug}",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        }
+      ]
+    },
     {
       "slug": "posts",
       "label": "Posts",
       "labelSingular": "Post",
-      "urlPattern": "/posts/{slug}",
       "supports": ["drafts", "revisions", "preview", "scheduling", "search", "seo"],
+      "urlPattern": "/posts/{slug}",
       "fields": [
         {
           "slug": "title",
@@ -42,32 +80,12 @@
           "type": "text"
         }
       ]
-    },
-    {
-      "slug": "pages",
-      "label": "Pages",
-      "labelSingular": "Page",
-      "urlPattern": "/{slug}",
-      "supports": ["drafts", "revisions", "preview", "search", "seo"],
-      "fields": [
-        {
-          "slug": "title",
-          "label": "Title",
-          "type": "string",
-          "required": true,
-          "searchable": true
-        },
-        {
-          "slug": "content",
-          "label": "Content",
-          "type": "portableText",
-          "searchable": true
-        }
-      ]
     }
   ],
+  "defaultLocale": "en",
   "taxonomies": [
     {
+      "id": "tax:category",
       "name": "category",
       "label": "Categories",
       "labelSingular": "Category",
@@ -75,16 +93,19 @@
       "collections": ["posts"],
       "terms": [
         {
+          "id": "term:category:general",
           "slug": "general",
           "label": "General"
         },
         {
+          "id": "term:category:updates",
           "slug": "updates",
           "label": "Updates"
         }
       ]
     },
     {
+      "id": "tax:tag",
       "name": "tag",
       "label": "Tags",
       "labelSingular": "Tag",
@@ -92,10 +113,12 @@
       "collections": ["posts"],
       "terms": [
         {
+          "id": "term:tag:starter",
           "slug": "starter",
           "label": "Starter"
         },
         {
+          "id": "term:tag:example",
           "slug": "example",
           "label": "Example"
         }
@@ -104,6 +127,7 @@
   ],
   "menus": [
     {
+      "id": "menu:primary",
       "name": "primary",
       "label": "Primary Navigation",
       "items": [
@@ -133,102 +157,23 @@
       "widgets": [
         {
           "type": "component",
-          "componentId": "core:search",
-          "title": "Search"
+          "title": "Search",
+          "componentId": "core:search"
         },
         {
           "type": "component",
-          "componentId": "core:categories",
-          "title": "Categories"
+          "title": "Categories",
+          "componentId": "core:categories"
         },
         {
           "type": "component",
-          "componentId": "core:recent-posts",
           "title": "Recent Posts",
+          "componentId": "core:recent-posts",
           "props": {
             "count": 5
           }
         }
       ]
     }
-  ],
-  "content": {
-    "pages": [
-      {
-        "id": "about",
-        "slug": "about",
-        "status": "published",
-        "data": {
-          "title": "About",
-          "content": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "This is the about page. Edit it in the admin panel or replace this template with your own design.",
-                  "_key": "k1"
-                }
-              ],
-              "_key": "k0"
-            }
-          ]
-        }
-      }
-    ],
-    "posts": [
-      {
-        "id": "post-1",
-        "slug": "welcome",
-        "status": "published",
-        "data": {
-          "title": "Welcome",
-          "excerpt": "Your first post. Replace this with your own content.",
-          "content": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "This is a starter post. The templates in this project show the basic patterns for querying and rendering EmDash content. Replace them with your own design.",
-                  "_key": "k1"
-                }
-              ],
-              "_key": "k0"
-            },
-            {
-              "_type": "block",
-              "style": "h2",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "What to do next",
-                  "_key": "k3"
-                }
-              ],
-              "_key": "k2"
-            },
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "Open the admin panel to add content, or edit the Astro pages in src/pages to change how content is displayed.",
-                  "_key": "k5"
-                }
-              ],
-              "_key": "k4"
-            }
-          ]
-        },
-        "taxonomies": {
-          "category": ["general"],
-          "tag": ["starter", "example"]
-        }
-      }
-    ]
-  }
+  ]
 }

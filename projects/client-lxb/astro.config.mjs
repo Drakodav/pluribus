@@ -30,7 +30,7 @@ if (!isBuild && env.NODE_ENV === "production" && !env.EMDASH_ENCRYPTION_KEY) {
   throw new Error("EMDASH_ENCRYPTION_KEY is required in production");
 }
 
-const isProd = env.NODE_ENV === "production";
+const isProd = env.NODE_ENV === "production" && !!env.COOLIFY_URL;
 const rawDbPath = isProd ? "/app/db" : ".emdash/data";
 const isDbFile = rawDbPath.endsWith(".db");
 const dataDir = isDbFile ? path.dirname(rawDbPath) : rawDbPath;

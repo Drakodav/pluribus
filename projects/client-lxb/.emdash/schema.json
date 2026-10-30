@@ -1,6 +1,22 @@
 {
   "collections": [
     {
+      "slug": "occasions",
+      "label": "Occasions",
+      "labelSingular": "Occasion",
+      "supports": ["drafts", "revisions", "search", "preview"],
+      "hidden": false,
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "unique": false
+        }
+      ]
+    },
+    {
       "slug": "pages",
       "label": "Pages",
       "labelSingular": "Page",
@@ -61,5 +77,5 @@
       ]
     }
   ],
-  "version": "4575638517905f17"
+  "version": "5a9e525219fdc360"
 }
