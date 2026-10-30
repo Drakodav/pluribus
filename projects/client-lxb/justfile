@@ -83,5 +83,5 @@ generate-types:
     just emdash types
 
 export-seed:
-    just emdash export-seed -d ./.emdash/data/data.db > seed/seed.json
+    just emdash export-seed --with-content=pages,occasions -d ./.emdash/data/data.db > seed/seed.json
 
