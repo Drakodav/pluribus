@@ -49,6 +49,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 COPY --from=build /app/projects/client-lxb/dist ./dist
 COPY --from=build /app/pruned/node_modules ./node_modules
 COPY --from=build /app/projects/client-lxb/package.json ./
+COPY --from=build /app/projects/client-lxb/seed ./seed
 
 RUN mkdir -p /app/db /app/uploads
 
