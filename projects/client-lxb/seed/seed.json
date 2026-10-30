@@ -208,5 +208,61 @@
         }
       ]
     }
-  ]
+  ],
+  "sections": [
+    {
+      "slug": "landing-page",
+      "title": "Landing Page",
+      "content": [
+        {
+          "_type": "block",
+          "_key": "ctsu7wjs8",
+          "style": "normal",
+          "children": [
+            {
+              "_type": "span",
+              "_key": "5hh3y8qes",
+              "text": "test"
+            }
+          ]
+        }
+      ],
+      "keywords": [],
+      "source": "user"
+    }
+  ],
+  "content": {
+    "pages": [
+      {
+        "id": "pages:home",
+        "slug": "home",
+        "status": "published",
+        "data": {
+          "title": "home"
+        }
+      },
+      {
+        "id": "pages:about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About",
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "This is the about page. Edit it in the admin panel or replace this template with your own design.",
+                  "_key": "k1"
+                }
+              ],
+              "_key": "k0"
+            }
+          ]
+        }
+      }
+    ]
+  }
 }
