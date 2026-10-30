@@ -12,11 +12,44 @@
   "blockTypes": [],
   "collections": [
     {
+      "slug": "gallerys",
+      "label": "Gallerys",
+      "labelSingular": "Gallery",
+      "supports": ["drafts", "revisions", "preview", "search"],
+      "group": "Luxe",
+      "fields": [
+        {
+          "slug": "image",
+          "label": "Image",
+          "type": "image",
+          "required": true,
+          "validation": {
+            "allowedMimeTypes": [
+              "image/png",
+              "image/jpeg",
+              "image/gif",
+              "image/webp",
+              "image/avif",
+              "image/jxl",
+              "video/"
+            ]
+          },
+          "options": {}
+        },
+        {
+          "slug": "caption",
+          "label": "Caption",
+          "type": "string",
+          "searchable": true
+        }
+      ]
+    },
+    {
       "slug": "occasions",
       "label": "Occasions",
       "labelSingular": "Occasion",
       "supports": ["drafts", "revisions", "search", "preview"],
-      "group": "luxe",
+      "group": "Luxe",
       "fields": [
         {
           "slug": "title",

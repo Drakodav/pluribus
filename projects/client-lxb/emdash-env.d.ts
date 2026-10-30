@@ -5,6 +5,53 @@
 
 import type { BylineSummary, ContentBylineCredit, TaxonomyTerm, PortableTextBlock } from "emdash";
 
+export interface Gallery {
+  id: string;
+  slug: string | null;
+  status: string;
+  image: {
+    id: string;
+    src?: string;
+    alt?: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+    filename?: string;
+    mimeType?: string;
+    blurhash?: string;
+    dominantColor?: string;
+    focalX?: number;
+    focalY?: number;
+    provider?: string;
+    previewUrl?: string;
+    meta?: Record<string, unknown>;
+    darkVariant?: {
+      id: string;
+      src?: string;
+      alt?: string;
+      caption?: string;
+      width?: number;
+      height?: number;
+      filename?: string;
+      mimeType?: string;
+      blurhash?: string;
+      dominantColor?: string;
+      focalX?: number;
+      focalY?: number;
+      provider?: string;
+      previewUrl?: string;
+      meta?: Record<string, unknown>;
+    };
+  };
+  caption?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
 export interface Occasion {
   id: string;
   slug: string | null;
@@ -83,6 +130,7 @@ export interface Post {
 
 declare module "emdash" {
   interface EmDashCollections {
+    gallerys: Gallery;
     occasions: Occasion;
     pages: Page;
     posts: Post;
