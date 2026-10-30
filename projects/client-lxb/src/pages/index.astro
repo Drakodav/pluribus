@@ -1,56 +1,43 @@
 ---
 import { getEmDashCollection, getSiteSettings } from "emdash";
-import { Image } from "emdash/ui";
 import Base from "../layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 import { LandingPage } from "@/components/landing-page";
 
-const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
-  orderBy: { published_at: "desc" },
-  limit: 10,
-});
+// Fetch dynamic occasions sorted by display order
+const { entries: occasions, cacheHint: occasionsCacheHint } =
+  await getEmDashCollection("occasions", {
+    orderBy: { sort_order: "asc" },
+  });
+
+// Fetch catalog products
+const { entries: products, cacheHint: productsCacheHint } =
+  await getEmDashCollection("products", {
+    orderBy: { sort_order: "asc" },
+  });
+
+// Fetch seasonal campaigns to determine active spotlight
+const { entries: campaigns, cacheHint: campaignsCacheHint } =
+  await getEmDashCollection("campaigns");
+
+const activeCampaign =
+  campaigns.find((c: any) => c.data?.is_active) || campaigns[0] || null;
+
 const { siteTitle, siteTagline } = resolveStarterSiteIdentity(
   await getSiteSettings(),
 );
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+if (Astro.cache?.enabled) {
+  if (occasionsCacheHint) Astro.cache.set(occasionsCacheHint);
+  if (productsCacheHint) Astro.cache.set(productsCacheHint);
+  if (campaignsCacheHint) Astro.cache.set(campaignsCacheHint);
+}
 ---
 
 <Base title={siteTitle} description={siteTagline}>
-  <LandingPage/>
-  <!-- <h1>Recent Posts</h1>
-
-  {
-    posts.length === 0 ? (
-      <p>
-        No posts yet. <a href="/_emdash/admin/content/posts/new">Create one+</a>.
-      </p>
-    ) : (
-      <ul>
-        {posts.map((post) => (
-          <li>
-            <a href={`/posts/${post.id}`}>
-              {post.data.featured_image && (
-                <div {...post.edit.featured_image}>
-                  <Image image={post.data.featured_image} />
-                </div>
-              )}
-              <h2 {...post.edit.title}>{post.data.title}</h2>
-            </a>
-            {post.data.excerpt && (
-              <p {...post.edit.excerpt}>{post.data.excerpt}</p>
-            )}
-            {post.data.publishedAt && (
-              <time datetime={post.data.publishedAt.toISOString()}>
-                {post.data.publishedAt.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </time>
-            )}
-          </li>
-        ))}
-      </ul>
-    )
-  } -->
+  <LandingPage
+    occasions={occasions}
+    products={products}
+    activeCampaign={activeCampaign}
+  />
 </Base>

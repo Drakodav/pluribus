@@ -1,74 +1,154 @@
 ---
-// 1-pass scaffold for Luxe Bear - Balloon Bar Landing Page
-// Structured based on client requirements: Seasonal focus, browse by occasion, product offerings, and booking inquiry.
+// Landing Page for Luxe Bear - Balloon Bar
+// Powered by dynamic EmDash CMS collections & relations
+import { Image } from "emdash/ui";
 
-interface OccasionCard {
-  title: string;
-  subtitle: string;
-  tag?: string;
-  href: string;
+interface Props {
+  occasions?: any[];
+  products?: any[];
+  activeCampaign?: any;
 }
 
+const {
+  occasions: dbOccasions = [],
+  products: dbProducts = [],
+  activeCampaign = null,
+} = Astro.props;
+
+// 1. Seasonal Spotlight (dynamic from activeCampaign with graceful fallback)
 const seasonalFeature = {
-  season: "Holiday Season",
-  badge: "Now Booking for Christmas & New Year",
-  headline: "Bespoke Balloon Installations & Party Decor",
+  season: activeCampaign?.data?.season_name || "Holiday Season",
+  badge:
+    activeCampaign?.data?.badge_text ||
+    "Now Booking for Upcoming Celebrations",
+  headline:
+    activeCampaign?.data?.headline ||
+    "Bespoke Balloon Installations & Party Decor",
   description:
+    activeCampaign?.data?.description ||
     "From organic arches and custom vinyl backdrops to our signature Pop-Me balloons — Luxe Bear Balloon Bar brings magic to your celebrations.",
 };
 
-const occasions: OccasionCard[] = [
+// 2. Browse by Occasion (dynamic from dbOccasions with graceful fallback)
+const fallbackOccasions = [
   {
     title: "Christmas & Seasonal",
     subtitle: "Festive balloon arches, organic garland & holiday party setups",
     tag: "Current Season",
     href: "#inquiry",
+    image: null,
   },
   {
     title: "Birthdays",
     subtitle: "Milestone numbers, themed organic arches & easel displays",
+    tag: undefined,
     href: "#inquiry",
+    image: null,
   },
   {
     title: "Communions & Confirmations",
     subtitle: "Elegant neutral backdrops, easel signs & organic garland",
     tag: "Booking Early 2027",
     href: "#inquiry",
+    image: null,
   },
   {
     title: "Gender Reveals",
     subtitle: "Signature double-layer 'Pop Me' reveal balloons with pink/blue confetti",
+    tag: undefined,
     href: "#inquiry",
+    image: null,
   },
   {
     title: "The Bridal Era",
     subtitle: "Hen parties, engagement backdrops, proposal setups & weddings",
+    tag: undefined,
     href: "#inquiry",
+    image: null,
   },
   {
     title: "Pop-Me Gifts",
     subtitle: "Custom bubble balloon gifting (customer-provided gift inserted)",
+    tag: undefined,
     href: "#inquiry",
+    image: null,
   },
 ];
 
-const offerings = [
+const occasions =
+  dbOccasions.length > 0
+    ? dbOccasions.map((occ: any) => ({
+        title: occ.data.title,
+        subtitle: occ.data.subtitle || "",
+        tag: occ.data.hero_badge || undefined,
+        href: `/occasions/${occ.slug}`,
+        image: occ.data.hero_image,
+        edit: occ.edit,
+      }))
+    : fallbackOccasions;
+
+// 3. Products & Offerings (dynamic from dbProducts with graceful fallback)
+const fallbackOfferings = [
   {
-    title: "Organic Balloon Arches & Half Arches",
+    title: "The Signature Bear Balloon Bouquet",
+    price: "From €85",
+    description:
+      "Our iconic centerpiece with a bespoke crystal bubble balloon, miniature teddy charm, and custom metallic lettering.",
+    isCustomizable: true,
+    supportsGiftInsert: true,
+  },
+  {
+    title: "Organic Balloon Garland",
+    price: "From €35 / metre",
     description:
       "Flowing organic styling, available on its own or paired with fully customizable vinyl backdrops with names or personalized messages.",
+    isCustomizable: true,
+    supportsGiftInsert: false,
   },
   {
-    title: "Welcome Signs & Easels",
+    title: "Welcome Signs & Easel Package",
+    price: "From €140",
     description:
       "Welcome signs displayed on wooden or metal easels, accented with organic balloon clusters or full climbing arches.",
+    isCustomizable: true,
+    supportsGiftInsert: false,
   },
   {
-    title: "Signature 'Pop Me' Balloons",
+    title: "Signature 'Pop Me' Reveal Balloons",
+    price: "From €65",
     description:
       "Special double-balloon design: inner latex balloon pops to reveal confetti or gifts, while the outer bubble stays intact.",
+    isCustomizable: true,
+    supportsGiftInsert: true,
   },
 ];
+
+const offerings =
+  dbProducts.length > 0
+    ? dbProducts.map((prod: any) => {
+        let desc = "";
+        if (typeof prod.data.description === "string") {
+          desc = prod.data.description;
+        } else if (Array.isArray(prod.data.description)) {
+          desc = prod.data.description
+            .map((b: any) =>
+              b.children?.map((c: any) => c.text).join(" ") || ""
+            )
+            .join(" ");
+        } else if (prod.data.included_features) {
+          desc = prod.data.included_features;
+        }
+        return {
+          title: prod.data.title,
+          price: prod.data.starting_price || "",
+          description: desc,
+          isCustomizable: prod.data.is_customizable,
+          supportsGiftInsert: prod.data.supports_gift_insert,
+          image: prod.data.featured_image,
+          edit: prod.edit,
+        };
+      })
+    : fallbackOfferings;
 ---
 
 <div class="landing-page">
@@ -96,16 +176,25 @@ const offerings = [
     <div class="section-header">
       <h2 class="section-title">Explore by Occasion</h2>
       <p class="section-subtitle">
-        We organize our designs by celebration so you find the exact style for your event without getting lost in technical arch types.
+        We organize our designs by celebration so you find the exact style for your event without getting lost in technical balloon terminology.
       </p>
     </div>
 
     <div class="occasions-grid">
       {
-        occasions.map((occasion) => (
+        occasions.map((occasion: any) => (
           <div class="occasion-card">
-            <div class="card-placeholder">
-              <span class="placeholder-text">Photo Placeholder</span>
+            <div class="card-media">
+              {occasion.image ? (
+                <div class="card-image-wrap">
+                  <Image image={occasion.image} />
+                </div>
+              ) : (
+                <div class="card-placeholder">
+                  <span class="placeholder-icon">🎈</span>
+                  <span class="placeholder-text">{occasion.title}</span>
+                </div>
+              )}
               {occasion.tag && <span class="card-tag">{occasion.tag}</span>}
             </div>
             <div class="card-body">
@@ -122,20 +211,31 @@ const offerings = [
   </section>
 
   <!-- 3. Signature Offerings Overview -->
-  <section class="offerings-section">
+  <section class="offerings-section" id="offerings">
     <div class="section-header">
-      <h2 class="section-title">Our Signature Balloon Services</h2>
+      <h2 class="section-title">Our Signature Offerings & Pricing Guide</h2>
       <p class="section-subtitle">
-        Custom hand-crafted balloon installations tailored to your venue and palette.
+        Hand-crafted luxury balloon installations and bespoke event decor tailored to your palette.
       </p>
     </div>
 
     <div class="offerings-grid">
       {
-        offerings.map((item) => (
+        offerings.map((item: any) => (
           <div class="offering-card">
-            <h3 class="offering-title">{item.title}</h3>
+            <div class="offering-header">
+              <h3 class="offering-title">{item.title}</h3>
+              {item.price && <span class="price-badge">{item.price}</span>}
+            </div>
             <p class="offering-description">{item.description}</p>
+            <div class="offering-badges">
+              {item.isCustomizable && (
+                <span class="feature-tag">Custom Lettering</span>
+              )}
+              {item.supportsGiftInsert && (
+                <span class="feature-tag highlight-tag">Pop-Me Gift Insert</span>
+              )}
+            </div>
           </div>
         ))
       }
@@ -147,7 +247,7 @@ const offerings = [
     <div class="section-header">
       <h2 class="section-title">Request a Booking / Quote</h2>
       <p class="section-subtitle">
-        Fill out the form below with your event details and we'll get in touch to confirm availability and pricing.
+        Fill out your celebration details below and our team will get in touch to confirm availability and exact pricing.
       </p>
     </div>
 
@@ -156,13 +256,11 @@ const offerings = [
       <div class="disclaimer-banner">
         <div class="disclaimer-item">
           <strong>⚠️ Booking Policy:</strong> Submitting this inquiry form does
-          not guarantee or confirm your booking. We will review availability and
-          reach out to confirm details.
+          not guarantee or confirm your booking. We will review date availability and reach out to confirm details.
         </div>
         <div class="disclaimer-item">
           <strong>📍 Service Locations:</strong> We serve local and surrounding
-          areas. Locations outside our standard radius may incur an additional
-          delivery fee.
+          areas. Locations outside our standard radius may incur an additional delivery fee.
         </div>
       </div>
 
@@ -202,15 +300,15 @@ const offerings = [
             />
           </div>
           <div class="form-group">
-            <label for="location">General Location / Town *</label>
+            <label for="location">Location / Town *</label>
             <input
               type="text"
               id="location"
               name="location"
-              placeholder="e.g. Navan, Ashbourne, Dublin 15"
+              placeholder="e.g. Navan, Ashbourne, Swords, Dublin"
               required
             />
-            <small class="form-hint">General area is fine for calculating delivery scope.</small>
+            <small class="form-hint">General town is fine for delivery calculations.</small>
           </div>
         </div>
 
@@ -218,28 +316,61 @@ const offerings = [
           <div class="form-group">
             <label for="occasion">Occasion / Event Type</label>
             <select id="occasion" name="occasion">
-              <option value="christmas">Christmas & Holiday Season</option>
-              <option value="birthday">Birthday</option>
-              <option value="communion">Communion / Confirmation / Christening</option>
-              <option value="gender-reveal">Gender Reveal ("Pop Me" Balloon)</option>
-              <option value="bridal">Bridal Era / Engagement / Hen Party</option>
-              <option value="pop-me-gift">Pop-Me Gift Balloon</option>
+              {occasions.map((occ: any) => (
+                <option value={occ.title}>{occ.title}</option>
+              ))}
               <option value="other">Other Celebration</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="date">Event Date</label>
-            <input type="date" id="date" name="date" />
+            <label for="fulfillment">Fulfillment Preference</label>
+            <select id="fulfillment" name="fulfillment">
+              <option value="delivery">Delivery & Setup at Venue</option>
+              <option value="pickup">Customer Collection / Pickup</option>
+            </select>
           </div>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label for="date">Event Date</label>
+            <input type="date" id="date" name="date" />
+          </div>
+          <div class="form-group">
+            <label for="palette">Preferred Color Palette</label>
+            <input
+              type="text"
+              id="palette"
+              name="palette"
+              placeholder="e.g. Sage green & gold, Blush & nude"
+            />
+          </div>
+        </div>
+
+        {offerings.length > 0 && (
+          <div class="form-group">
+            <label>Offerings / Packages of Interest</label>
+            <div class="product-selection-grid">
+              {offerings.map((item: any) => (
+                <label class="product-selection-item">
+                  <input type="checkbox" name="selected_products" value={item.title} />
+                  <span class="selection-body">
+                    <span class="selection-name">{item.title}</span>
+                    {item.price && <span class="selection-price">{item.price}</span>}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div class="form-group">
-          <label for="details">Tell us about your event & what you're looking for</label>
+          <label for="details">Event Vision & Custom Notes</label>
           <textarea
             id="details"
             name="details"
             rows="4"
-            placeholder="Colors, backdrop ideas, arches, easel signs, or specific themes..."
+            placeholder="Tell us about the venue, custom vinyl names, milestone age, or specific theme..."
           ></textarea>
         </div>
 
@@ -248,7 +379,7 @@ const offerings = [
         </button>
 
         <p class="direct-contact-note">
-          Prefer to reach out directly? You can also give us a call or send a DM.
+          Prefer to reach out directly? You can also message or call us anytime.
         </p>
       </form>
     </div>
@@ -259,9 +390,9 @@ const offerings = [
     <div class="care-card">
       <h3>🎈 Balloon Care & Responsibility</h3>
       <p>
-        Balloons are sensitive to heat, sunlight, sharp objects, and rough transport. Once delivered or collected, balloon care becomes your responsibility.
+        Balloons are delicate and sensitive to heat, sunlight, sharp objects, and transit. Once delivered or collected, balloon care becomes your responsibility.
       </p>
-      <a href="#terms" class="care-link">Read our Balloon Care Guide & Terms & Conditions &rarr;</a>
+      <a href="#inquiry" class="care-link">Have questions on sizing or transport? Contact us &rarr;</a>
     </div>
   </section>
 </div>
@@ -430,17 +561,38 @@ const offerings = [
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
   }
 
-  .card-placeholder {
+  .card-media {
+    position: relative;
     height: 180px;
     background-color: #f3f4f6;
     border-bottom: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .card-placeholder {
+    height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
+    gap: 0.5rem;
     color: #9ca3af;
-    font-size: 0.9rem;
-    font-weight: 500;
+  }
+
+  .placeholder-icon {
+    font-size: 2rem;
+  }
+
+  .placeholder-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  .card-image-wrap {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .card-tag {
@@ -508,417 +660,61 @@ const offerings = [
     border: 1px solid #e5e7eb;
     border-radius: 0.75rem;
     padding: 1.5rem;
-  }
-
-  .offering-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  .offering-description {
-    font-size: 0.95rem;
-    color: #4b5563;
-    line-height: 1.5;
-  }
-
-  /* 4. Inquiry Section */
-  .inquiry-section {
-    margin-bottom: 4rem;
-    scroll-margin-top: 5rem;
-  }
-
-  .inquiry-container {
-    max-width: 720px;
-    margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  }
-
-  .disclaimer-banner {
-    background-color: #fefce8;
-    border: 1px solid #fef08a;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 2rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.88rem;
-    color: #713f12;
-    line-height: 1.45;
   }
 
-  .inquiry-form {
+  .offering-header {
     display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .form-group label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding: 0.65rem 0.85rem;
-    font-size: 0.95rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    font-family: inherit;
-    background-color: #ffffff;
-    transition: border-color 0.15s ease;
-  }
-
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: #111827;
-  }
-
-  .form-hint {
-    font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  .direct-contact-note {
-    text-align: center;
-    font-size: 0.9rem;
-    color: #6b7280;
-    margin-top: 0.5rem;
-  }
-
-  /* 5. Care Disclaimer Section */
-  .care-section {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .care-card {
-    background-color: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    text-align: center;
-  }
-
-  .care-card h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  .care-card p {
-    font-size: 0.9rem;
-    color: #4b5563;
-    line-height: 1.5;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
     margin-bottom: 0.75rem;
   }
 
-  .care-link {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #9333ea;
-    text-decoration: none;
-  }
-
-  .care-link:hover {
-    text-decoration: underline;
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .hero-title {
-      font-size: 2rem;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-
-    .inquiry-container {
-      padding: 1.25rem;
-    }
-  }
-</style>
-
-
-<style>
-  .landing-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-    font-family: inherit;
-    color: #1f2937;
-  }
-
-  /* Section Headers */
-  .section-header {
-    text-align: center;
-    max-width: 700px;
-    margin: 0 auto 2.5rem;
-  }
-
-  .section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  .section-subtitle {
-    font-size: 1.05rem;
-    color: #4b5563;
-    line-height: 1.5;
-  }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: all 0.15s ease-in-out;
-    cursor: pointer;
-    border: none;
-  }
-
-  .btn-primary {
-    background-color: #111827;
-    color: #ffffff;
-  }
-
-  .btn-primary:hover {
-    background-color: #374151;
-  }
-
-  .btn-secondary {
-    background-color: #f3f4f6;
-    color: #1f2937;
-  }
-
-  .btn-secondary:hover {
-    background-color: #e5e7eb;
-  }
-
-  .btn-block {
-    width: 100%;
-  }
-
-  /* 1. Hero Section */
-  .hero-section {
-    padding: 3rem 1.5rem;
-    background: linear-gradient(135deg, #fdfbf7 0%, #f7f3ed 100%);
-    border: 1px solid #ebdcd0;
-    border-radius: 1rem;
-    text-align: center;
-    margin-bottom: 4rem;
-  }
-
-  .hero-content {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .seasonal-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-  }
-
-  .badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #ef4444;
-  }
-
-  .hero-title {
-    font-size: 2.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-    margin-bottom: 0.25rem;
-  }
-
-  .highlight {
-    color: #9333ea;
-  }
-
-  .hero-tagline {
-    font-size: 1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #6b7280;
-    margin-bottom: 1.25rem;
-  }
-
-  .hero-description {
-    font-size: 1.15rem;
-    line-height: 1.6;
-    color: #4b5563;
-    margin-bottom: 2rem;
-  }
-
-  .hero-cta-group {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  /* 2. Occasions Section */
-  .occasions-section {
-    margin-bottom: 4rem;
-  }
-
-  .occasions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .occasion-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .occasion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-  }
-
-  .card-placeholder {
-    height: 180px;
-    background-color: #f3f4f6;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    color: #9ca3af;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
-  .card-tag {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: #111827;
-    color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
-  }
-
-  .card-body {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  .card-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: #111827;
-  }
-
-  .card-description {
-    font-size: 0.95rem;
-    color: #4b5563;
-    line-height: 1.45;
-    margin-bottom: 1rem;
-    flex: 1;
-  }
-
-  .card-link {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #9333ea;
-    text-decoration: none;
-  }
-
-  .card-link:hover {
-    text-decoration: underline;
-  }
-
-  /* 3. Offerings Section */
-  .offerings-section {
-    margin-bottom: 4rem;
-    background-color: #fafaf9;
-    border: 1px solid #e7e5e4;
-    border-radius: 1rem;
-    padding: 3rem 1.5rem;
-  }
-
-  .offerings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .offering-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-  }
-
   .offering-title {
     font-size: 1.15rem;
     font-weight: 700;
     color: #111827;
-    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .price-badge {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.375rem;
+    white-space: nowrap;
   }
 
   .offering-description {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     color: #4b5563;
     line-height: 1.5;
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
+  .offering-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .feature-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .highlight-tag {
+    background-color: #ecfdf5;
+    color: #047857;
   }
 
   /* 4. Inquiry Section */
@@ -997,6 +793,50 @@ const offerings = [
   .form-hint {
     font-size: 0.8rem;
     color: #6b7280;
+  }
+
+  .product-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.65rem;
+    margin-top: 0.25rem;
+  }
+
+  .product-selection-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #f9fafb;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: background-color 0.15s ease;
+  }
+
+  .product-selection-item:hover {
+    background-color: #f3f4f6;
+  }
+
+  .product-selection-item input {
+    margin-top: 0.2rem;
+  }
+
+  .selection-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .selection-name {
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .selection-price {
+    font-size: 0.78rem;
+    color: #7e22ce;
+    font-weight: 600;
   }
 
   .direct-contact-note {

@@ -1,0 +1,406 @@
+---
+import {
+  getEmDashEntry,
+  getEmDashReferences,
+  getSeoMeta,
+  decodeSlug,
+  getSiteSettings,
+} from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+import { resolveStarterSiteIdentity } from "../../utils/site-identity";
+
+const slug = decodeSlug(Astro.params.slug);
+
+if (!slug) {
+  return Astro.rewrite("/404");
+}
+
+const { entry: occasion, cacheHint } = await getEmDashEntry("occasions", slug);
+
+if (!occasion) {
+  return Astro.rewrite("/404");
+}
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const { siteTitle } = resolveStarterSiteIdentity(await getSiteSettings());
+
+const seo = getSeoMeta(occasion, {
+  siteTitle,
+  siteUrl: Astro.url.origin,
+  path: Astro.url.pathname.replace(/\/$/, ""),
+});
+
+// Fetch formal relational links
+const { entries: featuredProducts } = await getEmDashReferences(
+  "occasions",
+  occasion.data.id,
+  "featured_products"
+);
+
+const { entries: galleryItems } = await getEmDashReferences(
+  "occasions",
+  occasion.data.id,
+  "gallery_items"
+);
+---
+
+<Base
+  title={`${occasion.data.title} | ${siteTitle}`}
+  description={occasion.data.subtitle || `Bespoke balloon installations for ${occasion.data.title}`}
+  content={{ collection: "occasions", id: occasion.data.id, slug }}
+>
+  <div class="occasion-page">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">Home</a> &rarr; <span>Occasions</span> &rarr; <span class="current">{occasion.data.title}</span>
+    </nav>
+
+    <!-- Occasion Hero -->
+    <header class="occasion-hero">
+      {occasion.data.hero_badge && (
+        <span class="occasion-badge">{occasion.data.hero_badge}</span>
+      )}
+      <h1 class="occasion-title" {...occasion.edit.title}>{occasion.data.title}</h1>
+      {occasion.data.subtitle && (
+        <p class="occasion-subtitle" {...occasion.edit.subtitle}>
+          {occasion.data.subtitle}
+        </p>
+      )}
+
+      {occasion.data.hero_image && (
+        <div class="hero-image-wrap" {...occasion.edit.hero_image}>
+          <Image image={occasion.data.hero_image} />
+        </div>
+      )}
+    </header>
+
+    <!-- Editorial Intro & Package Details -->
+    {occasion.data.intro_text && (
+      <section class="intro-section" {...occasion.edit.intro_text}>
+        <div class="prose-content">
+          <PortableText value={occasion.data.intro_text} />
+        </div>
+      </section>
+    )}
+
+    <!-- Relational Section 1: Featured Products & Offerings -->
+    {featuredProducts && featuredProducts.length > 0 && (
+      <section class="relational-section">
+        <div class="section-title-wrap">
+          <h2 class="relational-title">Recommended Offerings for {occasion.data.title}</h2>
+          <p class="relational-subtitle">
+            Curated packages frequently selected for this celebration.
+          </p>
+        </div>
+
+        <div class="products-grid">
+          {featuredProducts.map((prod: any) => (
+            <div class="product-card">
+              <div class="product-header">
+                <h3 class="product-title">{prod.data.title}</h3>
+                {prod.data.starting_price && (
+                  <span class="product-price">{prod.data.starting_price}</span>
+                )}
+              </div>
+              {prod.data.included_features && (
+                <p class="product-features">{prod.data.included_features}</p>
+              )}
+              {prod.data.dimensions_note && (
+                <small class="product-note">📏 {prod.data.dimensions_note}</small>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Relational Section 2: Real Event Gallery Photos -->
+    {galleryItems && galleryItems.length > 0 && (
+      <section class="relational-section">
+        <div class="section-title-wrap">
+          <h2 class="relational-title">Real Event Lookbook</h2>
+          <p class="relational-subtitle">
+            Recent setups and organic balloon installations created for this occasion.
+          </p>
+        </div>
+
+        <div class="gallery-grid">
+          {galleryItems.map((item: any) => (
+            <div class="gallery-card">
+              {item.data.image && (
+                <div class="gallery-image-wrap">
+                  <Image image={item.data.image} />
+                </div>
+              )}
+              {item.data.caption && (
+                <p class="gallery-caption">{item.data.caption}</p>
+              )}
+              {item.data.color_palette && (
+                <span class="gallery-palette">🎨 {item.data.color_palette}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- CTA to Inquire for this Occasion -->
+    <section class="booking-cta">
+      <h2>Planning a {occasion.data.title}?</h2>
+      <p>
+        Reach out early with your date and venue to check availability.
+      </p>
+      <a href={`/#inquiry`} class="btn btn-primary">
+        Inquire for {occasion.data.title} &rarr;
+      </a>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .occasion-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 5rem;
+    font-family: inherit;
+    color: #1f2937;
+  }
+
+  .breadcrumb {
+    font-size: 0.88rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+
+  .breadcrumb a {
+    color: #9333ea;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .breadcrumb .current {
+    color: #111827;
+    font-weight: 600;
+  }
+
+  /* Hero */
+  .occasion-hero {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .occasion-badge {
+    display: inline-block;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .occasion-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #111827;
+    margin-bottom: 0.75rem;
+  }
+
+  .occasion-subtitle {
+    font-size: 1.2rem;
+    color: #4b5563;
+    max-width: 650px;
+    margin: 0 auto 2rem;
+    line-height: 1.5;
+  }
+
+  .hero-image-wrap {
+    max-height: 400px;
+    border-radius: 1rem;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Intro Section */
+  .intro-section {
+    background-color: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .prose-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #374151;
+  }
+
+  /* Relational Sections */
+  .relational-section {
+    margin-bottom: 4rem;
+  }
+
+  .section-title-wrap {
+    margin-bottom: 1.5rem;
+  }
+
+  .relational-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.35rem;
+  }
+
+  .relational-subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+  }
+
+  /* Products Grid */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .product-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .product-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .product-price {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+  }
+
+  .product-features {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.5;
+  }
+
+  .product-note {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  /* Gallery Grid */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .gallery-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gallery-image-wrap {
+    height: 200px;
+    overflow: hidden;
+    background-color: #f3f4f6;
+  }
+
+  .gallery-caption {
+    padding: 0.75rem 1rem 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .gallery-palette {
+    padding: 0 1rem 0.75rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  /* CTA */
+  .booking-cta {
+    background: linear-gradient(135deg, #fdfbf7 0%, #f7f3ed 100%);
+    border: 1px solid #ebdcd0;
+    border-radius: 1rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .booking-cta h2 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+
+  .booking-cta p {
+    font-size: 1.05rem;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background-color: #111827;
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background-color: #374151;
+  }
+
+  @media (max-width: 640px) {
+    .occasion-title {
+      font-size: 2rem;
+    }
+  }
+</style>
+
