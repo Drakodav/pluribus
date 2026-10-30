@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { emdashSmtp } from "emdash-smtp";
+import tailwindcss from "@tailwindcss/vite";
 
 if (typeof process.loadEnvFile === "function" && fs.existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -93,5 +94,8 @@ export default defineConfig({
       plugins: [emdashSmtp()],
     }),
   ],
+  vite: {
+    plugins: [tailwindcss()],
+  },
   devToolbar: { enabled: false },
 });

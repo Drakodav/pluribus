@@ -16,6 +16,10 @@
     {
       "package": "@astrojs/ts-content-mapper",
       "extensions": [".astro"]
+    },
+    {
+      "package": "css-modules-content-mapper",
+      "extensions": [".module.css"]
     }
   ]
 }
