@@ -1,6 +1,41 @@
 {
   "collections": [
     {
+      "slug": "gallerys",
+      "label": "Gallerys",
+      "labelSingular": "Gallery",
+      "supports": ["drafts", "revisions", "preview", "search"],
+      "hidden": false,
+      "fields": [
+        {
+          "slug": "image",
+          "label": "Image",
+          "type": "image",
+          "required": true,
+          "unique": false,
+          "validation": {
+            "allowedMimeTypes": [
+              "image/png",
+              "image/jpeg",
+              "image/gif",
+              "image/webp",
+              "image/avif",
+              "image/jxl",
+              "video/"
+            ]
+          },
+          "options": {}
+        },
+        {
+          "slug": "caption",
+          "label": "Caption",
+          "type": "string",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
       "slug": "occasions",
       "label": "Occasions",
       "labelSingular": "Occasion",
@@ -77,5 +112,5 @@
       ]
     }
   ],
-  "version": "5a9e525219fdc360"
+  "version": "2c0038d3eba19180"
 }
