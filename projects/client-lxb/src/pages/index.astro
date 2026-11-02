@@ -1,8 +1,12 @@
 ---
-import { getEmDashCollection, getSiteSettings } from "emdash";
+import { getEmDashCollection, getEmDashEntry, getSiteSettings } from "emdash";
 import Base from "../layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 import { LandingPage } from "@/components/landing-page";
+
+// Fetch home page copy & structured section text from CMS
+const { entry: homePage, cacheHint: homeCacheHint } =
+  await getEmDashEntry("pages", "home");
 
 // Fetch dynamic occasions sorted by display order
 const { entries: occasions, cacheHint: occasionsCacheHint } =
@@ -28,6 +32,7 @@ const { siteTitle, siteTagline } = resolveStarterSiteIdentity(
 );
 
 if (Astro.cache?.enabled) {
+  if (homeCacheHint) Astro.cache.set(homeCacheHint);
   if (occasionsCacheHint) Astro.cache.set(occasionsCacheHint);
   if (productsCacheHint) Astro.cache.set(productsCacheHint);
   if (campaignsCacheHint) Astro.cache.set(campaignsCacheHint);
@@ -36,6 +41,7 @@ if (Astro.cache?.enabled) {
 
 <Base title={siteTitle} description={siteTagline}>
   <LandingPage
+    homePage={homePage}
     occasions={occasions}
     products={products}
     activeCampaign={activeCampaign}

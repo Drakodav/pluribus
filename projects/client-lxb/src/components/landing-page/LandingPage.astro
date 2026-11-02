@@ -4,32 +4,75 @@
 import { Image } from "emdash/ui";
 
 interface Props {
+  homePage?: any;
   occasions?: any[];
   products?: any[];
   activeCampaign?: any;
 }
 
 const {
+  homePage = null,
   occasions: dbOccasions = [],
   products: dbProducts = [],
   activeCampaign = null,
 } = Astro.props;
 
-// 1. Seasonal Spotlight (dynamic from activeCampaign with graceful fallback)
-const seasonalFeature = {
-  season: activeCampaign?.data?.season_name || "Holiday Season",
-  badge:
-    activeCampaign?.data?.badge_text ||
-    "Now Booking for Upcoming Celebrations",
-  headline:
-    activeCampaign?.data?.headline ||
-    "Bespoke Balloon Installations & Party Decor",
-  description:
-    activeCampaign?.data?.description ||
-    "From organic arches and custom vinyl backdrops to our signature Pop-Me balloons — Luxe Bear Balloon Bar brings magic to your celebrations.",
-};
+// 1. Hero & Seasonal Spotlight (dynamic from activeCampaign & homePage with graceful fallback)
+const seasonalBadge =
+  activeCampaign?.data?.badge_text ||
+  "Now Booking for Upcoming Celebrations";
 
-// 2. Browse by Occasion (dynamic from dbOccasions with graceful fallback)
+const heroHeadline =
+  activeCampaign?.data?.headline ||
+  homePage?.data?.hero_headline ||
+  "Luxe Bear — Balloon Bar";
+
+const heroTagline =
+  homePage?.data?.hero_tagline || "By Luxe Bear Studio";
+
+const heroDescription =
+  activeCampaign?.data?.description ||
+  homePage?.data?.hero_description ||
+  "From organic arches and custom vinyl backdrops to our signature Pop-Me balloons — Luxe Bear Balloon Bar brings magic to your celebrations.";
+
+// 2. Section Headers & Text (dynamic from homePage)
+const occasionsTitle =
+  homePage?.data?.occasions_title || "Explore by Occasion";
+
+const occasionsSubtitle =
+  homePage?.data?.occasions_subtitle ||
+  "We organize our designs by celebration so you find the exact style for your event without getting lost in technical balloon terminology.";
+
+const offeringsTitle =
+  homePage?.data?.offerings_title || "Our Signature Offerings & Pricing Guide";
+
+const offeringsSubtitle =
+  homePage?.data?.offerings_subtitle ||
+  "Hand-crafted luxury balloon installations and bespoke event decor tailored to your palette.";
+
+const inquiryTitle =
+  homePage?.data?.inquiry_title || "Request a Booking / Quote";
+
+const inquirySubtitle =
+  homePage?.data?.inquiry_subtitle ||
+  "Fill out your celebration details below and our team will get in touch to confirm availability and exact pricing.";
+
+const bookingPolicyNotice =
+  homePage?.data?.booking_policy_notice ||
+  "Submitting this inquiry form does not guarantee or confirm your booking. We will review date availability and reach out to confirm details.";
+
+const serviceLocationsNotice =
+  homePage?.data?.service_locations_notice ||
+  "We serve local and surrounding areas. Locations outside our standard radius may incur an additional delivery fee.";
+
+const careTitle =
+  homePage?.data?.care_title || "🎈 Balloon Care & Responsibility";
+
+const careDescription =
+  homePage?.data?.care_description ||
+  "Balloons are delicate and sensitive to heat, sunlight, sharp objects, and transit. Once delivered or collected, balloon care becomes your responsibility.";
+
+// 3. Browse by Occasion (dynamic from dbOccasions with graceful fallback)
 const fallbackOccasions = [
   {
     title: "Christmas & Seasonal",
@@ -87,7 +130,7 @@ const occasions =
       }))
     : fallbackOccasions;
 
-// 3. Products & Offerings (dynamic from dbProducts with graceful fallback)
+// 4. Products & Offerings (dynamic from dbProducts with graceful fallback)
 const fallbackOfferings = [
   {
     title: "The Signature Bear Balloon Bouquet",
@@ -157,13 +200,13 @@ const offerings =
     <div class="hero-content">
       <div class="seasonal-badge">
         <span class="badge-dot"></span>
-        <span>{seasonalFeature.badge}</span>
+        <span>{seasonalBadge}</span>
       </div>
-      <h1 class="hero-title">
-        Luxe Bear <span class="highlight">— Balloon Bar</span>
+      <h1 class="hero-title" {...homePage?.edit?.hero_headline}>
+        {heroHeadline}
       </h1>
-      <p class="hero-tagline">By Luxe Bear Studio</p>
-      <p class="hero-description">{seasonalFeature.description}</p>
+      <p class="hero-tagline" {...homePage?.edit?.hero_tagline}>{heroTagline}</p>
+      <p class="hero-description" {...homePage?.edit?.hero_description}>{heroDescription}</p>
       <div class="hero-cta-group">
         <a href="#inquiry" class="btn btn-primary">Request a Booking</a>
         <a href="#occasions" class="btn btn-secondary">Browse by Occasion</a>
@@ -174,9 +217,9 @@ const offerings =
   <!-- 2. Browse by Occasion Section -->
   <section class="occasions-section" id="occasions">
     <div class="section-header">
-      <h2 class="section-title">Explore by Occasion</h2>
-      <p class="section-subtitle">
-        We organize our designs by celebration so you find the exact style for your event without getting lost in technical balloon terminology.
+      <h2 class="section-title" {...homePage?.edit?.occasions_title}>{occasionsTitle}</h2>
+      <p class="section-subtitle" {...homePage?.edit?.occasions_subtitle}>
+        {occasionsSubtitle}
       </p>
     </div>
 
@@ -213,9 +256,9 @@ const offerings =
   <!-- 3. Signature Offerings Overview -->
   <section class="offerings-section" id="offerings">
     <div class="section-header">
-      <h2 class="section-title">Our Signature Offerings & Pricing Guide</h2>
-      <p class="section-subtitle">
-        Hand-crafted luxury balloon installations and bespoke event decor tailored to your palette.
+      <h2 class="section-title" {...homePage?.edit?.offerings_title}>{offeringsTitle}</h2>
+      <p class="section-subtitle" {...homePage?.edit?.offerings_subtitle}>
+        {offeringsSubtitle}
       </p>
     </div>
 
@@ -245,22 +288,20 @@ const offerings =
   <!-- 4. Booking Request / Inquiry Form -->
   <section class="inquiry-section" id="inquiry">
     <div class="section-header">
-      <h2 class="section-title">Request a Booking / Quote</h2>
-      <p class="section-subtitle">
-        Fill out your celebration details below and our team will get in touch to confirm availability and exact pricing.
+      <h2 class="section-title" {...homePage?.edit?.inquiry_title}>{inquiryTitle}</h2>
+      <p class="section-subtitle" {...homePage?.edit?.inquiry_subtitle}>
+        {inquirySubtitle}
       </p>
     </div>
 
     <div class="inquiry-container">
       <!-- Client Disclaimers -->
       <div class="disclaimer-banner">
-        <div class="disclaimer-item">
-          <strong>⚠️ Booking Policy:</strong> Submitting this inquiry form does
-          not guarantee or confirm your booking. We will review date availability and reach out to confirm details.
+        <div class="disclaimer-item" {...homePage?.edit?.booking_policy_notice}>
+          <strong>⚠️ Booking Policy:</strong> {bookingPolicyNotice}
         </div>
-        <div class="disclaimer-item">
-          <strong>📍 Service Locations:</strong> We serve local and surrounding
-          areas. Locations outside our standard radius may incur an additional delivery fee.
+        <div class="disclaimer-item" {...homePage?.edit?.service_locations_notice}>
+          <strong>📍 Service Locations:</strong> {serviceLocationsNotice}
         </div>
       </div>
 
@@ -388,9 +429,9 @@ const offerings =
   <!-- 5. Balloon Care & Terms Teaser -->
   <section class="care-section">
     <div class="care-card">
-      <h3>🎈 Balloon Care & Responsibility</h3>
-      <p>
-        Balloons are delicate and sensitive to heat, sunlight, sharp objects, and transit. Once delivered or collected, balloon care becomes your responsibility.
+      <h3 {...homePage?.edit?.care_title}>{careTitle}</h3>
+      <p {...homePage?.edit?.care_description}>
+        {careDescription}
       </p>
       <a href="#inquiry" class="care-link">Have questions on sizing or transport? Contact us &rarr;</a>
     </div>
@@ -506,10 +547,6 @@ const offerings =
     letter-spacing: -0.03em;
     line-height: 1.15;
     margin-bottom: 0.25rem;
-  }
-
-  .highlight {
-    color: #9333ea;
   }
 
   .hero-tagline {

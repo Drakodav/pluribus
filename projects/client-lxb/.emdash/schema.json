@@ -412,6 +412,97 @@
           "type": "portableText",
           "required": false,
           "unique": false
+        },
+        {
+          "slug": "hero_headline",
+          "label": "Hero Headline",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "hero_tagline",
+          "label": "Hero Tagline",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "hero_description",
+          "label": "Hero Description",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "occasions_title",
+          "label": "Occasions Section Title",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "occasions_subtitle",
+          "label": "Occasions Section Subtitle",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "offerings_title",
+          "label": "Offerings Section Title",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "offerings_subtitle",
+          "label": "Offerings Section Subtitle",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "inquiry_title",
+          "label": "Inquiry Section Title",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "inquiry_subtitle",
+          "label": "Inquiry Section Subtitle",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "booking_policy_notice",
+          "label": "Booking Policy Disclaimer",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "service_locations_notice",
+          "label": "Service Locations Notice",
+          "type": "text",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "care_title",
+          "label": "Balloon Care Title",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "slug": "care_description",
+          "label": "Balloon Care Description",
+          "type": "text",
+          "required": false,
+          "unique": false
         }
       ]
     },
@@ -552,5 +643,5 @@
       ]
     }
   ],
-  "version": "ca54b0cb8cdfbc5b"
+  "version": "5128d6495ef89e4e"
 }

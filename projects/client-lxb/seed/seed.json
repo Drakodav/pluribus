@@ -2,8 +2,8 @@
   "$schema": "https://emdashcms.com/seed.schema.json",
   "version": "1",
   "meta": {
-    "name": "Luxe Bear Studio Seed",
-    "description": "Normalized Relational Architecture for Luxe Bear Balloon Bar"
+    "name": "Exported Seed",
+    "description": "Exported from existing EmDash database"
   },
   "settings": {
     "tagline": "Bespoke Balloon Installations & Luxury Gifting",
@@ -11,6 +11,73 @@
   },
   "blockTypes": [],
   "collections": [
+    {
+      "slug": "campaigns",
+      "label": "Seasonal Campaigns",
+      "labelSingular": "Campaign",
+      "supports": ["drafts", "revisions", "search", "preview"],
+      "group": "Luxe",
+      "fields": [
+        {
+          "slug": "season_name",
+          "label": "Season Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "badge_text",
+          "label": "Badge Text",
+          "type": "string"
+        },
+        {
+          "slug": "headline",
+          "label": "Hero Headline",
+          "type": "string"
+        },
+        {
+          "slug": "description",
+          "label": "Hero Description",
+          "type": "text"
+        },
+        {
+          "slug": "target_occasion",
+          "label": "Target Occasion",
+          "type": "reference",
+          "validation": {
+            "relation": "campaign_occasion",
+            "relationSide": "parent",
+            "targetCollection": "occasions"
+          }
+        },
+        {
+          "slug": "promoted_products",
+          "label": "Promoted Offerings",
+          "type": "reference",
+          "validation": {
+            "relation": "campaign_products",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "products"
+          }
+        },
+        {
+          "slug": "banner_image",
+          "label": "Banner Image",
+          "type": "image"
+        },
+        {
+          "slug": "promo_code",
+          "label": "Promo / Discount Code",
+          "type": "string"
+        },
+        {
+          "slug": "is_active",
+          "label": "Is Active?",
+          "type": "boolean"
+        }
+      ]
+    },
     {
       "slug": "gallerys",
       "label": "Gallery",
@@ -45,7 +112,9 @@
           "label": "Occasion",
           "type": "reference",
           "validation": {
-            "relation": "occasion_gallery"
+            "relation": "occasion_gallery",
+            "relationSide": "child",
+            "targetCollection": "occasions"
           }
         },
         {
@@ -53,7 +122,9 @@
           "label": "Product / Service",
           "type": "reference",
           "validation": {
-            "relation": "product_gallery"
+            "relation": "product_gallery",
+            "relationSide": "child",
+            "targetCollection": "products"
           }
         },
         {
@@ -66,200 +137,6 @@
           "slug": "is_featured_home",
           "label": "Featured on Homepage?",
           "type": "boolean"
-        }
-      ]
-    },
-    {
-      "slug": "occasions",
-      "label": "Occasions",
-      "labelSingular": "Occasion",
-      "supports": ["drafts", "revisions", "search", "preview"],
-      "group": "Luxe",
-      "urlPattern": "/occasions/{slug}",
-      "fields": [
-        {
-          "slug": "title",
-          "label": "Title",
-          "type": "string",
-          "required": true,
-          "searchable": true
-        },
-        {
-          "slug": "subtitle",
-          "label": "Subtitle / Tagline",
-          "type": "string",
-          "searchable": true
-        },
-        {
-          "slug": "hero_badge",
-          "label": "Hero Badge",
-          "type": "string"
-        },
-        {
-          "slug": "hero_image",
-          "label": "Hero Showcase Image",
-          "type": "image"
-        },
-        {
-          "slug": "intro_text",
-          "label": "Introduction & Package Details",
-          "type": "portableText",
-          "searchable": true
-        },
-        {
-          "slug": "featured_products",
-          "label": "Featured Offerings",
-          "type": "reference",
-          "validation": {
-            "relation": "occasion_products",
-            "multiple": true
-          }
-        },
-        {
-          "slug": "gallery_items",
-          "label": "Gallery Showcase",
-          "type": "reference",
-          "validation": {
-            "relation": "occasion_gallery",
-            "multiple": true
-          }
-        },
-        {
-          "slug": "sort_order",
-          "label": "Display Order Priority",
-          "type": "integer"
-        }
-      ]
-    },
-    {
-      "slug": "pages",
-      "label": "Pages",
-      "labelSingular": "Page",
-      "supports": ["drafts", "revisions", "preview", "search", "seo"],
-      "urlPattern": "/{slug}",
-      "fields": [
-        {
-          "slug": "title",
-          "label": "Title",
-          "type": "string",
-          "required": true,
-          "searchable": true
-        },
-        {
-          "slug": "content",
-          "label": "Content",
-          "type": "portableText",
-          "searchable": true
-        }
-      ]
-    },
-    {
-      "slug": "posts",
-      "label": "Posts",
-      "labelSingular": "Post",
-      "supports": ["drafts", "revisions", "preview", "scheduling", "search", "seo"],
-      "urlPattern": "/posts/{slug}",
-      "fields": [
-        {
-          "slug": "title",
-          "label": "Title",
-          "type": "string",
-          "required": true,
-          "searchable": true
-        },
-        {
-          "slug": "featured_image",
-          "label": "Featured Image",
-          "type": "image"
-        },
-        {
-          "slug": "content",
-          "label": "Content",
-          "type": "portableText",
-          "searchable": true
-        },
-        {
-          "slug": "excerpt",
-          "label": "Excerpt",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "slug": "products",
-      "label": "Products & Offerings",
-      "labelSingular": "Product / Offering",
-      "supports": ["drafts", "revisions", "search", "preview"],
-      "group": "Luxe",
-      "urlPattern": "/products/{slug}",
-      "fields": [
-        {
-          "slug": "title",
-          "label": "Product Name",
-          "type": "string",
-          "required": true,
-          "searchable": true
-        },
-        {
-          "slug": "starting_price",
-          "label": "Starting Price / Quote",
-          "type": "string",
-          "searchable": true
-        },
-        {
-          "slug": "featured_image",
-          "label": "Featured Image",
-          "type": "image"
-        },
-        {
-          "slug": "description",
-          "label": "Description",
-          "type": "portableText",
-          "searchable": true
-        },
-        {
-          "slug": "gallery_items",
-          "label": "Photo Showcase",
-          "type": "reference",
-          "validation": {
-            "relation": "product_gallery",
-            "multiple": true
-          }
-        },
-        {
-          "slug": "is_customizable",
-          "label": "Customizable Vinyl Backing/Name",
-          "type": "boolean"
-        },
-        {
-          "slug": "supports_gift_insert",
-          "label": "Supports Gift Insert (Pop-Me)",
-          "type": "boolean"
-        },
-        {
-          "slug": "included_features",
-          "label": "What is Included / Highlights",
-          "type": "text"
-        },
-        {
-          "slug": "dimensions_note",
-          "label": "Dimensions & Constraint Notes",
-          "type": "string"
-        },
-        {
-          "slug": "lead_time_days",
-          "label": "Lead Time (Days)",
-          "type": "integer"
-        },
-        {
-          "slug": "is_featured",
-          "label": "Featured in Catalog Highlight",
-          "type": "boolean"
-        },
-        {
-          "slug": "sort_order",
-          "label": "Display Order Priority",
-          "type": "integer"
         }
       ]
     },
@@ -321,7 +198,9 @@
           "label": "Event Occasion",
           "type": "reference",
           "validation": {
-            "relation": "inquiry_occasion"
+            "relation": "inquiry_occasion",
+            "relationSide": "parent",
+            "targetCollection": "occasions"
           }
         },
         {
@@ -330,7 +209,9 @@
           "type": "reference",
           "validation": {
             "relation": "inquiry_products",
-            "multiple": true
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "products"
           }
         },
         {
@@ -393,99 +274,272 @@
       ]
     },
     {
-      "slug": "campaigns",
-      "label": "Seasonal Campaigns",
-      "labelSingular": "Campaign",
+      "slug": "occasions",
+      "label": "Occasions",
+      "labelSingular": "Occasion",
       "supports": ["drafts", "revisions", "search", "preview"],
+      "urlPattern": "/occasions/{slug}",
       "group": "Luxe",
       "fields": [
         {
-          "slug": "season_name",
-          "label": "Season Name",
+          "slug": "title",
+          "label": "Title",
           "type": "string",
           "required": true,
           "searchable": true
         },
         {
-          "slug": "badge_text",
-          "label": "Badge Text",
+          "slug": "subtitle",
+          "label": "Subtitle / Tagline",
+          "type": "string",
+          "searchable": true
+        },
+        {
+          "slug": "hero_badge",
+          "label": "Hero Badge",
           "type": "string"
         },
         {
-          "slug": "headline",
+          "slug": "hero_image",
+          "label": "Hero Showcase Image",
+          "type": "image"
+        },
+        {
+          "slug": "intro_text",
+          "label": "Introduction & Package Details",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "featured_products",
+          "label": "Featured Offerings",
+          "type": "reference",
+          "validation": {
+            "relation": "occasion_products",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "products"
+          }
+        },
+        {
+          "slug": "gallery_items",
+          "label": "Gallery Showcase",
+          "type": "reference",
+          "validation": {
+            "relation": "occasion_gallery",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "gallerys"
+          }
+        },
+        {
+          "slug": "sort_order",
+          "label": "Display Order Priority",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "supports": ["drafts", "revisions", "preview", "search", "seo"],
+      "urlPattern": "/{slug}",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "hero_headline",
           "label": "Hero Headline",
           "type": "string"
         },
         {
-          "slug": "description",
+          "slug": "hero_tagline",
+          "label": "Hero Tagline",
+          "type": "string"
+        },
+        {
+          "slug": "hero_description",
           "label": "Hero Description",
           "type": "text"
         },
         {
-          "slug": "target_occasion",
-          "label": "Target Occasion",
-          "type": "reference",
-          "validation": {
-            "relation": "campaign_occasion"
-          }
-        },
-        {
-          "slug": "promoted_products",
-          "label": "Promoted Offerings",
-          "type": "reference",
-          "validation": {
-            "relation": "campaign_products",
-            "multiple": true
-          }
-        },
-        {
-          "slug": "banner_image",
-          "label": "Banner Image",
-          "type": "image"
-        },
-        {
-          "slug": "promo_code",
-          "label": "Promo / Discount Code",
+          "slug": "occasions_title",
+          "label": "Occasions Section Title",
           "type": "string"
         },
         {
-          "slug": "is_active",
-          "label": "Is Active?",
+          "slug": "occasions_subtitle",
+          "label": "Occasions Section Subtitle",
+          "type": "text"
+        },
+        {
+          "slug": "offerings_title",
+          "label": "Offerings Section Title",
+          "type": "string"
+        },
+        {
+          "slug": "offerings_subtitle",
+          "label": "Offerings Section Subtitle",
+          "type": "text"
+        },
+        {
+          "slug": "inquiry_title",
+          "label": "Inquiry Section Title",
+          "type": "string"
+        },
+        {
+          "slug": "inquiry_subtitle",
+          "label": "Inquiry Section Subtitle",
+          "type": "text"
+        },
+        {
+          "slug": "booking_policy_notice",
+          "label": "Booking Policy Disclaimer",
+          "type": "text"
+        },
+        {
+          "slug": "service_locations_notice",
+          "label": "Service Locations Notice",
+          "type": "text"
+        },
+        {
+          "slug": "care_title",
+          "label": "Balloon Care Title",
+          "type": "string"
+        },
+        {
+          "slug": "care_description",
+          "label": "Balloon Care Description",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "slug": "posts",
+      "label": "Posts",
+      "labelSingular": "Post",
+      "supports": ["drafts", "revisions", "preview", "scheduling", "search", "seo"],
+      "urlPattern": "/posts/{slug}",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "featured_image",
+          "label": "Featured Image",
+          "type": "image"
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "excerpt",
+          "label": "Excerpt",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "slug": "products",
+      "label": "Products & Offerings",
+      "labelSingular": "Product / Offering",
+      "supports": ["drafts", "revisions", "search", "preview"],
+      "urlPattern": "/products/{slug}",
+      "group": "Luxe",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Product Name",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "starting_price",
+          "label": "Starting Price / Quote",
+          "type": "string",
+          "searchable": true
+        },
+        {
+          "slug": "featured_image",
+          "label": "Featured Image",
+          "type": "image"
+        },
+        {
+          "slug": "description",
+          "label": "Description",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "gallery_items",
+          "label": "Photo Showcase",
+          "type": "reference",
+          "validation": {
+            "relation": "product_gallery",
+            "multiple": true,
+            "relationSide": "parent",
+            "targetCollection": "gallerys"
+          }
+        },
+        {
+          "slug": "is_customizable",
+          "label": "Customizable Vinyl Backing/Name",
           "type": "boolean"
+        },
+        {
+          "slug": "supports_gift_insert",
+          "label": "Supports Gift Insert (Pop-Me)",
+          "type": "boolean"
+        },
+        {
+          "slug": "included_features",
+          "label": "What is Included / Highlights",
+          "type": "text"
+        },
+        {
+          "slug": "dimensions_note",
+          "label": "Dimensions & Constraint Notes",
+          "type": "string"
+        },
+        {
+          "slug": "lead_time_days",
+          "label": "Lead Time (Days)",
+          "type": "integer"
+        },
+        {
+          "slug": "is_featured",
+          "label": "Featured in Catalog Highlight",
+          "type": "boolean"
+        },
+        {
+          "slug": "sort_order",
+          "label": "Display Order Priority",
+          "type": "integer"
         }
       ]
     }
   ],
   "relations": [
-    {
-      "slug": "occasion_gallery",
-      "parentCollection": "occasions",
-      "childCollection": "gallerys",
-      "parentLabel": "Occasion",
-      "parentLabelSingular": "Occasion",
-      "childLabel": "Gallery Items",
-      "childLabelSingular": "Gallery Item",
-      "maxParentsPerChild": 1
-    },
-    {
-      "slug": "product_gallery",
-      "parentCollection": "products",
-      "childCollection": "gallerys",
-      "parentLabel": "Product / Service",
-      "parentLabelSingular": "Product / Service",
-      "childLabel": "Gallery Items",
-      "childLabelSingular": "Gallery Item",
-      "maxParentsPerChild": 1
-    },
-    {
-      "slug": "occasion_products",
-      "parentCollection": "occasions",
-      "childCollection": "products",
-      "parentLabel": "Occasions",
-      "parentLabelSingular": "Occasion",
-      "childLabel": "Featured Products",
-      "childLabelSingular": "Featured Product"
-    },
     {
       "slug": "campaign_occasion",
       "parentCollection": "campaigns",
@@ -494,7 +548,8 @@
       "parentLabelSingular": "Campaign",
       "childLabel": "Target Occasion",
       "childLabelSingular": "Target Occasion",
-      "maxChildrenPerParent": 1
+      "maxChildrenPerParent": 1,
+      "maxParentsPerChild": null
     },
     {
       "slug": "campaign_products",
@@ -503,7 +558,9 @@
       "parentLabel": "Campaigns",
       "parentLabelSingular": "Campaign",
       "childLabel": "Promoted Products",
-      "childLabelSingular": "Promoted Product"
+      "childLabelSingular": "Promoted Product",
+      "maxChildrenPerParent": null,
+      "maxParentsPerChild": null
     },
     {
       "slug": "inquiry_occasion",
@@ -513,7 +570,8 @@
       "parentLabelSingular": "Inquiry",
       "childLabel": "Event Occasion",
       "childLabelSingular": "Event Occasion",
-      "maxChildrenPerParent": 1
+      "maxChildrenPerParent": 1,
+      "maxParentsPerChild": null
     },
     {
       "slug": "inquiry_products",
@@ -522,7 +580,42 @@
       "parentLabel": "Inquiries",
       "parentLabelSingular": "Inquiry",
       "childLabel": "Requested Products",
-      "childLabelSingular": "Requested Product"
+      "childLabelSingular": "Requested Product",
+      "maxChildrenPerParent": null,
+      "maxParentsPerChild": null
+    },
+    {
+      "slug": "occasion_gallery",
+      "parentCollection": "occasions",
+      "childCollection": "gallerys",
+      "parentLabel": "Occasion",
+      "parentLabelSingular": "Occasion",
+      "childLabel": "Gallery Items",
+      "childLabelSingular": "Gallery Item",
+      "maxChildrenPerParent": null,
+      "maxParentsPerChild": 1
+    },
+    {
+      "slug": "occasion_products",
+      "parentCollection": "occasions",
+      "childCollection": "products",
+      "parentLabel": "Occasions",
+      "parentLabelSingular": "Occasion",
+      "childLabel": "Featured Products",
+      "childLabelSingular": "Featured Product",
+      "maxChildrenPerParent": null,
+      "maxParentsPerChild": null
+    },
+    {
+      "slug": "product_gallery",
+      "parentCollection": "products",
+      "childCollection": "gallerys",
+      "parentLabel": "Product / Service",
+      "parentLabelSingular": "Product / Service",
+      "childLabel": "Gallery Items",
+      "childLabelSingular": "Gallery Item",
+      "maxChildrenPerParent": null,
+      "maxParentsPerChild": 1
     }
   ],
   "defaultLocale": "en",
@@ -548,6 +641,41 @@
       ]
     },
     {
+      "id": "tax:product_type",
+      "name": "product_type",
+      "label": "Product Types",
+      "labelSingular": "Product Type",
+      "hierarchical": false,
+      "collections": ["products"],
+      "terms": [
+        {
+          "id": "term:product_type:balloons",
+          "slug": "balloons",
+          "label": "Balloons & Arches"
+        },
+        {
+          "id": "term:product_type:welcome-signs",
+          "slug": "welcome-signs",
+          "label": "Welcome Signs & Easels"
+        },
+        {
+          "id": "term:product_type:invitations",
+          "slug": "invitations",
+          "label": "Invitations & Stationery"
+        },
+        {
+          "id": "term:product_type:gifts",
+          "slug": "gifts",
+          "label": "Gifts & Proposal Boxes"
+        },
+        {
+          "id": "term:product_type:table-settings",
+          "slug": "table-settings",
+          "label": "Place Settings & Vinyl Decor"
+        }
+      ]
+    },
+    {
       "id": "tax:tag",
       "name": "tag",
       "label": "Tags",
@@ -564,41 +692,6 @@
           "id": "term:tag:example",
           "slug": "example",
           "label": "Example"
-        }
-      ]
-    },
-    {
-      "id": "tax:product_type",
-      "name": "product_type",
-      "label": "Product Types",
-      "labelSingular": "Product Type",
-      "hierarchical": false,
-      "collections": ["products"],
-      "terms": [
-        {
-          "id": "term:product_type:balloons",
-          "slug": "balloons",
-          "label": "Balloons & Arches"
-        },
-        {
-          "id": "term:product_type:welcome_signs",
-          "slug": "welcome-signs",
-          "label": "Welcome Signs & Easels"
-        },
-        {
-          "id": "term:product_type:invitations",
-          "slug": "invitations",
-          "label": "Invitations & Stationery"
-        },
-        {
-          "id": "term:product_type:gifts",
-          "slug": "gifts",
-          "label": "Gifts & Proposal Boxes"
-        },
-        {
-          "id": "term:product_type:table_settings",
-          "slug": "table-settings",
-          "label": "Place Settings & Vinyl Decor"
         }
       ]
     }
@@ -677,178 +770,11 @@
     }
   ],
   "content": {
-    "pages": [
-      {
-        "id": "pages:home",
-        "slug": "home",
-        "status": "published",
-        "data": {
-          "title": "home"
-        }
-      },
-      {
-        "id": "pages:about",
-        "slug": "about",
-        "status": "published",
-        "data": {
-          "title": "About",
-          "content": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "This is the about page. Edit it in the admin panel or replace this template with your own design.",
-                  "_key": "k1"
-                }
-              ],
-              "_key": "k0"
-            }
-          ]
-        }
-      }
-    ],
     "products": [
-      {
-        "id": "products:signature-bear-bouquet",
-        "slug": "signature-bear-bouquet",
-        "status": "published",
-        "taxonomies": {
-          "product_type": ["balloons", "gifts"]
-        },
-        "data": {
-          "title": "The Signature Bear Balloon Bouquet",
-          "starting_price": "€85",
-          "description": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "Our iconic Luxe Bear centerpiece featuring a bespoke crystal sphere balloon, miniature keepsake teddy bear, and personalized metallic vinyl lettering.",
-                  "_key": "p0"
-                }
-              ],
-              "_key": "b0"
-            }
-          ],
-          "is_customizable": true,
-          "supports_gift_insert": true,
-          "included_features": "Jumbo crystal sphere bubble balloon, keepsake mini bear charm, personalized metallic vinyl text, luxury satin ribbon, weighted pedestal base.",
-          "dimensions_note": "Height ~80cm. Suitable for passenger vehicle transport.",
-          "lead_time_days": 3,
-          "is_featured": true,
-          "sort_order": 1
-        }
-      },
-      {
-        "id": "products:organic-garland",
-        "slug": "organic-garland",
-        "status": "published",
-        "taxonomies": {
-          "product_type": ["balloons"]
-        },
-        "data": {
-          "title": "Organic Balloon Garland (Custom Metres)",
-          "starting_price": "€35 / metre",
-          "description": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "Voluminous organic garland styled with layered 5\" to 24\" biodegradable latex balloons in custom matte and chrome tones.",
-                  "_key": "p1"
-                }
-              ],
-              "_key": "b1"
-            }
-          ],
-          "is_customizable": true,
-          "supports_gift_insert": false,
-          "included_features": "Custom color palette styling, premium double-stuffed balloons, on-site setup, clean removal-friendly attachment.",
-          "dimensions_note": "Custom lengths from 2m to full event venue installations.",
-          "lead_time_days": 7,
-          "is_featured": true,
-          "sort_order": 2
-        }
-      },
-      {
-        "id": "products:welcome-sign-easel",
-        "slug": "welcome-sign-easel",
-        "status": "published",
-        "taxonomies": {
-          "product_type": ["welcome-signs"]
-        },
-        "data": {
-          "title": "Acrylic Arched Welcome Sign & Easel Package",
-          "starting_price": "€140",
-          "description": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "Make a grand entrance with a bespoke arched acrylic sign, wooden or brass easel rental, and an integrated organic balloon cluster.",
-                  "_key": "p2"
-                }
-              ],
-              "_key": "b2"
-            }
-          ],
-          "is_customizable": true,
-          "supports_gift_insert": false,
-          "included_features": "60x90cm custom frosted or ribbed acrylic sign, custom lettering, easel rental, 1.5m organic balloon accent.",
-          "dimensions_note": "Easel stands 150cm tall.",
-          "lead_time_days": 10,
-          "is_featured": true,
-          "sort_order": 3
-        }
-      },
-      {
-        "id": "products:gender-reveal-balloon",
-        "slug": "gender-reveal-balloon",
-        "status": "published",
-        "taxonomies": {
-          "product_type": ["balloons"]
-        },
-        "data": {
-          "title": "Double-Layer Gender Reveal Balloon",
-          "starting_price": "€75",
-          "description": [
-            {
-              "_type": "block",
-              "style": "normal",
-              "children": [
-                {
-                  "_type": "span",
-                  "text": "100% opaque double-layered 36-inch reveal balloon filled with flutter confetti and mini balloons, complete with a satin popping wand.",
-                  "_key": "p3"
-                }
-              ],
-              "_key": "b3"
-            }
-          ],
-          "is_customizable": true,
-          "supports_gift_insert": false,
-          "included_features": "36-inch opaque double-wall balloon, vibrant slow-falling confetti, tassel garland tail, popping pin wand.",
-          "dimensions_note": "Doctor / ultrasound envelope handover accepted.",
-          "lead_time_days": 4,
-          "is_featured": true,
-          "sort_order": 4
-        }
-      },
       {
         "id": "products:pop-me-gift-balloon",
         "slug": "pop-me-gift-balloon",
         "status": "published",
-        "taxonomies": {
-          "product_type": ["gifts", "balloons"]
-        },
         "data": {
           "title": "Pop-Me Surprise Gifting Balloon",
           "starting_price": "€65",
@@ -866,53 +792,161 @@
               "_key": "b4"
             }
           ],
-          "is_customizable": true,
-          "supports_gift_insert": true,
+          "is_customizable": 1,
+          "supports_gift_insert": 1,
           "included_features": "Crystal balloon sphere, internal confetti & mini balloons, personalized exterior vinyl, popping wand.",
           "dimensions_note": "Gift items must fit through 12cm neck (perfume, plush toys, jewelry boxes, cash).",
           "lead_time_days": 3,
-          "is_featured": true,
+          "is_featured": 1,
           "sort_order": 5
+        },
+        "taxonomies": {
+          "product_type": ["balloons", "gifts"]
+        }
+      },
+      {
+        "id": "products:welcome-sign-easel",
+        "slug": "welcome-sign-easel",
+        "status": "published",
+        "data": {
+          "title": "Acrylic Arched Welcome Sign & Easel Package",
+          "starting_price": "€140",
+          "description": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Make a grand entrance with a bespoke arched acrylic sign, wooden or brass easel rental, and an integrated organic balloon cluster.",
+                  "_key": "p2"
+                }
+              ],
+              "_key": "b2"
+            }
+          ],
+          "is_customizable": 1,
+          "supports_gift_insert": 0,
+          "included_features": "60x90cm custom frosted or ribbed acrylic sign, custom lettering, easel rental, 1.5m organic balloon accent.",
+          "dimensions_note": "Easel stands 150cm tall.",
+          "lead_time_days": 10,
+          "is_featured": 1,
+          "sort_order": 3
+        },
+        "taxonomies": {
+          "product_type": ["welcome-signs"]
+        }
+      },
+      {
+        "id": "products:gender-reveal-balloon",
+        "slug": "gender-reveal-balloon",
+        "status": "published",
+        "data": {
+          "title": "Double-Layer Gender Reveal Balloon",
+          "starting_price": "€75",
+          "description": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "100% opaque double-layered 36-inch reveal balloon filled with flutter confetti and mini balloons, complete with a satin popping wand.",
+                  "_key": "p3"
+                }
+              ],
+              "_key": "b3"
+            }
+          ],
+          "is_customizable": 1,
+          "supports_gift_insert": 0,
+          "included_features": "36-inch opaque double-wall balloon, vibrant slow-falling confetti, tassel garland tail, popping pin wand.",
+          "dimensions_note": "Doctor / ultrasound envelope handover accepted.",
+          "lead_time_days": 4,
+          "is_featured": 1,
+          "sort_order": 4
+        },
+        "taxonomies": {
+          "product_type": ["balloons"]
+        }
+      },
+      {
+        "id": "products:organic-garland",
+        "slug": "organic-garland",
+        "status": "published",
+        "data": {
+          "title": "Organic Balloon Garland (Custom Metres)",
+          "starting_price": "€35 / metre",
+          "description": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Voluminous organic garland styled with layered 5\" to 24\" biodegradable latex balloons in custom matte and chrome tones.",
+                  "_key": "p1"
+                }
+              ],
+              "_key": "b1"
+            }
+          ],
+          "is_customizable": 1,
+          "supports_gift_insert": 0,
+          "included_features": "Custom color palette styling, premium double-stuffed balloons, on-site setup, clean removal-friendly attachment.",
+          "dimensions_note": "Custom lengths from 2m to full event venue installations.",
+          "lead_time_days": 7,
+          "is_featured": 1,
+          "sort_order": 2
+        },
+        "taxonomies": {
+          "product_type": ["balloons"]
+        }
+      },
+      {
+        "id": "products:signature-bear-bouquet",
+        "slug": "signature-bear-bouquet",
+        "status": "published",
+        "data": {
+          "title": "The Signature Bear Balloon Bouquet",
+          "starting_price": "€85",
+          "description": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Our iconic Luxe Bear centerpiece featuring a bespoke crystal sphere balloon, miniature keepsake teddy bear, and personalized metallic vinyl lettering.",
+                  "_key": "p0"
+                }
+              ],
+              "_key": "b0"
+            }
+          ],
+          "is_customizable": 1,
+          "supports_gift_insert": 1,
+          "included_features": "Jumbo crystal sphere bubble balloon, keepsake mini bear charm, personalized metallic vinyl text, luxury satin ribbon, weighted pedestal base.",
+          "dimensions_note": "Height ~80cm. Suitable for passenger vehicle transport.",
+          "lead_time_days": 3,
+          "is_featured": 1,
+          "sort_order": 1
+        },
+        "taxonomies": {
+          "product_type": ["balloons", "gifts"]
         }
       }
     ],
     "occasions": [
       {
-        "id": "occasions:christmas-seasonal",
-        "slug": "christmas-seasonal",
+        "id": "occasions:pop-me-gifts",
+        "slug": "pop-me-gifts",
         "status": "published",
         "data": {
-          "title": "Christmas & Seasonal",
-          "subtitle": "Festive balloon arches, organic garland & holiday party setups",
-          "hero_badge": "Current Season",
-          "sort_order": 1,
-          "featured_products": ["$ref:products:organic-garland"]
-        }
-      },
-      {
-        "id": "occasions:birthdays",
-        "slug": "birthdays",
-        "status": "published",
-        "data": {
-          "title": "Birthdays",
-          "subtitle": "Milestone numbers, themed organic arches & easel displays",
-          "sort_order": 2,
-          "featured_products": [
-            "$ref:products:signature-bear-bouquet",
-            "$ref:products:organic-garland"
-          ]
-        }
-      },
-      {
-        "id": "occasions:communions-confirmations",
-        "slug": "communions-confirmations",
-        "status": "published",
-        "data": {
-          "title": "Communions & Confirmations",
-          "subtitle": "Elegant neutral backdrops, easel signs & organic garland",
-          "hero_badge": "Booking Early 2027",
-          "sort_order": 3,
-          "featured_products": ["$ref:products:welcome-sign-easel", "$ref:products:organic-garland"]
+          "title": "Pop-Me Gifts",
+          "subtitle": "Custom bubble balloon gifting with inserted customer gifts",
+          "sort_order": 6,
+          "featured_products": ["$ref:products:pop-me-gift-balloon"]
         }
       },
       {
@@ -941,14 +975,86 @@
         }
       },
       {
-        "id": "occasions:pop-me-gifts",
-        "slug": "pop-me-gifts",
+        "id": "occasions:communions-confirmations",
+        "slug": "communions-confirmations",
         "status": "published",
         "data": {
-          "title": "Pop-Me Gifts",
-          "subtitle": "Custom bubble balloon gifting with inserted customer gifts",
-          "sort_order": 6,
-          "featured_products": ["$ref:products:pop-me-gift-balloon"]
+          "title": "Communions & Confirmations",
+          "subtitle": "Elegant neutral backdrops, easel signs & organic garland",
+          "hero_badge": "Booking Early 2027",
+          "sort_order": 3,
+          "featured_products": ["$ref:products:welcome-sign-easel", "$ref:products:organic-garland"]
+        }
+      },
+      {
+        "id": "occasions:birthdays",
+        "slug": "birthdays",
+        "status": "published",
+        "data": {
+          "title": "Birthdays",
+          "subtitle": "Milestone numbers, themed organic arches & easel displays",
+          "sort_order": 2,
+          "featured_products": [
+            "$ref:products:signature-bear-bouquet",
+            "$ref:products:organic-garland"
+          ]
+        }
+      },
+      {
+        "id": "occasions:christmas-seasonal",
+        "slug": "christmas-seasonal",
+        "status": "published",
+        "data": {
+          "title": "Christmas & Seasonal",
+          "subtitle": "Festive balloon arches, organic garland & holiday party setups",
+          "hero_badge": "Current Season",
+          "sort_order": 1,
+          "featured_products": ["$ref:products:organic-garland"]
+        }
+      }
+    ],
+    "pages": [
+      {
+        "id": "pages:about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About",
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "This is the about page. Edit it in the admin panel or replace this template with your own design.",
+                  "_key": "k1"
+                }
+              ],
+              "_key": "k0"
+            }
+          ]
+        }
+      },
+      {
+        "id": "pages:home",
+        "slug": "home",
+        "status": "published",
+        "data": {
+          "title": "home",
+          "hero_headline": "Luxe Bear — Balloon Bar",
+          "hero_tagline": "By Luxe Bear Studio",
+          "hero_description": "From organic arches and custom vinyl backdrops to our signature Pop-Me balloons — Luxe Bear Balloon Bar brings magic to your celebrations.",
+          "occasions_title": "Explore by Occasion",
+          "occasions_subtitle": "We organize our designs by celebration so you find the exact style for your event without getting lost in technical balloon terminology.",
+          "offerings_title": "Our Signature Offerings & Pricing Guide",
+          "offerings_subtitle": "Hand-crafted luxury balloon installations and bespoke event decor tailored to your palette.",
+          "inquiry_title": "Request a Booking / Quote",
+          "inquiry_subtitle": "Fill out your celebration details below and our team will get in touch to confirm availability and exact pricing.",
+          "booking_policy_notice": "Submitting this inquiry form does not guarantee or confirm your booking. We will review date availability and reach out to confirm details.",
+          "service_locations_notice": "We serve local and surrounding areas. Locations outside our standard radius may incur an additional delivery fee.",
+          "care_title": "🎈 Balloon Care & Responsibility",
+          "care_description": "Balloons are delicate and sensitive to heat, sunlight, sharp objects, and transit. Once delivered or collected, balloon care becomes your responsibility."
         }
       }
     ]
