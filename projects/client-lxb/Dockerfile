@@ -51,7 +51,7 @@ COPY --from=build /app/pruned/node_modules ./node_modules
 COPY --from=build /app/projects/client-lxb/package.json ./
 COPY --from=build /app/projects/client-lxb/seed ./seed
 
-RUN mkdir -p /app/db /app/uploads
+RUN mkdir -p /app/db /app/uploads && ln -s /app/db/data.db /app/data.db
 
 ENV HOST=0.0.0.0 \
     PORT=4321 \
