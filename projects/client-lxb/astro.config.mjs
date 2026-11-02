@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { emdashSmtp } from "emdash-smtp";
+import { inquiryNotifierPlugin } from "./src/plugins/inquiry-notifier.ts";
 import tailwindcss from "@tailwindcss/vite";
 
 if (typeof process.loadEnvFile === "function" && fs.existsSync(".env")) {
@@ -91,7 +92,7 @@ export default defineConfig({
       }),
       objectCache: memoryCache(),
       sandboxRunner: "@emdash-cms/sandbox-workerd/sandbox",
-      plugins: [emdashSmtp()],
+      plugins: [emdashSmtp(), inquiryNotifierPlugin()],
     }),
   ],
   vite: {

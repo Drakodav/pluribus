@@ -270,6 +270,11 @@
           "slug": "internal_notes",
           "label": "Internal Admin Notes",
           "type": "text"
+        },
+        {
+          "slug": "care_policy_accepted",
+          "label": "Care Policy Acknowledged",
+          "type": "boolean"
         }
       ]
     },

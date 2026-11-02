@@ -140,6 +140,7 @@ export interface Inquiry {
   custom_lettering?: string;
   customer_notes?: string;
   internal_notes?: string;
+  care_policy_accepted?: boolean;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;

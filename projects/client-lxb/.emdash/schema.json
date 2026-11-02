@@ -312,6 +312,13 @@
           "type": "text",
           "required": false,
           "unique": false
+        },
+        {
+          "slug": "care_policy_accepted",
+          "label": "Care Policy Acknowledged",
+          "type": "boolean",
+          "required": false,
+          "unique": false
         }
       ]
     },

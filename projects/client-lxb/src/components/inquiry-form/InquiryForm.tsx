@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useForm } from "@tanstack/react-form";
+import { actions } from "astro:actions";
 import { inquirySchema, type InquiryFormData } from "./schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export interface InquiryFormProps {
   title?: string;
@@ -40,6 +42,7 @@ export function InquiryForm({
 }: InquiryFormProps) {
   const [submittedData, setSubmittedData] = React.useState<InquiryFormData | null>(null);
   const [submissionError, setSubmissionError] = React.useState<string | null>(null);
+  const [isSubmittingServer, setIsSubmittingServer] = React.useState(false);
 
   const defaultOccasion = initialOccasion || occasions[0]?.title || "Birthdays";
 
@@ -56,6 +59,7 @@ export function InquiryForm({
       selected_products: [] as string[],
       details: "",
       agree_care: false,
+      website_url: "",
     },
     onSubmit: async ({ value }) => {
       setSubmissionError(null);
@@ -66,14 +70,26 @@ export function InquiryForm({
         return;
       }
 
+      setIsSubmittingServer(true);
       try {
-        // Callback or preparation for end-to-end integration
+        const { data, error } = await actions.submitInquiry(parsed.data);
+
+        if (error) {
+          setSubmissionError(
+            error.message || "Failed to submit booking request. Please try again.",
+          );
+          setIsSubmittingServer(false);
+          return;
+        }
+
         if (onSubmitSuccess) {
           onSubmitSuccess(parsed.data);
         }
         setSubmittedData(parsed.data);
       } catch (err: any) {
-        setSubmissionError(err?.message || "Failed to submit. Please try again.");
+        setSubmissionError(err?.message || "An unexpected error occurred. Please try again.");
+      } finally {
+        setIsSubmittingServer(false);
       }
     },
   });
@@ -193,6 +209,22 @@ export function InquiryForm({
           }}
           className="flex flex-col gap-6"
         >
+          {/* Honeypot Trap (Invisible to real users, catches spam bots) */}
+          <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+            <form.Field name="website_url">
+              {(field) => (
+                <input
+                  type="text"
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              )}
+            </form.Field>
+          </div>
+
           {/* Row 1: Name & Phone */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <form.Field
@@ -369,13 +401,17 @@ export function InquiryForm({
               {(field) => (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor={field.name}>Event Date</Label>
-                  <Input
+                  <DatePicker
                     id={field.name}
                     name={field.name}
-                    type="date"
                     value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
+                    onChange={(val) => field.handleChange(val)}
                   />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-xs font-medium text-destructive">
+                      {field.state.meta.errors[0]?.message || String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </div>
               )}
             </form.Field>
@@ -528,10 +564,12 @@ export function InquiryForm({
                 type="submit"
                 variant="balloon"
                 size="lg"
-                disabled={!canSubmit || isSubmitting}
+                disabled={!canSubmit || isSubmitting || isSubmittingServer}
                 className="w-full text-base font-semibold"
               >
-                {isSubmitting ? "Submitting Request..." : "Submit Booking Request ✨"}
+                {isSubmitting || isSubmittingServer
+                  ? "Submitting Request..."
+                  : "Submit Booking Request ✨"}
               </Button>
             )}
           </form.Subscribe>
