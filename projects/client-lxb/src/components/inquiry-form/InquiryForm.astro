@@ -1,0 +1,41 @@
+---
+import { InquiryForm as ReactInquiryForm } from "./InquiryForm";
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  bookingPolicyNotice?: string;
+  serviceLocationsNotice?: string;
+  occasions?: Array<{ title: string }>;
+  offerings?: Array<{ title: string; price?: string }>;
+  initialOccasion?: string;
+  editTitle?: any;
+  editSubtitle?: any;
+  editBookingNotice?: any;
+  editLocationNotice?: any;
+  className?: string;
+}
+
+const {
+  title,
+  subtitle,
+  bookingPolicyNotice,
+  serviceLocationsNotice,
+  occasions,
+  offerings,
+  initialOccasion,
+  className = "",
+} = Astro.props;
+---
+
+<ReactInquiryForm
+  client:visible
+  title={title}
+  subtitle={subtitle}
+  bookingPolicyNotice={bookingPolicyNotice}
+  serviceLocationsNotice={serviceLocationsNotice}
+  occasions={occasions}
+  offerings={offerings}
+  initialOccasion={initialOccasion}
+  className={className}
+/>
