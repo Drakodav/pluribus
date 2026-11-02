@@ -1,6 +1,7 @@
 ---
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import BalloonIcon from "@/components/BalloonIcon.astro";
 
 export interface Props {
   title?: string;
@@ -10,7 +11,7 @@ export interface Props {
 }
 
 const {
-  title = "🎈 Balloon Care & The Store Line Rule",
+  title = "Balloon Care & The Store Line Rule",
   description = "Balloons are delicate and sensitive to heat, direct sunlight, sharp edges, and rapid temperature swings. Once our installations are set up or bouquets leave our studio, the care and environment become your responsibility.",
   editTitle,
   editDescription,
@@ -20,8 +21,8 @@ const {
 <section id="care" class="mx-auto max-w-4xl py-6">
   <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card via-card to-secondary/30 p-6 sm:p-8 shadow-sm">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
-      <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-3xl shadow-xs">
-        🎈
+      <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 p-2 shadow-xs">
+        <BalloonIcon variant="champagne" class="size-8" />
       </div>
       <div class="flex flex-col gap-2">
         <div class="flex flex-wrap items-center gap-2">

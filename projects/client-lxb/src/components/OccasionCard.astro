@@ -9,6 +9,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import BalloonIcon from "@/components/BalloonIcon.astro";
 
 export interface Props {
   title: string;
@@ -45,9 +46,9 @@ const {
         </div>
       ) : (
         <div class="flex h-full w-full flex-col items-center justify-center gap-2 p-6 text-center">
-          <span class="text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-            🎈
-          </span>
+          <div class="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+            <BalloonIcon variant="champagne" class="size-10 drop-shadow-xs" />
+          </div>
           <span class="font-serif text-sm font-semibold text-muted-foreground/80">
             {title}
           </span>

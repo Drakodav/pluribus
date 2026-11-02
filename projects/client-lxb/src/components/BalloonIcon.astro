@@ -1,0 +1,152 @@
+---
+export interface Props {
+  variant?: "champagne" | "rose" | "bubble" | "current";
+  size?: number | string;
+  class?: string;
+  withString?: boolean;
+}
+
+const {
+  variant = "champagne",
+  size = 24,
+  class: className = "size-5",
+  withString = true,
+} = Astro.props;
+
+const uniqueId = Math.random().toString(36).substring(2, 9);
+const gradId = `balloon-grad-${uniqueId}`;
+const glossId = `balloon-gloss-${uniqueId}`;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 28"
+  fill="none"
+  width={size}
+  height={typeof size === "number" ? Math.round(size * 1.16) : size}
+  class={`inline-block shrink-0 align-middle transition-transform duration-300 ${className}`}
+  aria-hidden="true"
+>
+  <defs>
+    <!-- Champagne Metallic Gradient -->
+    <linearGradient id={`${gradId}-champagne`} x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#edd8b4" />
+      <stop offset="45%" stop-color="#c99b58" />
+      <stop offset="100%" stop-color="#916428" />
+    </linearGradient>
+
+    <!-- Rose Gold Metallic Gradient -->
+    <linearGradient id={`${gradId}-rose`} x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#fae3de" />
+      <stop offset="45%" stop-color="#d48a7f" />
+      <stop offset="100%" stop-color="#9a4d44" />
+    </linearGradient>
+
+    <!-- Crystal Dual-Layer Bubble Gradient -->
+    <linearGradient id={`${gradId}-bubble`} x1="20%" y1="15%" x2="80%" y2="85%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+      <stop offset="40%" stop-color="#f5ebe7" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#c99b58" stop-opacity="0.5" />
+    </linearGradient>
+
+    <!-- Gloss Sheen Overlay -->
+    <linearGradient id={glossId} x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Balloon Main Body -->
+  {
+    variant === "champagne" && (
+      <path
+        d="M 12,2 C 6.5,2 3.5,6.2 3.5,10.8 C 3.5,15.2 7.8,17.8 10.6,18.7 L 10,20.2 L 14,20.2 L 13.4,18.7 C 16.2,17.8 20.5,15.2 20.5,10.8 C 20.5,6.2 17.5,2 12,2 Z"
+        fill={`url(#${gradId}-champagne)`}
+      />
+    )
+  }
+  {
+    variant === "rose" && (
+      <path
+        d="M 12,2 C 6.5,2 3.5,6.2 3.5,10.8 C 3.5,15.2 7.8,17.8 10.6,18.7 L 10,20.2 L 14,20.2 L 13.4,18.7 C 16.2,17.8 20.5,15.2 20.5,10.8 C 20.5,6.2 17.5,2 12,2 Z"
+        fill={`url(#${gradId}-rose)`}
+      />
+    )
+  }
+  {
+    variant === "bubble" && (
+      <>
+        <!-- Outer Crystal Bubble -->
+        <circle
+          cx="12"
+          cy="11"
+          r="8.5"
+          fill={`url(#${gradId}-bubble)`}
+          stroke="#c99b58"
+          stroke-width="0.8"
+          stroke-opacity="0.4"
+        />
+        <!-- Inner Latex Balloon (Pop-Me Reveal style) -->
+        <ellipse
+          cx="12"
+          cy="11.5"
+          rx="5"
+          ry="5.5"
+          fill="#d48a7f"
+          fill-opacity="0.75"
+        />
+        <!-- Knot -->
+        <polygon points="10.5,19.8 13.5,19.8 12,21.2" fill="#c99b58" />
+      </>
+    )
+  }
+  {
+    variant === "current" && (
+      <path
+        d="M 12,2 C 6.5,2 3.5,6.2 3.5,10.8 C 3.5,15.2 7.8,17.8 10.6,18.7 L 10,20.2 L 14,20.2 L 13.4,18.7 C 16.2,17.8 20.5,15.2 20.5,10.8 C 20.5,6.2 17.5,2 12,2 Z"
+        fill="currentColor"
+      />
+    )
+  }
+
+  <!-- Gloss Highlight (Luxe Balloon Sheen) -->
+  {
+    variant !== "current" && (
+      <path
+        d="M 7,8 C 7,5.5 8.8,4.2 11.2,3.8"
+        stroke={`url(#${glossId})`}
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+    )
+  }
+
+  <!-- Subtle Rim Light -->
+  {
+    variant !== "current" && (
+      <ellipse
+        cx="12"
+        cy="4"
+        rx="3"
+        ry="1"
+        fill="#ffffff"
+        fill-opacity="0.4"
+      />
+    )
+  }
+
+  <!-- Waving Ribbon / String -->
+  {
+    withString && (
+      <path
+        d="M 12,20.2 Q 14.5,22.8 11.2,24.8 Q 9.8,26 11.8,27.2"
+        stroke={variant === "current" ? "currentColor" : "#916428"}
+        stroke-width="1"
+        stroke-linecap="round"
+        stroke-opacity={variant === "current" ? "0.6" : "0.75"}
+        fill="none"
+      />
+    )
+  }
+</svg>
+

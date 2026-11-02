@@ -2,13 +2,16 @@
 import Base from "@/layouts/Base.astro";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import BalloonIcon from "@/components/BalloonIcon.astro";
 ---
 
 <Base title="Page Not Found">
   <div class="mx-auto flex min-h-[60vh] max-w-xl items-center justify-center px-4 py-16">
-    <Card className="text-center p-8 sm:p-12 border-primary/20 bg-card shadow-lg">
-      <span class="text-6xl animate-bounce">🎈</span>
-      <h1 class="mt-4 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+    <Card className="flex flex-col items-center text-center p-8 sm:p-12 border-primary/20 bg-card shadow-lg">
+      <div class="animate-bounce mb-3">
+        <BalloonIcon variant="bubble" class="size-20 drop-shadow-md" />
+      </div>
+      <h1 class="mt-2 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
         This Balloon Floated Away!
       </h1>
       <p class="mx-auto mt-3 max-w-sm text-sm text-muted-foreground leading-relaxed">
