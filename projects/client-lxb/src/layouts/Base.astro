@@ -2,7 +2,8 @@
 import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
 import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
-import { NavigationMenu } from "@/components/nav-menu";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 import "../global.css";
 
@@ -70,11 +71,13 @@ const pageCtx = createPublicPageContext({
 
     <EmDashBodyStart page={pageCtx} />
 
-    <NavigationMenu siteTitle={siteTitle} siteLogo={siteLogo} menu={menu} />
+    <Header siteTitle={siteTitle} siteLogo={siteLogo} menu={menu} />
 
-    <main>
+    <main class="min-h-screen">
       <slot />
     </main>
+
+    <Footer siteTitle={siteTitle} />
 
     <EmDashBodyEnd page={pageCtx} />
   </body>

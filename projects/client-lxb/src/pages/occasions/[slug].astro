@@ -9,6 +9,11 @@ import {
 import { Image, PortableText } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "../../utils/site-identity";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import ProductCard from "@/components/ProductCard.astro";
+import CareNotice from "@/components/CareNotice.astro";
 
 const slug = decodeSlug(Astro.params.slug);
 
@@ -51,356 +56,175 @@ const { entries: galleryItems } = await getEmDashReferences(
   description={occasion.data.subtitle || `Bespoke balloon installations for ${occasion.data.title}`}
   content={{ collection: "occasions", id: occasion.data.id, slug }}
 >
-  <div class="occasion-page">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-      <a href="/">Home</a> &rarr; <span>Occasions</span> &rarr; <span class="current">{occasion.data.title}</span>
+    <nav class="mb-8 flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
+      <a href="/" class="hover:text-primary transition-colors">Home</a>
+      <span>&rarr;</span>
+      <a href="/#occasions" class="hover:text-primary transition-colors">Occasions</a>
+      <span>&rarr;</span>
+      <span class="font-semibold text-foreground">{occasion.data.title}</span>
     </nav>
 
     <!-- Occasion Hero -->
-    <header class="occasion-hero">
-      {occasion.data.hero_badge && (
-        <span class="occasion-badge">{occasion.data.hero_badge}</span>
-      )}
-      <h1 class="occasion-title" {...occasion.edit.title}>{occasion.data.title}</h1>
-      {occasion.data.subtitle && (
-        <p class="occasion-subtitle" {...occasion.edit.subtitle}>
-          {occasion.data.subtitle}
-        </p>
-      )}
+    <header class="mb-14 text-center">
+      {
+        occasion.data.hero_badge && (
+          <Badge variant="seasonal" size="lg" className="mb-4">
+            {occasion.data.hero_badge}
+          </Badge>
+        )
+      }
+      <h1
+        class="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+        {...occasion.edit.title}
+      >
+        {occasion.data.title}
+      </h1>
+      {
+        occasion.data.subtitle && (
+          <p
+            class="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg leading-relaxed"
+            {...occasion.edit.subtitle}
+          >
+            {occasion.data.subtitle}
+          </p>
+        )
+      }
 
-      {occasion.data.hero_image && (
-        <div class="hero-image-wrap" {...occasion.edit.hero_image}>
-          <Image image={occasion.data.hero_image} />
-        </div>
-      )}
+      {
+        occasion.data.hero_image && (
+          <div
+            class="balloon-gloss mx-auto mt-8 max-h-[440px] max-w-4xl overflow-hidden rounded-3xl border border-border shadow-md"
+            {...occasion.edit.hero_image}
+          >
+            <Image
+              image={occasion.data.hero_image}
+              class="h-full w-full object-cover max-h-[440px]"
+            />
+          </div>
+        )
+      }
     </header>
 
-    <!-- Editorial Intro & Package Details -->
-    {occasion.data.intro_text && (
-      <section class="intro-section" {...occasion.edit.intro_text}>
-        <div class="prose-content">
-          <PortableText value={occasion.data.intro_text} />
-        </div>
-      </section>
-    )}
+    <!-- Editorial Intro & Details -->
+    {
+      occasion.data.intro_text && (
+        <section class="mx-auto mb-16 max-w-4xl" {...occasion.edit.intro_text}>
+          <Card className="border-border/80 bg-card p-6 sm:p-10 shadow-sm">
+            <div class="prose prose-neutral max-w-none text-foreground/90 leading-relaxed sm:text-lg">
+              <PortableText value={occasion.data.intro_text} />
+            </div>
+          </Card>
+        </section>
+      )
+    }
 
-    <!-- Relational Section 1: Featured Products & Offerings -->
-    {featuredProducts && featuredProducts.length > 0 && (
-      <section class="relational-section">
-        <div class="section-title-wrap">
-          <h2 class="relational-title">Recommended Offerings for {occasion.data.title}</h2>
-          <p class="relational-subtitle">
-            Curated packages frequently selected for this celebration.
-          </p>
-        </div>
+    <!-- Relational Section 1: Featured Products & Packages -->
+    {
+      featuredProducts && featuredProducts.length > 0 && (
+        <section class="my-16 scroll-mt-24">
+          <div class="mb-8 text-center sm:text-left">
+            <Badge variant="champagne" size="sm" className="mb-2">
+              Recommended Packages
+            </Badge>
+            <h2 class="font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Packages for {occasion.data.title}
+            </h2>
+            <p class="text-sm text-muted-foreground">
+              Curated luxury styles frequently selected for this celebration.
+            </p>
+          </div>
 
-        <div class="products-grid">
-          {featuredProducts.map((prod: any) => (
-            <div class="product-card">
-              <div class="product-header">
-                <h3 class="product-title">{prod.data.title}</h3>
-                {prod.data.starting_price && (
-                  <span class="product-price">{prod.data.starting_price}</span>
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredProducts.map((prod: any) => (
+              <ProductCard
+                title={prod.data.title}
+                price={prod.data.starting_price}
+                description={
+                  prod.data.included_features ||
+                  (typeof prod.data.description === "string" ? prod.data.description : "")
+                }
+                isCustomizable={prod.data.is_customizable}
+                supportsGiftInsert={prod.data.supports_gift_insert}
+                image={prod.data.featured_image}
+                edit={prod.edit}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Relational Section 2: Real Event Lookbook Gallery -->
+    {
+      galleryItems && galleryItems.length > 0 && (
+        <section class="my-16 scroll-mt-24">
+          <div class="mb-8 text-center sm:text-left">
+            <Badge variant="champagne" size="sm" className="mb-2">
+              Lookbook
+            </Badge>
+            <h2 class="font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Real Event Gallery
+            </h2>
+            <p class="text-sm text-muted-foreground">
+              Recent setups and bespoke installations created for {occasion.data.title}.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {galleryItems.map((item: any) => (
+              <Card balloon className="overflow-hidden border-border/80 bg-card p-3 shadow-xs">
+                {item.data.image && (
+                  <div class="balloon-gloss aspect-4/3 w-full overflow-hidden rounded-2xl bg-secondary/30">
+                    <Image
+                      image={item.data.image}
+                      class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
                 )}
-              </div>
-              {prod.data.included_features && (
-                <p class="product-features">{prod.data.included_features}</p>
-              )}
-              {prod.data.dimensions_note && (
-                <small class="product-note">📏 {prod.data.dimensions_note}</small>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Relational Section 2: Real Event Gallery Photos -->
-    {galleryItems && galleryItems.length > 0 && (
-      <section class="relational-section">
-        <div class="section-title-wrap">
-          <h2 class="relational-title">Real Event Lookbook</h2>
-          <p class="relational-subtitle">
-            Recent setups and organic balloon installations created for this occasion.
-          </p>
-        </div>
-
-        <div class="gallery-grid">
-          {galleryItems.map((item: any) => (
-            <div class="gallery-card">
-              {item.data.image && (
-                <div class="gallery-image-wrap">
-                  <Image image={item.data.image} />
+                <div class="p-3">
+                  {item.data.caption && (
+                    <p class="text-sm font-medium text-foreground">
+                      {item.data.caption}
+                    </p>
+                  )}
+                  {item.data.color_palette && (
+                    <div class="mt-2">
+                      <Badge variant="secondary" size="sm">
+                        🎨 {item.data.color_palette}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-              )}
-              {item.data.caption && (
-                <p class="gallery-caption">{item.data.caption}</p>
-              )}
-              {item.data.color_palette && (
-                <span class="gallery-palette">🎨 {item.data.color_palette}</span>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
+              </Card>
+            ))}
+          </div>
+        </section>
+      )
+    }
 
-    <!-- CTA to Inquire for this Occasion -->
-    <section class="booking-cta">
-      <h2>Planning a {occasion.data.title}?</h2>
-      <p>
-        Reach out early with your date and venue to check availability.
-      </p>
-      <a href={`/#inquiry`} class="btn btn-primary">
-        Inquire for {occasion.data.title} &rarr;
-      </a>
+    <!-- Care Disclaimer Notice -->
+    <CareNotice />
+
+    <!-- Occasion Booking CTA -->
+    <section class="my-16 text-center">
+      <Card className="mx-auto max-w-2xl border-primary/20 bg-gradient-to-b from-card to-secondary/30 p-8 sm:p-12 shadow-md">
+        <span class="text-4xl">✨</span>
+        <h2 class="mt-3 font-serif text-2xl font-bold text-foreground sm:text-3xl">
+          Planning a {occasion.data.title}?
+        </h2>
+        <p class="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+          Reach out early with your celebration date and venue location to reserve our styling team.
+        </p>
+        <div class="mt-6 flex justify-center">
+          <a href="/#inquiry">
+            <Button variant="balloon" size="lg" className="text-base font-semibold">
+              Inquire for {occasion.data.title} &rarr;
+            </Button>
+          </a>
+        </div>
+      </Card>
     </section>
   </div>
 </Base>
-
-<style>
-  .occasion-page {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 5rem;
-    font-family: inherit;
-    color: #1f2937;
-  }
-
-  .breadcrumb {
-    font-size: 0.88rem;
-    color: #6b7280;
-    margin-bottom: 2rem;
-  }
-
-  .breadcrumb a {
-    color: #9333ea;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    text-decoration: underline;
-  }
-
-  .breadcrumb .current {
-    color: #111827;
-    font-weight: 600;
-  }
-
-  /* Hero */
-  .occasion-hero {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .occasion-badge {
-    display: inline-block;
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-
-  .occasion-title {
-    font-size: 2.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: #111827;
-    margin-bottom: 0.75rem;
-  }
-
-  .occasion-subtitle {
-    font-size: 1.2rem;
-    color: #4b5563;
-    max-width: 650px;
-    margin: 0 auto 2rem;
-    line-height: 1.5;
-  }
-
-  .hero-image-wrap {
-    max-height: 400px;
-    border-radius: 1rem;
-    overflow: hidden;
-    margin: 0 auto;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-  }
-
-  /* Intro Section */
-  .intro-section {
-    background-color: #fafaf9;
-    border: 1px solid #e7e5e4;
-    border-radius: 1rem;
-    padding: 2.5rem;
-    margin-bottom: 3.5rem;
-  }
-
-  .prose-content {
-    font-size: 1.05rem;
-    line-height: 1.7;
-    color: #374151;
-  }
-
-  /* Relational Sections */
-  .relational-section {
-    margin-bottom: 4rem;
-  }
-
-  .section-title-wrap {
-    margin-bottom: 1.5rem;
-  }
-
-  .relational-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.35rem;
-  }
-
-  .relational-subtitle {
-    font-size: 1rem;
-    color: #6b7280;
-  }
-
-  /* Products Grid */
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .product-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .product-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .product-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #111827;
-  }
-
-  .product-price {
-    background-color: #f3e8ff;
-    color: #7e22ce;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-    white-space: nowrap;
-  }
-
-  .product-features {
-    font-size: 0.9rem;
-    color: #4b5563;
-    line-height: 1.5;
-  }
-
-  .product-note {
-    font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  /* Gallery Grid */
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
-  }
-
-  .gallery-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .gallery-image-wrap {
-    height: 200px;
-    overflow: hidden;
-    background-color: #f3f4f6;
-  }
-
-  .gallery-caption {
-    padding: 0.75rem 1rem 0.25rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1f2937;
-  }
-
-  .gallery-palette {
-    padding: 0 1rem 0.75rem;
-    font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  /* CTA */
-  .booking-cta {
-    background: linear-gradient(135deg, #fdfbf7 0%, #f7f3ed 100%);
-    border: 1px solid #ebdcd0;
-    border-radius: 1rem;
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
-
-  .booking-cta h2 {
-    font-size: 1.85rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  .booking-cta p {
-    font-size: 1.05rem;
-    color: #4b5563;
-    margin-bottom: 1.5rem;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.75rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: all 0.15s ease-in-out;
-    cursor: pointer;
-    border: none;
-  }
-
-  .btn-primary {
-    background-color: #111827;
-    color: #ffffff;
-  }
-
-  .btn-primary:hover {
-    background-color: #374151;
-  }
-
-  @media (max-width: 640px) {
-    .occasion-title {
-      font-size: 2rem;
-    }
-  }
-</style>
-

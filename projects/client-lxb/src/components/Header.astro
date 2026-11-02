@@ -1,0 +1,101 @@
+---
+import LiveSearch from "emdash/ui/search";
+import type { MediaReference } from "@/utils/site-identity";
+import { Button } from "@/components/ui/button";
+
+export interface MenuItem {
+  url: string;
+  label: string;
+  target?: string | null;
+}
+
+export interface Props {
+  siteTitle?: string;
+  siteLogo?: MediaReference | null;
+  menu?: {
+    items: MenuItem[];
+  } | null;
+}
+
+const { siteTitle = "Luxe Bear — Balloon Bar", siteLogo, menu } = Astro.props;
+
+const fallbackLinks: MenuItem[] = [
+  { url: "/#occasions", label: "Occasions" },
+  { url: "/#offerings", label: "Packages & Pricing" },
+  { url: "/#care", label: "Balloon Care" },
+  { url: "/#inquiry", label: "Contact" },
+];
+
+const navItems = menu?.items && menu.items.length > 0 ? menu.items : fallbackLinks;
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-border/60 bg-background/85 backdrop-blur-md transition-all">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <!-- Brand Identity -->
+    <a href="/" class="group flex items-center gap-3 text-decoration-none">
+      <div class="flex items-center transition-transform duration-200 group-hover:scale-105">
+        {
+          siteLogo ? (
+            <img
+              src={siteLogo.url}
+              alt={siteLogo.alt || siteTitle}
+              class="h-9 w-auto max-w-[140px] object-contain sm:h-10"
+            />
+          ) : (
+            <img
+              src="/branding/logo.svg"
+              alt={siteTitle}
+              class="h-9 w-auto max-w-[140px] object-contain sm:h-10"
+            />
+          )
+        }
+      </div>
+      <div class="hidden flex-col leading-tight sm:flex">
+        <span class="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+          Luxe Bear Studio
+        </span>
+        <span class="font-serif text-sm font-bold text-foreground">
+          Balloon Bar
+        </span>
+      </div>
+    </a>
+
+    <!-- Navigation Links & Search -->
+    <nav class="hidden items-center gap-1 md:flex">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.url}
+            target={item.target ?? undefined}
+            rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+            class="rounded-full px-3.5 py-1.5 text-sm font-medium text-foreground/80 transition-all hover:bg-secondary hover:text-foreground active:scale-95"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <!-- Right Controls: Search & CTA -->
+    <div class="flex items-center gap-3">
+      <div class="hidden max-w-[180px] lg:block">
+        <LiveSearch placeholder="Search..." collections={["occasions", "products", "pages"]} />
+      </div>
+
+      <a href="/#inquiry" class="inline-flex">
+        <Button variant="balloon" size="sm" className="hidden sm:inline-flex">
+          Request Booking
+        </Button>
+      </a>
+
+      <!-- Mobile Menu Trigger Link -->
+      <a
+        href="/#occasions"
+        class="inline-flex rounded-full border border-border/80 bg-secondary/80 px-3 py-1.5 text-xs font-semibold text-foreground md:hidden"
+      >
+        Explore 🎈
+      </a>
+    </div>
+  </div>
+</header>
+

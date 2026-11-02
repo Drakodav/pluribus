@@ -1,0 +1,65 @@
+---
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+export interface Props {
+  title?: string;
+  description?: string;
+  editTitle?: any;
+  editDescription?: any;
+}
+
+const {
+  title = "🎈 Balloon Care & The Store Line Rule",
+  description = "Balloons are delicate and sensitive to heat, direct sunlight, sharp edges, and rapid temperature swings. Once our installations are set up or bouquets leave our studio, the care and environment become your responsibility.",
+  editTitle,
+  editDescription,
+} = Astro.props;
+---
+
+<section id="care" class="mx-auto max-w-4xl py-6">
+  <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card via-card to-secondary/30 p-6 sm:p-8 shadow-sm">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+      <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-3xl shadow-xs">
+        🎈
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <Badge variant="champagne" size="sm">
+            Essential Care Guidelines
+          </Badge>
+          <span class="text-xs text-muted-foreground">Client Handover Policy</span>
+        </div>
+        <CardTitle className="font-serif text-xl font-bold text-foreground" {...editTitle}>
+          {title}
+        </CardTitle>
+        <p class="text-sm text-muted-foreground leading-relaxed" {...editDescription}>
+          {description}
+        </p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div class="rounded-xl border border-border/70 bg-background/80 p-3 text-xs">
+            <span class="font-bold text-foreground">☀️ Temperature Care</span>
+            <p class="mt-1 text-muted-foreground">Keep out of direct sunlight, hot vehicle trunks, and near heaters.</p>
+          </div>
+          <div class="rounded-xl border border-border/70 bg-background/80 p-3 text-xs">
+            <span class="font-bold text-foreground">⚠️ Sharp Hazards</span>
+            <p class="mt-1 text-muted-foreground">Avoid textured ceilings, rough brick walls, and pets during transport.</p>
+          </div>
+          <div class="rounded-xl border border-border/70 bg-background/80 p-3 text-xs">
+            <span class="font-bold text-foreground">✨ Indoor Longevity</span>
+            <p class="mt-1 text-muted-foreground">Climate-controlled indoor venues allow balloons to remain pristine for days.</p>
+          </div>
+        </div>
+
+        <div class="mt-2 pt-2 text-xs text-muted-foreground">
+          Have specific venue questions or need early morning installation? 
+          <a href="#inquiry" class="font-semibold text-primary underline underline-offset-2">
+            Ask us in your inquiry form &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </Card>
+</section>
+

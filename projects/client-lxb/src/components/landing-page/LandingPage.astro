@@ -1,7 +1,12 @@
 ---
 // Landing Page for Luxe Bear - Balloon Bar
-// Powered by dynamic EmDash CMS collections & relations
-import { Image } from "emdash/ui";
+// Powered by dynamic EmDash CMS collections & modular ShadCN components
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import OccasionCard from "@/components/OccasionCard.astro";
+import ProductCard from "@/components/ProductCard.astro";
+import CareNotice from "@/components/CareNotice.astro";
+import InquiryForm from "@/components/InquiryForm.astro";
 
 interface Props {
   homePage?: any;
@@ -17,7 +22,7 @@ const {
   activeCampaign = null,
 } = Astro.props;
 
-// 1. Hero & Seasonal Spotlight (dynamic from activeCampaign & homePage with graceful fallback)
+// 1. Hero & Seasonal Spotlight
 const seasonalBadge =
   activeCampaign?.data?.badge_text ||
   "Now Booking for Upcoming Celebrations";
@@ -35,7 +40,7 @@ const heroDescription =
   homePage?.data?.hero_description ||
   "From organic arches and custom vinyl backdrops to our signature Pop-Me balloons — Luxe Bear Balloon Bar brings magic to your celebrations.";
 
-// 2. Section Headers & Text (dynamic from homePage)
+// 2. Section Headers & Text
 const occasionsTitle =
   homePage?.data?.occasions_title || "Explore by Occasion";
 
@@ -63,16 +68,16 @@ const bookingPolicyNotice =
 
 const serviceLocationsNotice =
   homePage?.data?.service_locations_notice ||
-  "We serve local and surrounding areas. Locations outside our standard radius may incur an additional delivery fee.";
+  "We serve local towns across County Meath, Dublin, and surrounding areas. Locations outside our standard radius may incur an additional delivery travel fee.";
 
 const careTitle =
-  homePage?.data?.care_title || "🎈 Balloon Care & Responsibility";
+  homePage?.data?.care_title || "🎈 Balloon Care & The Store Line Rule";
 
 const careDescription =
   homePage?.data?.care_description ||
   "Balloons are delicate and sensitive to heat, sunlight, sharp objects, and transit. Once delivered or collected, balloon care becomes your responsibility.";
 
-// 3. Browse by Occasion (dynamic from dbOccasions with graceful fallback)
+// 3. Browse by Occasion (with graceful fallback)
 const fallbackOccasions = [
   {
     title: "Christmas & Seasonal",
@@ -130,7 +135,7 @@ const occasions =
       }))
     : fallbackOccasions;
 
-// 4. Products & Offerings (dynamic from dbProducts with graceful fallback)
+// 4. Products & Offerings (with graceful fallback)
 const fallbackOfferings = [
   {
     title: "The Signature Bear Balloon Bouquet",
@@ -194,746 +199,166 @@ const offerings =
     : fallbackOfferings;
 ---
 
-<div class="landing-page">
-  <!-- 1. Hero / Seasonal Spotlight -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <div class="seasonal-badge">
-        <span class="badge-dot"></span>
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <!-- 1. Hero & Seasonal Spotlight -->
+  <section class="relative my-8 overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-secondary/30 p-8 sm:p-14 lg:p-20 shadow-sm text-center">
+    <!-- Subtle Balloon Ambient Glow -->
+    <div class="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-secondary/80 blur-3xl" aria-hidden="true"></div>
+
+    <div class="relative mx-auto flex max-w-3xl flex-col items-center gap-5">
+      <!-- Spotlight Seasonal Badge -->
+      <Badge variant="seasonal" size="lg" className="gap-2 px-4 py-1.5 shadow-xs">
+        <span class="inline-block h-2 w-2 rounded-full bg-primary animate-pulse" aria-hidden="true"></span>
         <span>{seasonalBadge}</span>
-      </div>
-      <h1 class="hero-title" {...homePage?.edit?.hero_headline}>
+      </Badge>
+
+      <!-- Main Headline & Subtitles -->
+      <h1
+        class="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl leading-[1.08]"
+        {...homePage?.edit?.hero_headline}
+      >
         {heroHeadline}
       </h1>
-      <p class="hero-tagline" {...homePage?.edit?.hero_tagline}>{heroTagline}</p>
-      <p class="hero-description" {...homePage?.edit?.hero_description}>{heroDescription}</p>
-      <div class="hero-cta-group">
-        <a href="#inquiry" class="btn btn-primary">Request a Booking</a>
-        <a href="#occasions" class="btn btn-secondary">Browse by Occasion</a>
+
+      <p
+        class="font-serif text-base font-semibold tracking-wider uppercase text-primary sm:text-lg"
+        {...homePage?.edit?.hero_tagline}
+      >
+        {heroTagline}
+      </p>
+
+      <p
+        class="max-w-2xl text-base text-muted-foreground sm:text-lg leading-relaxed"
+        {...homePage?.edit?.hero_description}
+      >
+        {heroDescription}
+      </p>
+
+      <!-- CTA Action Pill Buttons -->
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-3.5">
+        <a href="#inquiry">
+          <Button variant="balloon" size="lg" className="text-base font-semibold">
+            Request a Booking ✨
+          </Button>
+        </a>
+        <a href="#occasions">
+          <Button variant="balloon-outline" size="lg" className="text-base">
+            Browse by Occasion &darr;
+          </Button>
+        </a>
+      </div>
+
+      <!-- Quick Feature Pill Highlights -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
+        <span class="rounded-full border border-border/70 bg-background/80 px-3 py-1 shadow-2xs">
+          🎈 Organic Garland & Arches
+        </span>
+        <span class="rounded-full border border-border/70 bg-background/80 px-3 py-1 shadow-2xs">
+          ✨ Custom Vinyl Named Backdrops
+        </span>
+        <span class="rounded-full border border-border/70 bg-background/80 px-3 py-1 shadow-2xs">
+          🎁 Double-Layer "Pop-Me" Balloons
+        </span>
+        <span class="rounded-full border border-border/70 bg-background/80 px-3 py-1 shadow-2xs">
+          📍 Meath & Dublin Setup
+        </span>
       </div>
     </div>
   </section>
 
   <!-- 2. Browse by Occasion Section -->
-  <section class="occasions-section" id="occasions">
-    <div class="section-header">
-      <h2 class="section-title" {...homePage?.edit?.occasions_title}>{occasionsTitle}</h2>
-      <p class="section-subtitle" {...homePage?.edit?.occasions_subtitle}>
+  <section id="occasions" class="my-20 scroll-mt-24">
+    <div class="mb-12 text-center">
+      <Badge variant="champagne" size="sm" className="mb-3">
+        Celebration First
+      </Badge>
+      <h2
+        class="font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        {...homePage?.edit?.occasions_title}
+      >
+        {occasionsTitle}
+      </h2>
+      <p
+        class="mx-auto mt-2 max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed"
+        {...homePage?.edit?.occasions_subtitle}
+      >
         {occasionsSubtitle}
       </p>
     </div>
 
-    <div class="occasions-grid">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {
         occasions.map((occasion: any) => (
-          <div class="occasion-card">
-            <div class="card-media">
-              {occasion.image ? (
-                <div class="card-image-wrap">
-                  <Image image={occasion.image} />
-                </div>
-              ) : (
-                <div class="card-placeholder">
-                  <span class="placeholder-icon">🎈</span>
-                  <span class="placeholder-text">{occasion.title}</span>
-                </div>
-              )}
-              {occasion.tag && <span class="card-tag">{occasion.tag}</span>}
-            </div>
-            <div class="card-body">
-              <h3 class="card-title">{occasion.title}</h3>
-              <p class="card-description">{occasion.subtitle}</p>
-              <a href={occasion.href} class="card-link">
-                View & Inquire &rarr;
-              </a>
-            </div>
-          </div>
+          <OccasionCard
+            title={occasion.title}
+            subtitle={occasion.subtitle}
+            tag={occasion.tag}
+            href={occasion.href}
+            image={occasion.image}
+            edit={occasion.edit}
+          />
         ))
       }
     </div>
   </section>
 
   <!-- 3. Signature Offerings Overview -->
-  <section class="offerings-section" id="offerings">
-    <div class="section-header">
-      <h2 class="section-title" {...homePage?.edit?.offerings_title}>{offeringsTitle}</h2>
-      <p class="section-subtitle" {...homePage?.edit?.offerings_subtitle}>
+  <section id="offerings" class="my-20 scroll-mt-24">
+    <div class="mb-12 text-center">
+      <Badge variant="champagne" size="sm" className="mb-3">
+        Handcrafted Packages
+      </Badge>
+      <h2
+        class="font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        {...homePage?.edit?.offerings_title}
+      >
+        {offeringsTitle}
+      </h2>
+      <p
+        class="mx-auto mt-2 max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed"
+        {...homePage?.edit?.offerings_subtitle}
+      >
         {offeringsSubtitle}
       </p>
     </div>
 
-    <div class="offerings-grid">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {
         offerings.map((item: any) => (
-          <div class="offering-card">
-            <div class="offering-header">
-              <h3 class="offering-title">{item.title}</h3>
-              {item.price && <span class="price-badge">{item.price}</span>}
-            </div>
-            <p class="offering-description">{item.description}</p>
-            <div class="offering-badges">
-              {item.isCustomizable && (
-                <span class="feature-tag">Custom Lettering</span>
-              )}
-              {item.supportsGiftInsert && (
-                <span class="feature-tag highlight-tag">Pop-Me Gift Insert</span>
-              )}
-            </div>
-          </div>
+          <ProductCard
+            title={item.title}
+            price={item.price}
+            description={item.description}
+            isCustomizable={item.isCustomizable}
+            supportsGiftInsert={item.supportsGiftInsert}
+            image={item.image}
+            edit={item.edit}
+          />
         ))
       }
     </div>
   </section>
 
-  <!-- 4. Booking Request / Inquiry Form -->
-  <section class="inquiry-section" id="inquiry">
-    <div class="section-header">
-      <h2 class="section-title" {...homePage?.edit?.inquiry_title}>{inquiryTitle}</h2>
-      <p class="section-subtitle" {...homePage?.edit?.inquiry_subtitle}>
-        {inquirySubtitle}
-      </p>
-    </div>
+  <!-- 4. Balloon Care & Store Line Rule Notice -->
+  <CareNotice
+    title={careTitle}
+    description={careDescription}
+    editTitle={homePage?.edit?.care_title}
+    editDescription={homePage?.edit?.care_description}
+  />
 
-    <div class="inquiry-container">
-      <!-- Client Disclaimers -->
-      <div class="disclaimer-banner">
-        <div class="disclaimer-item" {...homePage?.edit?.booking_policy_notice}>
-          <strong>⚠️ Booking Policy:</strong> {bookingPolicyNotice}
-        </div>
-        <div class="disclaimer-item" {...homePage?.edit?.service_locations_notice}>
-          <strong>📍 Service Locations:</strong> {serviceLocationsNotice}
-        </div>
-      </div>
-
-      <form class="inquiry-form" onsubmit="return false;">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="name">Your Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              placeholder="e.g. Jane Doe"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone Number *</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              placeholder="e.g. 087 123 4567"
-              required
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="jane@example.com"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="location">Location / Town *</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              placeholder="e.g. Navan, Ashbourne, Swords, Dublin"
-              required
-            />
-            <small class="form-hint">General town is fine for delivery calculations.</small>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="occasion">Occasion / Event Type</label>
-            <select id="occasion" name="occasion">
-              {occasions.map((occ: any) => (
-                <option value={occ.title}>{occ.title}</option>
-              ))}
-              <option value="other">Other Celebration</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="fulfillment">Fulfillment Preference</label>
-            <select id="fulfillment" name="fulfillment">
-              <option value="delivery">Delivery & Setup at Venue</option>
-              <option value="pickup">Customer Collection / Pickup</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="date">Event Date</label>
-            <input type="date" id="date" name="date" />
-          </div>
-          <div class="form-group">
-            <label for="palette">Preferred Color Palette</label>
-            <input
-              type="text"
-              id="palette"
-              name="palette"
-              placeholder="e.g. Sage green & gold, Blush & nude"
-            />
-          </div>
-        </div>
-
-        {offerings.length > 0 && (
-          <div class="form-group">
-            <label>Offerings / Packages of Interest</label>
-            <div class="product-selection-grid">
-              {offerings.map((item: any) => (
-                <label class="product-selection-item">
-                  <input type="checkbox" name="selected_products" value={item.title} />
-                  <span class="selection-body">
-                    <span class="selection-name">{item.title}</span>
-                    {item.price && <span class="selection-price">{item.price}</span>}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div class="form-group">
-          <label for="details">Event Vision & Custom Notes</label>
-          <textarea
-            id="details"
-            name="details"
-            rows="4"
-            placeholder="Tell us about the venue, custom vinyl names, milestone age, or specific theme..."
-          ></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block">
-          Submit Booking Request
-        </button>
-
-        <p class="direct-contact-note">
-          Prefer to reach out directly? You can also message or call us anytime.
-        </p>
-      </form>
-    </div>
-  </section>
-
-  <!-- 5. Balloon Care & Terms Teaser -->
-  <section class="care-section">
-    <div class="care-card">
-      <h3 {...homePage?.edit?.care_title}>{careTitle}</h3>
-      <p {...homePage?.edit?.care_description}>
-        {careDescription}
-      </p>
-      <a href="#inquiry" class="care-link">Have questions on sizing or transport? Contact us &rarr;</a>
-    </div>
-  </section>
+  <!-- 5. Booking Request / Inquiry Form -->
+  <InquiryForm
+    title={inquiryTitle}
+    subtitle={inquirySubtitle}
+    bookingPolicyNotice={bookingPolicyNotice}
+    serviceLocationsNotice={serviceLocationsNotice}
+    occasions={occasions}
+    offerings={offerings}
+    editTitle={homePage?.edit?.inquiry_title}
+    editSubtitle={homePage?.edit?.inquiry_subtitle}
+    editBookingNotice={homePage?.edit?.booking_policy_notice}
+    editLocationNotice={homePage?.edit?.service_locations_notice}
+  />
 </div>
-
-<style>
-  .landing-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-    font-family: inherit;
-    color: #1f2937;
-  }
-
-  /* Section Headers */
-  .section-header {
-    text-align: center;
-    max-width: 700px;
-    margin: 0 auto 2.5rem;
-  }
-
-  .section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  .section-subtitle {
-    font-size: 1.05rem;
-    color: #4b5563;
-    line-height: 1.5;
-  }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: all 0.15s ease-in-out;
-    cursor: pointer;
-    border: none;
-  }
-
-  .btn-primary {
-    background-color: #111827;
-    color: #ffffff;
-  }
-
-  .btn-primary:hover {
-    background-color: #374151;
-  }
-
-  .btn-secondary {
-    background-color: #f3f4f6;
-    color: #1f2937;
-  }
-
-  .btn-secondary:hover {
-    background-color: #e5e7eb;
-  }
-
-  .btn-block {
-    width: 100%;
-  }
-
-  /* 1. Hero Section */
-  .hero-section {
-    padding: 3rem 1.5rem;
-    background: linear-gradient(135deg, #fdfbf7 0%, #f7f3ed 100%);
-    border: 1px solid #ebdcd0;
-    border-radius: 1rem;
-    text-align: center;
-    margin-bottom: 4rem;
-  }
-
-  .hero-content {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .seasonal-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-  }
-
-  .badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #ef4444;
-  }
-
-  .hero-title {
-    font-size: 2.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-    margin-bottom: 0.25rem;
-  }
-
-  .hero-tagline {
-    font-size: 1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #6b7280;
-    margin-bottom: 1.25rem;
-  }
-
-  .hero-description {
-    font-size: 1.15rem;
-    line-height: 1.6;
-    color: #4b5563;
-    margin-bottom: 2rem;
-  }
-
-  .hero-cta-group {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  /* 2. Occasions Section */
-  .occasions-section {
-    margin-bottom: 4rem;
-  }
-
-  .occasions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .occasion-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .occasion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-  }
-
-  .card-media {
-    position: relative;
-    height: 180px;
-    background-color: #f3f4f6;
-    border-bottom: 1px solid #e5e7eb;
-    overflow: hidden;
-  }
-
-  .card-placeholder {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: #9ca3af;
-  }
-
-  .placeholder-icon {
-    font-size: 2rem;
-  }
-
-  .placeholder-text {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #6b7280;
-  }
-
-  .card-image-wrap {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .card-tag {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: #111827;
-    color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
-  }
-
-  .card-body {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  .card-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: #111827;
-  }
-
-  .card-description {
-    font-size: 0.95rem;
-    color: #4b5563;
-    line-height: 1.45;
-    margin-bottom: 1rem;
-    flex: 1;
-  }
-
-  .card-link {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #9333ea;
-    text-decoration: none;
-  }
-
-  .card-link:hover {
-    text-decoration: underline;
-  }
-
-  /* 3. Offerings Section */
-  .offerings-section {
-    margin-bottom: 4rem;
-    background-color: #fafaf9;
-    border: 1px solid #e7e5e4;
-    border-radius: 1rem;
-    padding: 3rem 1.5rem;
-  }
-
-  .offerings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .offering-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .offering-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .offering-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1.3;
-  }
-
-  .price-badge {
-    background-color: #f3e8ff;
-    color: #7e22ce;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 0.25rem 0.6rem;
-    border-radius: 0.375rem;
-    white-space: nowrap;
-  }
-
-  .offering-description {
-    font-size: 0.92rem;
-    color: #4b5563;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-    flex: 1;
-  }
-
-  .offering-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .feature-tag {
-    font-size: 0.75rem;
-    font-weight: 600;
-    background-color: #f3f4f6;
-    color: #4b5563;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-  }
-
-  .highlight-tag {
-    background-color: #ecfdf5;
-    color: #047857;
-  }
-
-  /* 4. Inquiry Section */
-  .inquiry-section {
-    margin-bottom: 4rem;
-    scroll-margin-top: 5rem;
-  }
-
-  .inquiry-container {
-    max-width: 720px;
-    margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  }
-
-  .disclaimer-banner {
-    background-color: #fefce8;
-    border: 1px solid #fef08a;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.88rem;
-    color: #713f12;
-    line-height: 1.45;
-  }
-
-  .inquiry-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .form-group label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding: 0.65rem 0.85rem;
-    font-size: 0.95rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    font-family: inherit;
-    background-color: #ffffff;
-    transition: border-color 0.15s ease;
-  }
-
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: #111827;
-  }
-
-  .form-hint {
-    font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  .product-selection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 0.65rem;
-    margin-top: 0.25rem;
-  }
-
-  .product-selection-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.375rem;
-    background-color: #f9fafb;
-    cursor: pointer;
-    font-size: 0.88rem;
-    transition: background-color 0.15s ease;
-  }
-
-  .product-selection-item:hover {
-    background-color: #f3f4f6;
-  }
-
-  .product-selection-item input {
-    margin-top: 0.2rem;
-  }
-
-  .selection-body {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .selection-name {
-    font-weight: 600;
-    color: #1f2937;
-  }
-
-  .selection-price {
-    font-size: 0.78rem;
-    color: #7e22ce;
-    font-weight: 600;
-  }
-
-  .direct-contact-note {
-    text-align: center;
-    font-size: 0.9rem;
-    color: #6b7280;
-    margin-top: 0.5rem;
-  }
-
-  /* 5. Care Disclaimer Section */
-  .care-section {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .care-card {
-    background-color: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    text-align: center;
-  }
-
-  .care-card h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  .care-card p {
-    font-size: 0.9rem;
-    color: #4b5563;
-    line-height: 1.5;
-    margin-bottom: 0.75rem;
-  }
-
-  .care-link {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #9333ea;
-    text-decoration: none;
-  }
-
-  .care-link:hover {
-    text-decoration: underline;
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .hero-title {
-      font-size: 2rem;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-
-    .inquiry-container {
-      padding: 1.25rem;
-    }
-  }
-</style>

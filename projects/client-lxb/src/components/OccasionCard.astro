@@ -1,0 +1,95 @@
+---
+import { Image } from "emdash/ui";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+export interface Props {
+  title: string;
+  subtitle?: string;
+  tag?: string;
+  href: string;
+  image?: any;
+  edit?: any;
+  className?: string;
+}
+
+const {
+  title,
+  subtitle,
+  tag,
+  href,
+  image,
+  edit,
+  className = "",
+} = Astro.props;
+---
+
+<Card
+  balloon
+  className={`group relative flex flex-col overflow-hidden border-border/80 bg-card transition-all duration-300 hover:border-primary/40 ${className}`}
+  {...edit}
+>
+  <!-- Card Media wrap with Balloon Gloss -->
+  <div class="balloon-gloss relative aspect-4/3 w-full overflow-hidden bg-secondary/50">
+    {
+      image ? (
+        <div class="h-full w-full transition-transform duration-500 ease-out group-hover:scale-105">
+          <Image image={image} class="h-full w-full object-cover" />
+        </div>
+      ) : (
+        <div class="flex h-full w-full flex-col items-center justify-center gap-2 p-6 text-center">
+          <span class="text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+            🎈
+          </span>
+          <span class="font-serif text-sm font-semibold text-muted-foreground/80">
+            {title}
+          </span>
+        </div>
+      )
+    }
+
+    <!-- Optional Badge / Tag -->
+    {
+      tag && (
+        <div class="absolute top-3 right-3 z-10">
+          <Badge variant="seasonal" size="sm" className="backdrop-blur-sm">
+            {tag}
+          </Badge>
+        </div>
+      )
+    }
+  </div>
+
+  <!-- Card Body -->
+  <CardHeader className="flex-1 pb-3">
+    <CardTitle className="font-serif text-lg font-bold group-hover:text-primary transition-colors">
+      {title}
+    </CardTitle>
+    {
+      subtitle && (
+        <CardDescription className="line-clamp-2 text-xs sm:text-sm">
+          {subtitle}
+        </CardDescription>
+      )
+    }
+  </CardHeader>
+
+  <!-- Card Action Footer -->
+  <CardFooter className="pt-0 pb-5">
+    <a
+      href={href}
+      class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition-all group-hover:gap-2 group-hover:underline"
+    >
+      <span>Explore Designs</span>
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </CardFooter>
+</Card>
+

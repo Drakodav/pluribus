@@ -1,9 +1,26 @@
 ---
 import Base from "@/layouts/Base.astro";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 ---
 
-<Base title="Not Found">
-  <h1>Page not found</h1>
-  <p>The page you're looking for doesn't exist.</p>
-  <a href="/">Go home</a>
+<Base title="Page Not Found">
+  <div class="mx-auto flex min-h-[60vh] max-w-xl items-center justify-center px-4 py-16">
+    <Card className="text-center p-8 sm:p-12 border-primary/20 bg-card shadow-lg">
+      <span class="text-6xl animate-bounce">🎈</span>
+      <h1 class="mt-4 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        This Balloon Floated Away!
+      </h1>
+      <p class="mx-auto mt-3 max-w-sm text-sm text-muted-foreground leading-relaxed">
+        We couldn't find the page or occasion you were looking for. Let's get you back to the party decor!
+      </p>
+      <div class="mt-6 flex justify-center">
+        <a href="/">
+          <Button variant="balloon" size="lg">
+            Return to Homepage &rarr;
+          </Button>
+        </a>
+      </div>
+    </Card>
+  </div>
 </Base>

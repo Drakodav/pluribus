@@ -8,6 +8,7 @@ import {
 import { PortableText } from "emdash/ui";
 import Base from "@/layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "@/utils/site-identity";
+import { Card } from "@/components/ui/card";
 
 const slug = decodeSlug(Astro.params.slug);
 
@@ -38,9 +39,18 @@ const seo = getSeoMeta(page, {
   canonical={seo.canonical}
   content={{ collection: "pages", id: page.data.id, slug }}
 >
-  <article>
-    <h1 {...page.edit.title}>{page.data.title}</h1>
+  <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+    <Card className="border-border/80 bg-card p-6 sm:p-12 shadow-sm">
+      <h1
+        class="mb-6 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+        {...page.edit.title}
+      >
+        {page.data.title}
+      </h1>
 
-    <PortableText value={page.data.content} />
-  </article>
+      <div class="prose prose-neutral max-w-none text-foreground/90 leading-relaxed sm:text-lg">
+        <PortableText value={page.data.content} />
+      </div>
+    </Card>
+  </div>
 </Base>
