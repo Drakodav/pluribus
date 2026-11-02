@@ -31,7 +31,11 @@ const { siteTitle = "My Site", siteLogo, menu } = Astro.props;
               class="brand-logo"
             />
           ) : (
-            <span class="brand-title">{siteTitle}</span>
+            <img
+              src="/branding/logo.svg"
+              alt={siteTitle}
+              class="brand-logo"
+            />
           )
         }
       </a>
