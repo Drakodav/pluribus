@@ -2,7 +2,6 @@ import * as React from "react";
 import { Calendar as CalendarIcon, X, Sparkles } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Calendar } from "./calendar";
-import { Button } from "./button";
 import { Badge } from "./badge";
 import { cn } from "@/lib/utils";
 
@@ -121,58 +120,55 @@ export function DatePicker({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className={cn("relative flex w-full items-center", className)}>
-        <PopoverTrigger asChild>
-          <button
-            id={id}
-            name={name}
-            type="button"
-            disabled={disabled}
-            className={cn(
-              "flex h-11 w-full items-center justify-between rounded-2xl border border-border bg-card px-4 text-left text-sm text-foreground shadow-xs transition-colors outline-none",
-              "hover:border-primary/50 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/20",
-              !selectedDate && "text-muted-foreground",
-              disabled && "opacity-50 cursor-not-allowed",
+        <PopoverTrigger
+          id={id}
+          type="button"
+          disabled={disabled}
+          className={cn(
+            "flex h-11 w-full items-center justify-between rounded-2xl border border-border bg-card px-4 text-left text-sm text-foreground shadow-xs transition-colors outline-none",
+            "hover:border-primary/50 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/20",
+            !selectedDate && "text-muted-foreground",
+            disabled && "opacity-50 cursor-not-allowed",
+          )}
+        >
+          <span className="flex items-center gap-2.5 truncate">
+            <CalendarIcon className="h-4 w-4 text-primary shrink-0" />
+            {selectedDate ? (
+              <span className="font-medium text-foreground truncate">
+                {formatDisplayDate(selectedDate)}
+              </span>
+            ) : (
+              <span className="text-muted-foreground truncate">{placeholder}</span>
             )}
-          >
-            <span className="flex items-center gap-2.5 truncate">
-              <CalendarIcon className="h-4 w-4 text-primary shrink-0" />
-              {selectedDate ? (
-                <span className="font-medium text-foreground truncate">
-                  {formatDisplayDate(selectedDate)}
-                </span>
-              ) : (
-                <span className="text-muted-foreground truncate">{placeholder}</span>
-              )}
-            </span>
+          </span>
 
-            <div className="flex items-center gap-1.5 shrink-0 ml-2">
-              {selectedDate && (
-                <>
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
-                  >
-                    {getRelativeDescription(selectedDate)}
-                  </Badge>
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={handleClear}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onChange?.("");
-                      }
-                    }}
-                    title="Clear date"
-                    className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
-                  >
-                    <X className="h-3 w-3" />
-                  </span>
-                </>
-              )}
-            </div>
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+            {selectedDate && (
+              <>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
+                >
+                  {getRelativeDescription(selectedDate)}
+                </Badge>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={handleClear}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onChange?.("");
+                    }
+                  }}
+                  title="Clear date"
+                  className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
+                >
+                  <X className="h-3 w-3" />
+                </span>
+              </>
+            )}
+          </div>
         </PopoverTrigger>
       </div>
 

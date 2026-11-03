@@ -397,7 +397,15 @@ export function InquiryForm({
               )}
             </form.Field>
 
-            <form.Field name="date">
+            <form.Field
+              name="date"
+              validators={{
+                onChange: ({ value }) => {
+                  const res = inquirySchema.shape.date.safeParse(value);
+                  return res.success ? undefined : res.error.issues[0]?.message;
+                },
+              }}
+            >
               {(field) => (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor={field.name}>Event Date</Label>
@@ -409,7 +417,7 @@ export function InquiryForm({
                   />
                   {field.state.meta.errors.length > 0 && (
                     <p className="text-xs font-medium text-destructive">
-                      {field.state.meta.errors[0]?.message || String(field.state.meta.errors[0])}
+                      {field.state.meta.errors.join(", ")}
                     </p>
                   )}
                 </div>
@@ -558,13 +566,13 @@ export function InquiryForm({
           </form.Field>
 
           {/* Submit Action */}
-          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-            {([canSubmit, isSubmitting]) => (
+          <form.Subscribe selector={(state) => [state.isSubmitting]}>
+            {([isSubmitting]) => (
               <Button
                 type="submit"
                 variant="balloon"
                 size="lg"
-                disabled={!canSubmit || isSubmitting || isSubmittingServer}
+                disabled={isSubmitting || isSubmittingServer}
                 className="w-full text-base font-semibold"
               >
                 {isSubmitting || isSubmittingServer

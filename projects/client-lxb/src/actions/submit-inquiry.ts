@@ -7,6 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
  * - Anti-bot honeypot defense
  * - Dual-layer rate limiting (Client IP + Customer Email)
  * - CMS relation resolution (Occasions & Products)
+ * - Unique slug generation for routable EmDash collection
  * - Content persistence in EmDash SQLite database
  * - Asynchronous background notification triggering via afterSave hooks
  */
@@ -20,14 +21,22 @@ export const submitInquiry = defineAction({
       return { success: true, inquiryId: "dropped" };
     }
 
-    // 2. IP Rate Limit: Max 5 submissions per 10 minutes per IP
-    const clientIp =
-      context.clientAddress ||
-      context.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      "unknown";
+    // 2. Resolve Client IP safely
+    let clientIp = "unknown";
+    try {
+      clientIp = context.clientAddress || "unknown";
+    } catch {
+      // clientAddress is not supported by Node standalone adapter
+    }
+    if (clientIp === "unknown" || !clientIp) {
+      clientIp = context.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    }
+
+    // Relaxed rate limits in dev mode for local testing
+    const isDev = process.env.NODE_ENV !== "production";
 
     const ipCheck = checkRateLimit(`ip:${clientIp}`, {
-      maxRequests: 5,
+      maxRequests: isDev ? 200 : 5,
       windowSeconds: 600,
     });
 
@@ -38,10 +47,10 @@ export const submitInquiry = defineAction({
       });
     }
 
-    // 3. Email Throttling: Max 2 submissions per hour per email address
+    // 3. Email Throttling: Max 2 submissions per hour per email address in production
     const normalizedEmail = input.email.toLowerCase().trim();
     const emailCheck = checkRateLimit(`email:${normalizedEmail}`, {
-      maxRequests: 2,
+      maxRequests: isDev ? 100 : 2,
       windowSeconds: 3600,
     });
 
@@ -67,12 +76,14 @@ export const submitInquiry = defineAction({
 
     try {
       if (input.occasion && emdash.handleContentList) {
-        const occList = await emdash.handleContentList("occasions", { limit: 50 });
-        if (occList && Array.isArray((occList as any).items)) {
-          const match = (occList as any).items.find(
+        const occRes = await emdash.handleContentList("occasions", { limit: 50 });
+        const items = (occRes as any)?.data?.items || (occRes as any)?.items;
+        if (Array.isArray(items)) {
+          const match = items.find(
             (o: any) =>
-              o.title?.toLowerCase() === input.occasion.toLowerCase() ||
-              o.slug?.toLowerCase() === input.occasion.toLowerCase(),
+              (o.title && o.title.toLowerCase() === input.occasion.toLowerCase()) ||
+              (o.slug && o.slug.toLowerCase() === input.occasion.toLowerCase()) ||
+              (o.data?.title && o.data.title.toLowerCase() === input.occasion.toLowerCase()),
           );
           if (match?.id) {
             references.occasion = [match.id];
@@ -81,14 +92,16 @@ export const submitInquiry = defineAction({
       }
 
       if (input.selected_products?.length && emdash.handleContentList) {
-        const prodList = await emdash.handleContentList("products", { limit: 50 });
-        if (prodList && Array.isArray((prodList as any).items)) {
+        const prodRes = await emdash.handleContentList("products", { limit: 50 });
+        const items = (prodRes as any)?.data?.items || (prodRes as any)?.items;
+        if (Array.isArray(items)) {
           const matchedIds: string[] = [];
           for (const selected of input.selected_products) {
-            const match = (prodList as any).items.find(
+            const match = items.find(
               (p: any) =>
-                p.title?.toLowerCase() === selected.toLowerCase() ||
-                p.slug?.toLowerCase() === selected.toLowerCase(),
+                (p.title && p.title.toLowerCase() === selected.toLowerCase()) ||
+                (p.slug && p.slug.toLowerCase() === selected.toLowerCase()) ||
+                (p.data?.title && p.data.title.toLowerCase() === selected.toLowerCase()),
             );
             if (match?.id) {
               matchedIds.push(match.id);
@@ -118,8 +131,16 @@ export const submitInquiry = defineAction({
       .filter((line) => line !== null)
       .join("\n");
 
-    // 7. Save to EmDash CMS Database
+    // 7. Generate a unique slug to satisfy collection publish constraints
+    const sanitizedName = input.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const uniqueSlug = `inquiry-${sanitizedName || "client"}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
+    // 8. Save to EmDash CMS Database
     const result = await emdash.handleContentCreate("inquiries", {
+      slug: uniqueSlug,
       data: {
         customer_name: input.name,
         email: input.email,
