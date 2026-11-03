@@ -146,6 +146,7 @@
       "labelSingular": "Inquiry / Order",
       "supports": ["search"],
       "group": "Luxe",
+      "titleField": "customer_name",
       "fields": [
         {
           "slug": "customer_name",
